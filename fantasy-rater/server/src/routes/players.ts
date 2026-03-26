@@ -1,0 +1,332 @@
+import { Router } from 'express';
+import axios from 'axios';
+import * as sleeper from '../services/platforms/sleeper.js';
+import * as fpl from '../services/platforms/fpl.js';
+import * as espn from '../services/platforms/espn.js';
+import { cache } from '../cache/memcache.js';
+
+const router = Router();
+
+const POSITION_BASE_SCORE: Record<string, number> = {
+  QB: 45, RB: 38, WR: 36, TE: 30, K: 20, DEF: 20, DST: 20,
+  // FPL
+  GK: 22, DEF_FPL: 30, MID: 38, FWD: 35,
+};
+
+function normalizeRanks<T extends { rank?: number }>(players: T[]): T[] {
+  const n = players.length;
+  if (n === 0) return players;
+  if (n === 1) return [{ ...players[0], rank: 99 }];
+  return players.map((p, i) => ({
+    ...p,
+    rank: Math.round(99 - (i / (n - 1)) * 98), // i=0 → 99, i=n-1 → 1
+  }));
+}
+
+function rankToFantasyValue(rank: number | null | undefined, position: string): number {
+  if (rank && rank > 0) {
+    return Math.round(Math.max(5, 100 / (1 + rank / 30)));
+  }
+  return POSITION_BASE_SCORE[position?.toUpperCase()] ?? 25;
+}
+
+// GET /api/players/search?q=mahomes&sport=nfl&position=QB&platform=sleeper&week=1
+router.get('/search', async (req, res) => {
+  const { q = '', sport = 'nfl', position, platform = 'sleeper', leagueId, espnS2, swid, week = '1' } = req.query as Record<string, string>;
+
+  try {
+    if (sport === 'fpl') {
+      const results = await fpl.searchPlayers(q, position);
+      return res.json(results.map(p => ({
+        ...p,
+        rank: p.fantasyValue, // computed from ep_next, form, total_points
+      })));
+    }
+
+    if ((platform === 'espn' || sport === 'mlb') && leagueId) {
+      const results = await espn.searchPlayers(leagueId, sport as 'nfl' | 'mlb', q, espnS2, swid);
+      return res.json(results.map(p => ({
+        id: String(p.espnId),
+        espnId: p.espnId,
+        name: p.name,
+        position: p.position,
+        team: p.team,
+        injuryStatus: p.injuryStatus,
+        rank: rankToFantasyValue(null, p.position),
+      })));
+    }
+
+    if (sport === 'mlb') {
+      // Public search — no leagueId required
+      const results = await espn.searchPlayersPublic('mlb', q);
+      return res.json(results.map(p => ({
+        id: String(p.espnId),
+        espnId: p.espnId,
+        name: p.name,
+        position: p.position,
+        team: p.team,
+        injuryStatus: p.injuryStatus,
+        rank: rankToFantasyValue(null, p.position),
+      })));
+    }
+
+    // Default: Sleeper (NFL)
+    const [results, projections] = await Promise.all([
+      sleeper.searchPlayers(q, position),
+      sleeper.getProjections(Number(week)).catch(() => ({} as Record<string, Record<string, number>>)),
+    ]);
+    return res.json(results.map(p => ({
+      id: p.player_id,
+      espnId: p.espn_id ? Number(p.espn_id) : undefined,
+      rotowireId: p.rotowire_id ?? undefined,
+      name: p.full_name,
+      position: p.position,
+      team: p.team,
+      injuryStatus: p.injury_status,
+      age: p.age,
+      yearsExp: p.years_exp,
+      rank: rankToFantasyValue(p.search_rank, p.position),
+      searchRank: p.search_rank ?? null,
+      avgPoints: projections[p.player_id]?.pts_ppr ?? undefined,
+    })));
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+// GET /api/players/rankings?sport=nfl&position=QB&week=1
+router.get('/rankings', async (req, res) => {
+  const { sport = 'nfl', position, week = '1', leagueId, espnS2, swid } = req.query as Record<string, string>;
+  try {
+    if (sport === 'mlb') {
+      const pos = position?.toUpperCase();
+      const results = await espn.getTopMLBPlayers(pos, 100);
+      return res.json(normalizeRanks(results.map(p => ({
+        id: String(p.espnId),
+        espnId: p.espnId,
+        name: p.name,
+        position: p.position,
+        team: p.team,
+        injuryStatus: p.injuryStatus,
+        rank: 0,
+      }))));
+    }
+
+    if (sport === 'fpl') {
+      const results = await fpl.searchPlayers('', position, 500);
+      const sorted = results
+        .map(p => ({ ...p, rank: p.fantasyValue }))
+        .sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0))
+        .slice(0, 100);
+      return res.json(normalizeRanks(sorted));
+    }
+
+    const [all, projections] = await Promise.all([
+      sleeper.getAllPlayers(),
+      sleeper.getProjections(Number(week)).catch(() => ({} as Record<string, Record<string, number>>)),
+    ]);
+    const players = Object.values(all)
+      .filter(p => {
+        const posMatch = position ? p.position === position.toUpperCase() : ['QB','RB','WR','TE','K','DEF'].includes(p.position);
+        const isDef = p.position === 'DEF';
+        return p.status !== 'Inactive' && posMatch && (isDef || (p.search_rank != null && p.search_rank > 0));
+      })
+      .sort((a, b) => {
+        if (!a.search_rank && !b.search_rank) {
+          const aProj = projections[a.player_id]?.pts_ppr ?? 0;
+          const bProj = projections[b.player_id]?.pts_ppr ?? 0;
+          if (aProj !== bProj) return bProj - aProj;
+          return (a.team || '').localeCompare(b.team || '');
+        }
+        return (a.search_rank || 9999) - (b.search_rank || 9999);
+      })
+      .slice(0, 100)
+      .map(p => {
+        const defPts = projections[p.player_id]?.pts_ppr;
+        const defRank = p.position === 'DEF'
+          ? (defPts ? Math.min(90, Math.round(defPts * 4)) : POSITION_BASE_SCORE.DEF)
+          : rankToFantasyValue(p.search_rank, p.position);
+        return {
+          id: p.player_id,
+          espnId: p.espn_id ? Number(p.espn_id) : undefined,
+          rotowireId: p.rotowire_id ?? undefined,
+          name: p.full_name || p.team,
+          position: p.position,
+          team: p.team,
+          injuryStatus: p.injury_status,
+          age: p.age,
+          yearsExp: p.years_exp,
+          rank: defRank,
+          searchRank: p.search_rank ?? null,
+          avgPoints: projections[p.player_id]?.pts_ppr ?? undefined,
+        };
+      });
+    return res.json(normalizeRanks(players));
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+// GET /api/players/:id/history?sport=nfl
+router.get('/:id/history', async (req, res) => {
+  const { id } = req.params;
+  const { sport = 'nfl' } = req.query as Record<string, string>;
+  try {
+    if (sport === 'fpl') {
+      const detail = await fpl.getPlayerDetail(Number(id));
+      const history = (detail.history ?? []).slice(-5).reverse().map((h: Record<string, number>) => ({
+        round: h.round,
+        points: h.total_points,
+        minutes: h.minutes,
+        goals: h.goals_scored,
+        assists: h.assists,
+        cleanSheets: h.clean_sheets,
+        bonus: h.bonus,
+        yellowCards: h.yellow_cards,
+      }));
+      return res.json(history);
+    }
+    const stats = await sleeper.getPlayerWeeklyStats(id);
+    const weeks = Object.entries(stats)
+      .map(([week, s]) => ({
+        round: Number(week),
+        points: s.pts_ppr ?? s.pts_std ?? 0,
+        passYd: s.pass_yd ?? 0,
+        passTd: s.pass_td ?? 0,
+        rushYd: s.rush_yd ?? 0,
+        rushTd: s.rush_td ?? 0,
+        rec: s.rec ?? 0,
+        recYd: s.rec_yd ?? 0,
+        recTd: s.rec_td ?? 0,
+      }))
+      .sort((a, b) => b.round - a.round)
+      .slice(0, 5);
+    return res.json(weeks);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+// GET /api/players/photo?name=Patrick+Mahomes&team=GB&sport=nfl — server-side photo lookup
+router.get('/photo', async (req, res) => {
+  const { name, team, sport = 'nfl', teamCode } = req.query as { name: string; team?: string; sport?: string; teamCode?: string };
+  if (!name) return res.status(400).json({ url: null });
+
+  const cacheKey = `photo:${sport}:${name.toLowerCase().trim()}`;
+  const cached = cache.get<string>(cacheKey);
+  if (cached === 'none') return res.json({ url: null });
+  if (cached) return res.json({ url: cached });
+
+  let url: string | null = null;
+
+  if (sport === 'fpl') {
+    // TheSportsDB — good coverage for established PL players
+    try {
+      const tsdb = await axios.get(
+        `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(name.trim())}`,
+        { timeout: 4000 }
+      );
+      const p = tsdb.data?.player?.[0];
+      const candidate = p?.strThumb || p?.strCutout || null;
+      if (candidate) {
+        const check = await axios.head(candidate, { timeout: 2000 }).catch(() => null);
+        if (check?.status === 200) url = candidate;
+      }
+    } catch { /* fall through */ }
+
+    // PL team badge fallback — verify it exists before returning it
+    if (!url && teamCode) {
+      const badgeUrl = `https://resources.premierleague.com/premierleague/badges/t${teamCode}.png`;
+      const check = await axios.head(badgeUrl, { timeout: 2000 }).catch(() => null);
+      if (check?.status === 200) url = badgeUrl;
+    }
+  } else if (sport === 'mlb') {
+    // MLB: ESPN baseball headshot
+    try {
+      const espnSearch = await axios.get(
+        `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(name.trim())}&limit=3&type=player&sport=baseball&league=mlb`,
+        { timeout: 4000 }
+      );
+      const espnId = espnSearch.data?.items?.[0]?.id;
+      if (espnId) {
+        const candidate = `https://a.espncdn.com/i/headshots/mlb/players/full/${espnId}.png`;
+        const check = await axios.head(candidate, { timeout: 3000 }).catch(() => null);
+        if (check?.status === 200) url = candidate;
+      }
+    } catch { /* fall through */ }
+  } else {
+    // 1. ESPN NFL name search
+    try {
+      const espnSearch = await axios.get(
+        `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(name.trim())}&limit=3&mode=prefix&type=player&sport=football&league=nfl`,
+        { timeout: 4000 }
+      );
+      const espnId = espnSearch.data?.results?.[0]?.items?.[0]?.id;
+      if (espnId) {
+        const candidate = `https://a.espncdn.com/i/headshots/nfl/players/full/${espnId}.png`;
+        const check = await axios.head(candidate, { timeout: 3000 }).catch(() => null);
+        if (check?.status === 200) url = candidate;
+      }
+    } catch { /* fall through */ }
+
+    // 2. ESPN team roster lookup (most comprehensive — covers every active rostered player)
+    if (!url && team) {
+      try {
+        const rosterRes = await axios.get(
+          `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.toLowerCase()}/roster`,
+          { timeout: 4000 }
+        );
+        const nameLower = name.toLowerCase();
+        for (const group of rosterRes.data?.athletes ?? []) {
+          for (const athlete of group?.items ?? []) {
+            if ((athlete.fullName ?? '').toLowerCase() === nameLower) {
+              const headshot = athlete.headshot?.href;
+              if (headshot) { url = headshot; break; }
+            }
+          }
+          if (url) break;
+        }
+      } catch { /* fall through */ }
+    }
+
+    // 3. TheSportsDB fallback
+    if (!url) {
+      try {
+        const tsdb = await axios.get(
+          `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(name.trim())}`,
+          { timeout: 4000 }
+        );
+        const p = tsdb.data?.player?.[0];
+        url = p?.strThumb || p?.strCutout || null;
+      } catch { /* fall through */ }
+    }
+  }
+
+  cache.set(cacheKey, url ?? 'none', url ? 24 * 60 * 60 * 1000 : 5 * 60 * 1000);
+  return res.json({ url });
+});
+
+// DELETE /api/players/photo-cache?sport=fpl — bust all cached photo entries for a sport
+router.delete('/photo-cache', (req, res) => {
+  const { sport = 'fpl' } = req.query as { sport?: string };
+  const prefix = `photo:${sport}:`;
+  cache.invalidatePrefix(prefix);
+  res.json({ cleared: true, prefix });
+});
+
+// GET /api/players/trending?sport=nfl&type=add
+router.get('/trending', async (req, res) => {
+  const { type = 'add' } = req.query as { type: 'add' | 'drop' };
+  try {
+    const data = await sleeper.getTrending(type);
+    res.json(data);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: message });
+  }
+});
+
+export default router;
