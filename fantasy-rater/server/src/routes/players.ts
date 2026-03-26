@@ -109,6 +109,7 @@ router.get('/rankings', async (req, res) => {
         position: p.position,
         team: p.team,
         injuryStatus: p.injuryStatus,
+        percentOwned: p.percentOwned,
         rank: 0,
       }))));
     }

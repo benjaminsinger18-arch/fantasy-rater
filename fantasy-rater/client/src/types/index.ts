@@ -17,6 +17,7 @@ export interface Player {
   espnId?: number;        // ESPN player ID for headshots
   rotowireId?: string;    // Rotowire player ID for headshots
   web_name?: string;      // FPL short name
+  percentOwned?: number;  // ESPN ownership % (MLB)
   // FPL
   now_cost?: number;
   selected_by_percent?: string;

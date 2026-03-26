@@ -152,6 +152,13 @@ function getHeadshotUrls(player: Player, sport: string): string[] {
 }
 
 function buildStats(player: Player, sport: string): Array<{ label: string; value: string }> {
+  if (sport === 'mlb') {
+    return [
+      { label: 'OWN', value: player.percentOwned !== undefined ? `${player.percentOwned.toFixed(0)}%` : '—' },
+      { label: 'VAL', value: player.rank ? String(Math.round(player.rank)) : '—' },
+      { label: 'INJ', value: player.injuryStatus ?? 'OK' },
+    ];
+  }
   if (sport === 'fpl') {
     return [
       { label: 'PTS', value: player.total_points?.toString() ?? '—' },

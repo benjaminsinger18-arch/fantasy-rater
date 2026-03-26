@@ -112,6 +112,7 @@ export interface ESPNPlayerResult {
   position: string;
   team: string;
   injuryStatus: string | null;
+  percentOwned?: number;
 }
 
 // Get top MLB players sorted by % owned (no leagueId needed)
@@ -148,6 +149,7 @@ export async function getTopMLBPlayers(position?: string, limit = 100): Promise<
     position: MLB_POSITION_MAP[p.defaultPositionId] ?? 'UTIL',
     team: MLB_TEAM_MAP[p.proTeamId] ?? (p.proTeamId === 0 ? 'FA' : 'MLB'),
     injuryStatus: null,
+    percentOwned: p.ownership?.percentOwned ?? 0,
   }));
 
   cache.set(cacheKey, results, 15 * 60 * 1000); // 15 min cache
