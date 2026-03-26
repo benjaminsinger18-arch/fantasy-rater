@@ -123,14 +123,10 @@ const TIER_LABELS: Record<Tier, string> = {
 
 function getHeadshotUrls(player: Player, sport: string): string[] {
   if (player.photoCode) {
-    const urls = [
+    return [
       `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photoCode}.png`,
       `https://resources.premierleague.com/premierleague/photos/players/250x250/p${player.photoCode}.png`,
     ];
-    if (player.teamCode) {
-      urls.push(`https://resources.premierleague.com/premierleague/badges/t${player.teamCode}.png`);
-    }
-    return urls;
   }
   if (player.position === 'DEF' && player.team && sport !== 'fpl') {
     return [`https://a.espncdn.com/i/teamlogos/nfl/500/${player.team.toLowerCase()}.png`];
@@ -145,6 +141,12 @@ function getHeadshotUrls(player: Player, sport: string): string[] {
   if (player.id) {
     urls.push(`https://sleepercdn.com/content/${sport}/players/thumb/${player.id}.jpg`);
     urls.push(`https://sleepercdn.com/content/${sport}/players/${player.id}.jpg`);
+  }
+  if (player.team && player.team !== 'FA' && (sport === 'nfl' || sport === 'mlb')) {
+    urls.push(`https://a.espncdn.com/i/teamlogos/${sport}/500/${player.team.toLowerCase()}.png`);
+  }
+  if (sport === 'nfl' || sport === 'mlb') {
+    urls.push(`https://a.espncdn.com/i/teamlogos/leagues/500/${sport}.png`);
   }
   return urls;
 }
