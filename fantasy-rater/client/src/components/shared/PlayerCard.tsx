@@ -122,6 +122,7 @@ const TIER_LABELS: Record<Tier, string> = {
 };
 
 function getHeadshotUrls(player: Player, sport: string): string[] {
+  if (sport === 'ipl') return [];
   if (player.photoCode) {
     return [
       `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photoCode}.png`,
@@ -152,6 +153,13 @@ function getHeadshotUrls(player: Player, sport: string): string[] {
 }
 
 function buildStats(player: Player, sport: string): Array<{ label: string; value: string }> {
+  if (sport === 'ipl') {
+    return [
+      { label: 'ROLE', value: player.position ?? '—' },
+      { label: 'VAL', value: player.rank ? String(Math.round(player.rank)) : '—' },
+      { label: 'NAT', value: player.nationality ? player.nationality.slice(0, 3).toUpperCase() : '—' },
+    ];
+  }
   if (sport === 'mlb') {
     return [
       { label: 'OWN', value: player.percentOwned !== undefined ? `${player.percentOwned.toFixed(0)}%` : '—' },

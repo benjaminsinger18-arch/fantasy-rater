@@ -56,11 +56,13 @@ export function LeagueProvider({ children }: { children: React.ReactNode }) {
       nfl: 'PPR',
       mlb: 'H2H Points',
       fpl: 'FPL Standard',
+      ipl: 'Dream11 Points',
     };
     const platformMap: Record<Sport, LeagueConfig['platform']> = {
       nfl: 'sleeper',
       mlb: 'espn',
       fpl: 'fpl',
+      ipl: 'ipl',
     };
     setConfigState(prev => ({
       ...prev,

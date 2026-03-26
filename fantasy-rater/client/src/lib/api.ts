@@ -40,7 +40,7 @@ api.interceptors.response.use(
 );
 
 export async function searchPlayers(q: string, sport: string, position?: string, leagueId?: string, espnS2?: string, swid?: string, week?: number) {
-  const platform = sport === 'fpl' ? 'fpl' : sport === 'mlb' ? 'espn' : 'sleeper';
+  const platform = sport === 'fpl' ? 'fpl' : sport === 'mlb' ? 'espn' : sport === 'ipl' ? 'ipl' : 'sleeper';
   const res = await api.get('/players/search', {
     params: { q, sport, position, platform, leagueId, espnS2, swid, week },
   });

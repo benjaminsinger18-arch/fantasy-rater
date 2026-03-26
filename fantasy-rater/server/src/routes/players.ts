@@ -3,6 +3,7 @@ import axios from 'axios';
 import * as sleeper from '../services/platforms/sleeper.js';
 import * as fpl from '../services/platforms/fpl.js';
 import * as espn from '../services/platforms/espn.js';
+import * as ipl from '../services/platforms/ipl.js';
 import { cache } from '../cache/memcache.js';
 
 const router = Router();
@@ -70,6 +71,18 @@ router.get('/search', async (req, res) => {
       })));
     }
 
+    if (sport === 'ipl') {
+      const results = await ipl.searchPlayers(q, position);
+      return res.json(results.map(p => ({
+        id: p.id,
+        name: p.name,
+        position: p.position,
+        team: p.team,
+        nationality: p.nationality,
+        rank: p.fantasyValue,
+      })));
+    }
+
     // Default: Sleeper (NFL)
     const [results, projections] = await Promise.all([
       sleeper.searchPlayers(q, position),
@@ -121,6 +134,18 @@ router.get('/rankings', async (req, res) => {
         .sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0))
         .slice(0, 100);
       return res.json(normalizeRanks(sorted));
+    }
+
+    if (sport === 'ipl') {
+      const results = await ipl.getTopPlayers(position?.toUpperCase(), 100);
+      return res.json(normalizeRanks(results.map(p => ({
+        id: p.id,
+        name: p.name,
+        position: p.position,
+        team: p.team,
+        nationality: p.nationality,
+        rank: p.fantasyValue,
+      }))));
     }
 
     const [all, projections] = await Promise.all([
@@ -244,6 +269,9 @@ router.get('/photo', async (req, res) => {
       const check = await axios.head(badgeUrl, { timeout: 2000 }).catch(() => null);
       if (check?.status === 200) url = badgeUrl;
     }
+  } else if (sport === 'ipl') {
+    const player = await ipl.getPlayerByName(name.trim());
+    if (player?.photo) url = player.photo;
   } else if (sport === 'mlb') {
     // MLB: ESPN baseball headshot
     try {

@@ -16,11 +16,6 @@ import { UpgradeModal, useUpgradeModal } from './components/shared/UpgradeModal.
 import { setTokenGetter, openBillingPortal } from './lib/api.ts';
 import type { Sport } from './types/index.ts';
 
-const SPORTS: { id: Sport; emoji: string; label: string; activeClass: string }[] = [
-  { id: 'nfl', emoji: '🏈', label: 'NFL', activeClass: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30' },
-  { id: 'mlb', emoji: '⚾', label: 'MLB', activeClass: 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg shadow-blue-500/30' },
-  { id: 'fpl', emoji: '⚽', label: 'FPL', activeClass: 'bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30' },
-];
 
 // Wires Clerk session token into the Axios client
 function AuthSync() {
@@ -61,25 +56,16 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
       {/* Sport selector */}
       <div className="px-3 pt-4 pb-2">
         <p className="text-xs text-slate-600 uppercase tracking-wider px-1 mb-2 font-semibold">Sport</p>
-        <div className="flex gap-1">
-          {SPORTS.map(s => (
-            <button
-              key={s.id}
-              onClick={() => setSport(s.id)}
-              title={s.label}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                config.sport === s.id
-                  ? s.activeClass
-                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-              }`}
-            >
-              {s.emoji}
-            </button>
-          ))}
-        </div>
-        <p className="text-xs text-slate-500 text-center mt-1.5 font-medium">
-          {SPORTS.find(s => s.id === config.sport)?.label}
-        </p>
+        <select
+          value={config.sport}
+          onChange={e => setSport(e.target.value as Sport)}
+          className="w-full bg-slate-800 text-white border border-slate-600 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:border-indigo-500"
+        >
+          <option value="nfl">🏈 NFL</option>
+          <option value="mlb">⚾ MLB</option>
+          <option value="fpl">⚽ FPL</option>
+          <option value="ipl">🏏 IPL Cricket</option>
+        </select>
       </div>
 
       {/* Nav links */}

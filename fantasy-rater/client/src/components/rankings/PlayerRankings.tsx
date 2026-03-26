@@ -9,6 +9,7 @@ import type { Player } from '../../types/index.ts';
 const NFL_POSITIONS = ['ALL', 'QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 const MLB_POSITIONS = ['ALL', 'OF', 'SP', '1B', 'SS', '2B', '3B', 'C', 'RP'];
 const FPL_POSITIONS = ['ALL', 'GK', 'DEF', 'MID', 'FWD'];
+const IPL_POSITIONS = ['ALL', 'BAT', 'BOWL', 'AR', 'WK'];
 
 function SkeletonCard() {
   return (
@@ -27,7 +28,7 @@ export function PlayerRankings() {
   const [analysisHash, setAnalysisHash] = useState('');
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const positions = config.sport === 'fpl' ? FPL_POSITIONS : config.sport === 'mlb' ? MLB_POSITIONS : NFL_POSITIONS;
+  const positions = config.sport === 'fpl' ? FPL_POSITIONS : config.sport === 'mlb' ? MLB_POSITIONS : config.sport === 'ipl' ? IPL_POSITIONS : NFL_POSITIONS;
 
   useEffect(() => {
     setPosition('ALL');

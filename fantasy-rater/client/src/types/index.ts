@@ -18,6 +18,7 @@ export interface Player {
   rotowireId?: string;    // Rotowire player ID for headshots
   web_name?: string;      // FPL short name
   percentOwned?: number;  // ESPN ownership % (MLB)
+  nationality?: string;   // IPL player nationality
   // FPL
   now_cost?: number;
   selected_by_percent?: string;
@@ -39,9 +40,9 @@ export interface TeamScore {
   analysisHash: string;
 }
 
-export type Sport = 'nfl' | 'mlb' | 'fpl';
-export type Platform = 'sleeper' | 'espn' | 'yahoo' | 'fpl';
-export type ScoringFormat = 'PPR' | 'Half-PPR' | 'Standard' | 'FPL Standard' | 'Roto' | 'H2H Points';
+export type Sport = 'nfl' | 'mlb' | 'fpl' | 'ipl';
+export type Platform = 'sleeper' | 'espn' | 'yahoo' | 'fpl' | 'ipl';
+export type ScoringFormat = 'PPR' | 'Half-PPR' | 'Standard' | 'FPL Standard' | 'Roto' | 'H2H Points' | 'Dream11 Points';
 
 export interface LeagueConfig {
   sport: Sport;
