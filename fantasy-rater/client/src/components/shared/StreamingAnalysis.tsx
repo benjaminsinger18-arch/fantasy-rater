@@ -17,7 +17,8 @@ export function StreamingAnalysis({ hash, onComplete }: Props) {
     setLoading(true);
     setError('');
 
-    const es = new EventSource(`/api/analyze/stream?hash=${hash}`);
+    const base = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
+    const es = new EventSource(`${base}/analyze/stream?hash=${hash}`);
     esRef.current = es;
 
     es.onmessage = (e) => {
