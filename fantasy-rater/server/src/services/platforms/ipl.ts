@@ -53,6 +53,99 @@ export interface IPLPlayerResult {
   fantasyValue: number;
 }
 
+// Seed list of well-known IPL players — guarantees enough data even when TheSportsDB has gaps
+const IPL_SEED_PLAYERS: Array<Omit<IPLPlayerResult, 'fantasyValue'>> = [
+  // AR — All-Rounders
+  { id: 'seed_ar1',  name: 'Hardik Pandya',       position: 'AR',   team: 'MI',   nationality: 'India',       photo: null },
+  { id: 'seed_ar2',  name: 'Ravindra Jadeja',      position: 'AR',   team: 'CSK',  nationality: 'India',       photo: null },
+  { id: 'seed_ar3',  name: 'Axar Patel',           position: 'AR',   team: 'DC',   nationality: 'India',       photo: null },
+  { id: 'seed_ar4',  name: 'Shivam Dube',          position: 'AR',   team: 'CSK',  nationality: 'India',       photo: null },
+  { id: 'seed_ar5',  name: 'Mitchell Marsh',       position: 'AR',   team: 'DC',   nationality: 'Australia',   photo: null },
+  { id: 'seed_ar6',  name: 'Liam Livingstone',     position: 'AR',   team: 'PBKS', nationality: 'England',     photo: null },
+  { id: 'seed_ar7',  name: 'Marcus Stoinis',       position: 'AR',   team: 'LSG',  nationality: 'Australia',   photo: null },
+  { id: 'seed_ar8',  name: 'Krunal Pandya',        position: 'AR',   team: 'LSG',  nationality: 'India',       photo: null },
+  { id: 'seed_ar9',  name: 'Venkatesh Iyer',       position: 'AR',   team: 'KKR',  nationality: 'India',       photo: null },
+  { id: 'seed_ar10', name: 'Washington Sundar',    position: 'AR',   team: 'GT',   nationality: 'India',       photo: null },
+  { id: 'seed_ar11', name: 'Romario Shepherd',     position: 'AR',   team: 'LSG',  nationality: 'West Indies', photo: null },
+  { id: 'seed_ar12', name: 'Jason Holder',         position: 'AR',   team: 'RR',   nationality: 'West Indies', photo: null },
+  { id: 'seed_ar13', name: 'Cameron Green',        position: 'AR',   team: 'MI',   nationality: 'Australia',   photo: null },
+  { id: 'seed_ar14', name: 'Tim David',            position: 'AR',   team: 'MI',   nationality: 'Singapore',   photo: null },
+  { id: 'seed_ar15', name: 'Shardul Thakur',       position: 'AR',   team: 'CSK',  nationality: 'India',       photo: null },
+  { id: 'seed_ar16', name: 'Moeen Ali',            position: 'AR',   team: 'CSK',  nationality: 'England',     photo: null },
+  { id: 'seed_ar17', name: 'Nitish Kumar Reddy',   position: 'AR',   team: 'SRH',  nationality: 'India',       photo: null },
+  { id: 'seed_ar18', name: 'Rinku Singh',          position: 'AR',   team: 'KKR',  nationality: 'India',       photo: null },
+  { id: 'seed_ar19', name: 'Deepak Hooda',         position: 'AR',   team: 'LSG',  nationality: 'India',       photo: null },
+  { id: 'seed_ar20', name: 'Alzarri Joseph',       position: 'AR',   team: 'MI',   nationality: 'West Indies', photo: null },
+  { id: 'seed_ar21', name: 'Ashutosh Sharma',      position: 'AR',   team: 'PBKS', nationality: 'India',       photo: null },
+  { id: 'seed_ar22', name: 'Sherfane Rutherford',  position: 'AR',   team: 'GT',   nationality: 'West Indies', photo: null },
+  { id: 'seed_ar23', name: 'Tristan Stubbs',       position: 'AR',   team: 'MI',   nationality: 'South Africa',photo: null },
+  { id: 'seed_ar24', name: 'Ramandeep Singh',      position: 'AR',   team: 'KKR',  nationality: 'India',       photo: null },
+  { id: 'seed_ar25', name: 'Naman Dhir',           position: 'AR',   team: 'MI',   nationality: 'India',       photo: null },
+  // BAT — Batters
+  { id: 'seed_b1',   name: 'Virat Kohli',          position: 'BAT',  team: 'RCB',  nationality: 'India',       photo: null },
+  { id: 'seed_b2',   name: 'Rohit Sharma',         position: 'BAT',  team: 'MI',   nationality: 'India',       photo: null },
+  { id: 'seed_b3',   name: 'Shubman Gill',         position: 'BAT',  team: 'GT',   nationality: 'India',       photo: null },
+  { id: 'seed_b4',   name: 'KL Rahul',             position: 'BAT',  team: 'LSG',  nationality: 'India',       photo: null },
+  { id: 'seed_b5',   name: 'Faf du Plessis',       position: 'BAT',  team: 'RCB',  nationality: 'South Africa',photo: null },
+  { id: 'seed_b6',   name: 'David Warner',         position: 'BAT',  team: 'DC',   nationality: 'Australia',   photo: null },
+  { id: 'seed_b7',   name: 'Ruturaj Gaikwad',      position: 'BAT',  team: 'CSK',  nationality: 'India',       photo: null },
+  { id: 'seed_b8',   name: 'Yashasvi Jaiswal',     position: 'BAT',  team: 'RR',   nationality: 'India',       photo: null },
+  { id: 'seed_b9',   name: 'Devon Conway',         position: 'BAT',  team: 'CSK',  nationality: 'New Zealand', photo: null },
+  { id: 'seed_b10',  name: 'Travis Head',          position: 'BAT',  team: 'SRH',  nationality: 'Australia',   photo: null },
+  { id: 'seed_b11',  name: 'Prabhsimran Singh',    position: 'BAT',  team: 'PBKS', nationality: 'India',       photo: null },
+  { id: 'seed_b12',  name: 'Quinton de Kock',      position: 'BAT',  team: 'LSG',  nationality: 'South Africa',photo: null },
+  { id: 'seed_b13',  name: 'Rajat Patidar',        position: 'BAT',  team: 'RCB',  nationality: 'India',       photo: null },
+  { id: 'seed_b14',  name: 'Sai Sudharsan',        position: 'BAT',  team: 'GT',   nationality: 'India',       photo: null },
+  { id: 'seed_b15',  name: 'Jake Fraser-McGurk',   position: 'BAT',  team: 'DC',   nationality: 'Australia',   photo: null },
+  { id: 'seed_b16',  name: 'Tilak Varma',          position: 'BAT',  team: 'MI',   nationality: 'India',       photo: null },
+  { id: 'seed_b17',  name: 'Riyan Parag',          position: 'BAT',  team: 'RR',   nationality: 'India',       photo: null },
+  { id: 'seed_b18',  name: 'Jonny Bairstow',       position: 'BAT',  team: 'PBKS', nationality: 'England',     photo: null },
+  { id: 'seed_b19',  name: 'Aiden Markram',        position: 'BAT',  team: 'SRH',  nationality: 'South Africa',photo: null },
+  { id: 'seed_b20',  name: 'Suryakumar Yadav',     position: 'BAT',  team: 'MI',   nationality: 'India',       photo: null },
+  { id: 'seed_b21',  name: 'Shikhar Dhawan',       position: 'BAT',  team: 'PBKS', nationality: 'India',       photo: null },
+  { id: 'seed_b22',  name: 'Ambati Rayudu',        position: 'BAT',  team: 'CSK',  nationality: 'India',       photo: null },
+  { id: 'seed_b23',  name: 'Heinrich Klaasen',     position: 'BAT',  team: 'SRH',  nationality: 'South Africa',photo: null },
+  { id: 'seed_b24',  name: 'Abhishek Sharma',      position: 'BAT',  team: 'SRH',  nationality: 'India',       photo: null },
+  { id: 'seed_b25',  name: 'Mayank Agarwal',       position: 'BAT',  team: 'SRH',  nationality: 'India',       photo: null },
+  // BOWL — Bowlers
+  { id: 'seed_bw1',  name: 'Jasprit Bumrah',       position: 'BOWL', team: 'MI',   nationality: 'India',       photo: null },
+  { id: 'seed_bw2',  name: 'Mohammed Shami',       position: 'BOWL', team: 'GT',   nationality: 'India',       photo: null },
+  { id: 'seed_bw3',  name: 'Yuzvendra Chahal',     position: 'BOWL', team: 'RR',   nationality: 'India',       photo: null },
+  { id: 'seed_bw4',  name: 'Rashid Khan',          position: 'BOWL', team: 'GT',   nationality: 'Afghanistan', photo: null },
+  { id: 'seed_bw5',  name: 'Kuldeep Yadav',        position: 'BOWL', team: 'DC',   nationality: 'India',       photo: null },
+  { id: 'seed_bw6',  name: 'T Natarajan',          position: 'BOWL', team: 'SRH',  nationality: 'India',       photo: null },
+  { id: 'seed_bw7',  name: 'Bhuvneshwar Kumar',    position: 'BOWL', team: 'SRH',  nationality: 'India',       photo: null },
+  { id: 'seed_bw8',  name: 'Arshdeep Singh',       position: 'BOWL', team: 'PBKS', nationality: 'India',       photo: null },
+  { id: 'seed_bw9',  name: 'Harshal Patel',        position: 'BOWL', team: 'RCB',  nationality: 'India',       photo: null },
+  { id: 'seed_bw10', name: 'Kagiso Rabada',        position: 'BOWL', team: 'PBKS', nationality: 'South Africa',photo: null },
+  { id: 'seed_bw11', name: 'Mitchell Starc',       position: 'BOWL', team: 'KKR',  nationality: 'Australia',   photo: null },
+  { id: 'seed_bw12', name: 'Pat Cummins',          position: 'BOWL', team: 'SRH',  nationality: 'Australia',   photo: null },
+  { id: 'seed_bw13', name: 'Marco Jansen',         position: 'BOWL', team: 'SRH',  nationality: 'South Africa',photo: null },
+  { id: 'seed_bw14', name: 'Spencer Johnson',      position: 'BOWL', team: 'GT',   nationality: 'Australia',   photo: null },
+  { id: 'seed_bw15', name: 'Mohit Sharma',         position: 'BOWL', team: 'GT',   nationality: 'India',       photo: null },
+  { id: 'seed_bw16', name: 'Lockie Ferguson',      position: 'BOWL', team: 'GT',   nationality: 'New Zealand', photo: null },
+  { id: 'seed_bw17', name: 'Varun Chakravarthy',   position: 'BOWL', team: 'KKR',  nationality: 'India',       photo: null },
+  { id: 'seed_bw18', name: 'Ravi Bishnoi',         position: 'BOWL', team: 'LSG',  nationality: 'India',       photo: null },
+  { id: 'seed_bw19', name: 'Anrich Nortje',        position: 'BOWL', team: 'DC',   nationality: 'South Africa',photo: null },
+  { id: 'seed_bw20', name: 'Deepak Chahar',        position: 'BOWL', team: 'CSK',  nationality: 'India',       photo: null },
+  { id: 'seed_bw21', name: 'Trent Boult',          position: 'BOWL', team: 'MI',   nationality: 'New Zealand', photo: null },
+  { id: 'seed_bw22', name: 'Gerald Coetzee',       position: 'BOWL', team: 'MI',   nationality: 'South Africa',photo: null },
+  { id: 'seed_bw23', name: 'Mustafizur Rahman',    position: 'BOWL', team: 'CSK',  nationality: 'Bangladesh',  photo: null },
+  { id: 'seed_bw24', name: 'Sandeep Sharma',       position: 'BOWL', team: 'SRH',  nationality: 'India',       photo: null },
+  { id: 'seed_bw25', name: 'Simarjeet Singh',      position: 'BOWL', team: 'CSK',  nationality: 'India',       photo: null },
+  // WK — Wicketkeepers
+  { id: 'seed_wk1',  name: 'MS Dhoni',             position: 'WK',   team: 'CSK',  nationality: 'India',       photo: null },
+  { id: 'seed_wk2',  name: 'Jos Buttler',          position: 'WK',   team: 'RR',   nationality: 'England',     photo: null },
+  { id: 'seed_wk3',  name: 'Rishabh Pant',         position: 'WK',   team: 'DC',   nationality: 'India',       photo: null },
+  { id: 'seed_wk4',  name: 'Sanju Samson',         position: 'WK',   team: 'RR',   nationality: 'India',       photo: null },
+  { id: 'seed_wk5',  name: 'Ishan Kishan',         position: 'WK',   team: 'MI',   nationality: 'India',       photo: null },
+  { id: 'seed_wk6',  name: 'Dinesh Karthik',       position: 'WK',   team: 'RCB',  nationality: 'India',       photo: null },
+  { id: 'seed_wk7',  name: 'Nicholas Pooran',      position: 'WK',   team: 'LSG',  nationality: 'West Indies', photo: null },
+  { id: 'seed_wk8',  name: 'Phil Salt',            position: 'WK',   team: 'KKR',  nationality: 'England',     photo: null },
+  { id: 'seed_wk9',  name: 'Wriddhiman Saha',      position: 'WK',   team: 'GT',   nationality: 'India',       photo: null },
+  { id: 'seed_wk10', name: 'Rahul Tewatia',        position: 'WK',   team: 'GT',   nationality: 'India',       photo: null },
+];
+
 const CACHE_KEY = 'ipl:all_players';
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -91,6 +184,15 @@ export async function getAllIPLPlayers(): Promise<IPLPlayerResult[]> {
   );
 
   const flat: Omit<IPLPlayerResult, 'fantasyValue'>[] = entries.flat();
+
+  // Merge seed players: add any seed not already present (matched by name)
+  const existingNames = new Set(flat.map(p => p.name.toLowerCase()));
+  for (const seed of IPL_SEED_PLAYERS) {
+    if (!existingNames.has(seed.name.toLowerCase())) {
+      // Use team badge as photo fallback for seeds
+      flat.push({ ...seed, photo: seed.photo ?? IPL_TEAM_BADGES[seed.team] ?? null });
+    }
+  }
 
   // Assign fantasy values: base score minus within-position index (alphabetical)
   const byPosition: Record<string, Omit<IPLPlayerResult, 'fantasyValue'>[]> = {};
