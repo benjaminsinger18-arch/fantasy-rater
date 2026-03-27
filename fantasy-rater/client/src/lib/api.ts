@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? '/api' });
+const _BUILD_MARKER = 'DEPLOY_CHECK_V1'; void _BUILD_MARKER;
 
 
 // Token getter — set by AuthSync component in App.tsx
