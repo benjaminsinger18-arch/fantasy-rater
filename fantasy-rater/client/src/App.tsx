@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
 import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useUser } from '@clerk/clerk-react';
 import { LeagueProvider, useLeague } from './lib/LeagueContext.tsx';
@@ -18,11 +18,28 @@ import type { Sport } from './types/index.ts';
 
 
 // Wires Clerk session token into the Axios client
+// Waits for Clerk to finish loading before returning tokens so API calls
+// on first render don't fire with no auth header and trigger a login modal.
 function AuthSync() {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded } = useAuth();
+  const isLoadedRef = useRef(false);
+  const resolveRef = useRef<(() => void) | null>(null);
+  const readyPromise = useRef(new Promise<void>(r => { resolveRef.current = r; }));
+
   useEffect(() => {
-    setTokenGetter(() => getToken());
+    if (isLoaded && !isLoadedRef.current) {
+      isLoadedRef.current = true;
+      resolveRef.current?.();
+    }
+  }, [isLoaded]);
+
+  useEffect(() => {
+    setTokenGetter(async () => {
+      await readyPromise.current;
+      return getToken();
+    });
   }, [getToken]);
+
   return null;
 }
 
