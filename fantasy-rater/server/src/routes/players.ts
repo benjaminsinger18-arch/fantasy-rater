@@ -80,6 +80,7 @@ router.get('/search', async (req, res) => {
         team: p.team,
         nationality: p.nationality,
         rank: p.fantasyValue,
+        photo: p.photo,
       })));
     }
 
@@ -145,6 +146,7 @@ router.get('/rankings', async (req, res) => {
         team: p.team,
         nationality: p.nationality,
         rank: p.fantasyValue,
+        photo: p.photo,
       }))));
     }
 

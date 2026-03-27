@@ -12,6 +12,7 @@ export interface Player {
   age?: number;
   yearsExp?: number;
   searchRank?: number | null;
+  photo?: string;         // Direct photo URL (e.g. IPL TheSportsDB)
   photoCode?: number;     // FPL player code for photo URL
   teamCode?: number;      // FPL team code for badge fallback
   espnId?: number;        // ESPN player ID for headshots

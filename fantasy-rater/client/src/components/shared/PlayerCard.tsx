@@ -122,7 +122,7 @@ const TIER_LABELS: Record<Tier, string> = {
 };
 
 function getHeadshotUrls(player: Player, sport: string): string[] {
-  if (sport === 'ipl') return [];
+  if (sport === 'ipl') return player.photo ? [player.photo] : [];
   if (player.photoCode) {
     return [
       `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photoCode}.png`,
@@ -210,7 +210,8 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
     const params = new URLSearchParams({ name: player.name, sport });
     if (player.team) params.set('team', player.team);
     if (player.teamCode) params.set('teamCode', String(player.teamCode));
-    fetch(`/api/players/photo?${params}`)
+    const apiBase = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
+    fetch(`${apiBase}/players/photo?${params}`)
       .then(r => r.ok ? r.json() : { url: null })
       .then(d => setServerUrl(d.url || null))
       .catch(() => setServerUrl(null));
