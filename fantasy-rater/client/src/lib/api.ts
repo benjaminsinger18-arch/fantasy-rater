@@ -8,6 +8,14 @@ export function setTokenGetter(fn: () => Promise<string | null>) {
   _getToken = fn;
 }
 
+// Clerk ready gate — resolves when Clerk finishes loading
+let _clerkReady: Promise<void> | null = null;
+let _clerkLoaded = false;
+export function setClerkReadyGate(promise: Promise<void>) {
+  _clerkReady = promise;
+  promise.then(() => { _clerkLoaded = true; });
+}
+
 // Upgrade modal trigger — set by UpgradeModal context
 let _onUpgradeRequired: (() => void) | null = null;
 export function setUpgradeHandler(fn: () => void) {
@@ -19,7 +27,8 @@ export function setLoginRequiredHandler(fn: () => void) {
   _onLoginRequired = fn;
 }
 
-// Attach auth token to every request
+// Attach auth token to every request — non-blocking so public endpoints
+// (e.g. player search) never hang waiting for Clerk to initialize.
 api.interceptors.request.use(async (config) => {
   if (_getToken) {
     const token = await _getToken();
@@ -28,12 +37,27 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Handle 401 / 402 globally
+// Handle 401 / 402 globally.
+// On 401: if Clerk hasn't loaded yet, wait for it then retry once so
+// signed-in users don't see a login modal on first page load.
 api.interceptors.response.use(
   (res) => res,
-  (err) => {
+  async (err) => {
     const status = err.response?.status;
-    if (status === 401) _onLoginRequired?.();
+    if (status === 401) {
+      if (!_clerkLoaded && _clerkReady && !err.config._clerkRetried) {
+        await _clerkReady;
+        err.config._clerkRetried = true;
+        // Re-attach token now that Clerk is ready, then retry
+        if (_getToken) {
+          const token = await _getToken();
+          if (token) err.config.headers.Authorization = `Bearer ${token}`;
+          else delete err.config.headers.Authorization;
+        }
+        return api.request(err.config);
+      }
+      _onLoginRequired?.();
+    }
     if (status === 402) _onUpgradeRequired?.();
     return Promise.reject(err);
   }

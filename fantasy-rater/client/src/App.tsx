@@ -13,7 +13,7 @@ import { DraftAssistant } from './components/draft/DraftAssistant.tsx';
 import { MultiLeague } from './components/league/MultiLeague.tsx';
 import { NotificationSettings } from './components/settings/NotificationSettings.tsx';
 import { UpgradeModal, useUpgradeModal } from './components/shared/UpgradeModal.tsx';
-import { setTokenGetter, openBillingPortal } from './lib/api.ts';
+import { setTokenGetter, setClerkReadyGate, openBillingPortal } from './lib/api.ts';
 import type { Sport } from './types/index.ts';
 
 
@@ -22,27 +22,23 @@ import type { Sport } from './types/index.ts';
 // on first render don't fire with no auth header and trigger a login modal.
 function AuthSync() {
   const { getToken, isLoaded } = useAuth();
-  const isLoadedRef = useRef(false);
   const resolveRef = useRef<(() => void) | null>(null);
   const readyPromise = useRef(new Promise<void>(r => { resolveRef.current = r; }));
 
+  // Tell api.ts about the ready gate once on mount
   useEffect(() => {
-    if (isLoaded && !isLoadedRef.current) {
-      isLoadedRef.current = true;
-      resolveRef.current?.();
-    }
+    setClerkReadyGate(readyPromise.current);
+  }, []);
+
+  // Resolve the gate when Clerk finishes loading
+  useEffect(() => {
+    if (isLoaded) resolveRef.current?.();
   }, [isLoaded]);
 
+  // Non-blocking token getter — requests fire immediately; the response
+  // interceptor handles retrying if a 401 arrives before Clerk is ready.
   useEffect(() => {
-    setTokenGetter(async () => {
-      // Wait for Clerk to finish loading, but cap at 3 s so public API calls
-      // (e.g. player search) never hang if Clerk is slow or unavailable.
-      await Promise.race([
-        readyPromise.current,
-        new Promise<void>(r => setTimeout(r, 3000)),
-      ]);
-      return getToken();
-    });
+    setTokenGetter(() => getToken());
   }, [getToken]);
 
   return null;
