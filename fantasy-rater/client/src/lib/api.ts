@@ -10,10 +10,8 @@ export function setTokenGetter(fn: () => Promise<string | null>) {
 
 // Clerk ready gate — resolves when Clerk finishes loading
 let _clerkReady: Promise<void> | null = null;
-let _clerkLoaded = false;
 export function setClerkReadyGate(promise: Promise<void>) {
   _clerkReady = promise;
-  promise.then(() => { _clerkLoaded = true; });
 }
 
 // Upgrade modal trigger — set by UpgradeModal context
@@ -38,23 +36,26 @@ api.interceptors.request.use(async (config) => {
 });
 
 // Handle 401 / 402 globally.
-// On 401: if Clerk hasn't loaded yet, wait for it then retry once so
-// signed-in users don't see a login modal on first page load.
+// On 401: if the request was sent WITHOUT an auth token, wait for Clerk then
+// retry once with the real token. This covers the race where getToken() returns
+// null the instant after Clerk loads before the session is fully cached.
+// If the request already had a token and still got 401, it's a real auth failure.
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const status = err.response?.status;
     if (status === 401) {
-      if (!_clerkLoaded && _clerkReady && !err.config._clerkRetried) {
-        await _clerkReady;
+      const sentWithoutAuth = !err.config.headers?.Authorization;
+      if (sentWithoutAuth && !err.config._clerkRetried) {
+        if (_clerkReady) await _clerkReady;
         err.config._clerkRetried = true;
-        // Re-attach token now that Clerk is ready, then retry
         if (_getToken) {
           const token = await _getToken();
-          if (token) err.config.headers.Authorization = `Bearer ${token}`;
-          else delete err.config.headers.Authorization;
+          if (token) {
+            err.config.headers = { ...err.config.headers, Authorization: `Bearer ${token}` };
+            return api.request(err.config);
+          }
         }
-        return api.request(err.config);
       }
       _onLoginRequired?.();
     }
