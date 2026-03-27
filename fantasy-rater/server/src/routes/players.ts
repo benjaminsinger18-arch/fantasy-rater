@@ -265,15 +265,38 @@ router.get('/photo', async (req, res) => {
       }
     } catch { /* fall through */ }
 
-    // PL team badge fallback — verify it exists before returning it
-    if (!url && teamCode) {
-      const badgeUrl = `https://resources.premierleague.com/premierleague/badges/t${teamCode}.png`;
-      const check = await axios.head(badgeUrl, { timeout: 2000 }).catch(() => null);
-      if (check?.status === 200) url = badgeUrl;
+    // ESPN Premier League headshot search
+    if (!url) {
+      try {
+        const espnRes = await axios.get(
+          `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(name.trim())}&sport=soccer&league=eng.1&limit=3`,
+          { timeout: 4000 }
+        );
+        const espnId = espnRes.data?.items?.[0]?.id;
+        if (espnId) {
+          const candidate = `https://a.espncdn.com/i/headshots/soccer/players/full/${espnId}.png`;
+          const check = await axios.head(candidate, { timeout: 2000 }).catch(() => null);
+          if (check?.status === 200) url = candidate;
+        }
+      } catch { /* fall through */ }
     }
+    // No badge fallback — position placeholder is cleaner than a team crest
   } else if (sport === 'ipl') {
+    // 1. Check in-memory cache (TheSportsDB players already fetched by team)
     const player = await ipl.getPlayerByName(name.trim());
-    if (player?.photo) url = player.photo;
+    if (player?.photo && !player.photo.startsWith('https://upload.wikimedia')) url = player.photo;
+
+    // 2. Direct TheSportsDB name search — covers seed players not in team cache
+    if (!url) {
+      try {
+        const tsdb = await axios.get(
+          `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(name.trim())}`,
+          { timeout: 4000 }
+        );
+        const p = tsdb.data?.player?.[0];
+        url = p?.strThumb || p?.strCutout || null;
+      } catch { /* fall through */ }
+    }
   } else if (sport === 'mlb') {
     // MLB: ESPN baseball headshot
     try {
@@ -288,6 +311,18 @@ router.get('/photo', async (req, res) => {
         if (check?.status === 200) url = candidate;
       }
     } catch { /* fall through */ }
+
+    // TheSportsDB baseball fallback
+    if (!url) {
+      try {
+        const tsdb = await axios.get(
+          `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(name.trim())}&s=Baseball`,
+          { timeout: 4000 }
+        );
+        const p = tsdb.data?.player?.[0];
+        url = p?.strThumb || p?.strCutout || null;
+      } catch { /* fall through */ }
+    }
   } else {
     // 1. ESPN NFL name search
     try {

@@ -189,8 +189,8 @@ export async function getAllIPLPlayers(): Promise<IPLPlayerResult[]> {
   const existingNames = new Set(flat.map(p => p.name.toLowerCase()));
   for (const seed of IPL_SEED_PLAYERS) {
     if (!existingNames.has(seed.name.toLowerCase())) {
-      // Use team badge as photo fallback for seeds
-      flat.push({ ...seed, photo: seed.photo ?? IPL_TEAM_BADGES[seed.team] ?? null });
+      // Keep photo null — client will call server photo endpoint for a real TheSportsDB lookup
+      flat.push({ ...seed });
     }
   }
 
