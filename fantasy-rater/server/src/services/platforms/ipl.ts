@@ -60,30 +60,35 @@ export async function getAllIPLPlayers(): Promise<IPLPlayerResult[]> {
   const cached = cache.get<IPLPlayerResult[]>(CACHE_KEY);
   if (cached) return cached;
 
-  // Fetch teams sequentially to avoid TheSportsDB free-tier rate limits
-  const entries: Omit<IPLPlayerResult, 'fantasyValue'>[][] = [];
-  for (const [teamAbbr, teamId] of Object.entries(IPL_TEAM_IDS)) {
-    try {
-      const playersRes = await axios.get(
-        `https://www.thesportsdb.com/api/v1/json/3/lookup_all_players.php?id=${teamId}`,
-        { timeout: 8000 }
-      );
-      const players: any[] = playersRes.data?.player ?? [];
-      const teamBadge: string | null = IPL_TEAM_BADGES[teamAbbr] ?? null;
-      entries.push(players.map(p => ({
-        id: String(p.idPlayer ?? ''),
-        name: p.strPlayer ?? '',
-        position: mapPosition(p.strPosition),
-        team: teamAbbr,
-        nationality: p.strNationality ?? '',
-        photo: p.strThumb || p.strCutout || teamBadge,
-        fantasyValue: 0, // will be set below
-      })));
-    } catch {
-      entries.push([]);
+  // Fetch all teams in parallel; retry each failed team once after a short delay
+  const fetchTeam = async (teamAbbr: string, teamId: number): Promise<Omit<IPLPlayerResult, 'fantasyValue'>[]> => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const playersRes = await axios.get(
+          `https://www.thesportsdb.com/api/v1/json/3/lookup_all_players.php?id=${teamId}`,
+          { timeout: 8000 }
+        );
+        const players: any[] = playersRes.data?.player ?? [];
+        const teamBadge: string | null = IPL_TEAM_BADGES[teamAbbr] ?? null;
+        return players.map(p => ({
+          id: String(p.idPlayer ?? ''),
+          name: p.strPlayer ?? '',
+          position: mapPosition(p.strPosition),
+          team: teamAbbr,
+          nationality: p.strNationality ?? '',
+          photo: p.strThumb || p.strCutout || teamBadge,
+          fantasyValue: 0, // will be set below
+        }));
+      } catch {
+        if (attempt === 0) await new Promise(r => setTimeout(r, 1000));
+      }
     }
-    await new Promise(r => setTimeout(r, 200));
-  }
+    return [];
+  };
+
+  const entries = await Promise.all(
+    Object.entries(IPL_TEAM_IDS).map(([teamAbbr, teamId]) => fetchTeam(teamAbbr, teamId))
+  );
 
   const flat: Omit<IPLPlayerResult, 'fantasyValue'>[] = entries.flat();
 
