@@ -35,7 +35,12 @@ function AuthSync() {
 
   useEffect(() => {
     setTokenGetter(async () => {
-      await readyPromise.current;
+      // Wait for Clerk to finish loading, but cap at 3 s so public API calls
+      // (e.g. player search) never hang if Clerk is slow or unavailable.
+      await Promise.race([
+        readyPromise.current,
+        new Promise<void>(r => setTimeout(r, 3000)),
+      ]);
       return getToken();
     });
   }, [getToken]);
