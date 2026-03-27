@@ -23,7 +23,19 @@ import './db.js'; // Initialize database on startup
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
-app.use(cors({ origin: process.env.CLIENT_URL ?? 'http://localhost:5173' }));
+app.use(cors({
+  origin: (origin, cb) => {
+    const allowed = [
+      process.env.CLIENT_URL,
+      'http://localhost:5173',
+    ].filter(Boolean);
+    if (!origin || allowed.some(o => origin === o) || /\.vercel\.app$/.test(origin)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Not allowed by CORS'));
+    }
+  },
+}));
 
 // Raw body parser for Stripe webhooks — must come BEFORE express.json()
 app.use('/api/billing/webhook', express.raw({ type: 'application/json' }));
