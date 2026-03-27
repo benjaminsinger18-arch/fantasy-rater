@@ -2,6 +2,7 @@ import axios from 'axios';
 
 export const api = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? '/api' });
 
+
 // Token getter — set by AuthSync component in App.tsx
 let _getToken: (() => Promise<string | null>) | null = null;
 export function setTokenGetter(fn: () => Promise<string | null>) {
