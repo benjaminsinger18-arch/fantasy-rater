@@ -56,6 +56,9 @@ api.interceptors.response.use(
             return api.request(err.config);
           }
         }
+        // Clerk loaded but no token — user is not signed in or session is broken.
+        // Silent fail; don't spam the login modal for background requests.
+        return Promise.reject(err);
       }
       _onLoginRequired?.();
     }
