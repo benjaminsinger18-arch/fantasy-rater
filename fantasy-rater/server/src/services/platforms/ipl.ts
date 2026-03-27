@@ -54,35 +54,36 @@ export interface IPLPlayerResult {
 }
 
 const CACHE_KEY = 'ipl:all_players';
-const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
 export async function getAllIPLPlayers(): Promise<IPLPlayerResult[]> {
   const cached = cache.get<IPLPlayerResult[]>(CACHE_KEY);
   if (cached) return cached;
 
-  const entries = await Promise.all(
-    Object.entries(IPL_TEAM_IDS).map(async ([teamAbbr, teamId]) => {
-      try {
-        const playersRes = await axios.get(
-          `https://www.thesportsdb.com/api/v1/json/3/lookup_all_players.php?id=${teamId}`,
-          { timeout: 6000 }
-        );
-        const players: any[] = playersRes.data?.player ?? [];
-        const teamBadge: string | null = IPL_TEAM_BADGES[teamAbbr] ?? null;
-        return players.map(p => ({
-          id: String(p.idPlayer ?? ''),
-          name: p.strPlayer ?? '',
-          position: mapPosition(p.strPosition),
-          team: teamAbbr,
-          nationality: p.strNationality ?? '',
-          photo: p.strThumb || p.strCutout || teamBadge,
-          fantasyValue: 0, // will be set below
-        }));
-      } catch {
-        return [];
-      }
-    })
-  );
+  // Fetch teams sequentially to avoid TheSportsDB free-tier rate limits
+  const entries: Omit<IPLPlayerResult, 'fantasyValue'>[][] = [];
+  for (const [teamAbbr, teamId] of Object.entries(IPL_TEAM_IDS)) {
+    try {
+      const playersRes = await axios.get(
+        `https://www.thesportsdb.com/api/v1/json/3/lookup_all_players.php?id=${teamId}`,
+        { timeout: 8000 }
+      );
+      const players: any[] = playersRes.data?.player ?? [];
+      const teamBadge: string | null = IPL_TEAM_BADGES[teamAbbr] ?? null;
+      entries.push(players.map(p => ({
+        id: String(p.idPlayer ?? ''),
+        name: p.strPlayer ?? '',
+        position: mapPosition(p.strPosition),
+        team: teamAbbr,
+        nationality: p.strNationality ?? '',
+        photo: p.strThumb || p.strCutout || teamBadge,
+        fantasyValue: 0, // will be set below
+      })));
+    } catch {
+      entries.push([]);
+    }
+    await new Promise(r => setTimeout(r, 200));
+  }
 
   const flat: Omit<IPLPlayerResult, 'fantasyValue'>[] = entries.flat();
 
