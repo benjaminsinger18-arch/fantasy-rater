@@ -255,7 +255,7 @@ router.get('/photo', async (req, res) => {
     const nameParts = name.trim().split(' ');
     const firstName2 = nameParts.length > 2 ? nameParts.slice(0, 2).join(' ') : null;
     const lastName2 = nameParts.length > 2 ? nameParts.slice(-2).join(' ') : null;
-    const shortNames = [...new Set([firstName2, lastName2].filter(Boolean))];
+    const shortNames: string[] = [...new Set([firstName2, lastName2].filter((x): x is string => !!x))];
     for (const tryName of [name.trim(), ...shortNames]) {
       if (url) break;
       try {
@@ -278,7 +278,7 @@ router.get('/photo', async (req, res) => {
 
     // ESPN Premier League headshot search
     if (!url) {
-      const espnQuery = shortName ?? name.trim();
+      const espnQuery = firstName2 ?? name.trim();
       try {
         const espnRes = await axios.get(
           `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(espnQuery)}&sport=soccer&league=eng.1&limit=3`,
