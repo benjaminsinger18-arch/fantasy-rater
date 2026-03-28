@@ -272,7 +272,7 @@ router.get('/photo', async (req, res) => {
           `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(name.trim())}&sport=soccer&league=eng.1&limit=3`,
           { timeout: 4000 }
         );
-        const espnId = espnRes.data?.items?.[0]?.id;
+        const espnId = espnRes.data?.items?.[0]?.id ?? espnRes.data?.results?.[0]?.items?.[0]?.id;
         if (espnId) {
           const candidate = `https://a.espncdn.com/i/headshots/soccer/players/full/${espnId}.png`;
           const check = await axios.head(candidate, { timeout: 2000 }).catch(() => null);
