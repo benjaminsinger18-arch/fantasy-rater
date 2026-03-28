@@ -295,19 +295,35 @@ router.get('/photo', async (req, res) => {
     // No badge fallback — position placeholder is cleaner than a team crest
   } else if (sport === 'ipl') {
     // 1. Check in-memory cache (TheSportsDB players already fetched by team)
-    const player = await ipl.getPlayerByName(name.trim());
-    if (player?.photo && !player.photo.startsWith('https://upload.wikimedia')) url = player.photo;
+    const cachedPlayer = await ipl.getPlayerByName(name.trim());
+    if (cachedPlayer?.photo && !cachedPlayer.photo.startsWith('https://upload.wikimedia')) url = cachedPlayer.photo;
 
-    // 2. Direct TheSportsDB name search — covers seed players not in team cache
+    // 2. TheSportsDB Cricket search — try full name then last word (handles "MS Dhoni" → "Dhoni")
+    //    &s=Cricket prevents wrong-sport matches (e.g. Nortje=rugby, Klaasen=tennis)
     if (!url) {
-      try {
-        const tsdb = await axios.get(
-          `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(name.trim())}`,
-          { timeout: 4000 }
-        );
-        const p = tsdb.data?.player?.[0];
-        url = p?.strThumb || p?.strCutout || null;
-      } catch { /* fall through */ }
+      const iplNameParts = name.trim().split(' ');
+      const iplLastWord = iplNameParts.length > 1 ? iplNameParts[iplNameParts.length - 1] : null;
+      const iplTeamNames: Record<string, string> = {
+        CSK: 'chennai', MI: 'mumbai', RCB: 'royal challengers', KKR: 'kolkata',
+        DC: 'delhi', PBKS: 'punjab', RR: 'rajasthan', SRH: 'sunrisers',
+        GT: 'gujarat', LSG: 'lucknow',
+      };
+      const iplTeamHint = team ? (iplTeamNames[team.toUpperCase()] ?? team.toLowerCase()) : null;
+      for (const tryName of [...new Set([name.trim(), iplLastWord].filter((x): x is string => !!x))]) {
+        if (url) break;
+        try {
+          const tsdb = await axios.get(
+            `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(tryName)}&s=Cricket`,
+            { timeout: 4000 }
+          );
+          const iplPlayers: any[] = tsdb.data?.player ?? [];
+          const p = iplTeamHint
+            ? iplPlayers.find(pl => pl.strTeam?.toLowerCase().includes(iplTeamHint)) ?? iplPlayers[0]
+            : iplPlayers[0];
+          const candidate = p?.strThumb || p?.strCutout || null;
+          if (candidate) url = candidate;
+        } catch { /* fall through */ }
+      }
     }
   } else if (sport === 'mlb') {
     // MLB: ESPN baseball headshot
@@ -383,7 +399,8 @@ router.get('/photo', async (req, res) => {
     }
   }
 
-  cache.set(cacheKey, url ?? 'none', url ? 24 * 60 * 60 * 1000 : 5 * 60 * 1000);
+  const failureTtl = sport === 'ipl' ? 30 * 1000 : 5 * 60 * 1000;
+  cache.set(cacheKey, url ?? 'none', url ? 24 * 60 * 60 * 1000 : failureTtl);
   return res.json({ url });
 });
 
