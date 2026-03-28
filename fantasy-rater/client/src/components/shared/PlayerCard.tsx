@@ -125,6 +125,7 @@ function getHeadshotUrls(player: Player, sport: string): string[] {
   if (sport === 'ipl') return player.photo ? [player.photo] : [];
   if (player.photoCode) {
     return [
+      `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photoCode}.jpg`,
       `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photoCode}.png`,
       `https://resources.premierleague.com/premierleague/photos/players/250x250/p${player.photoCode}.png`,
     ];
