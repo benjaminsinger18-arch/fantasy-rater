@@ -251,25 +251,35 @@ router.get('/photo', async (req, res) => {
   let url: string | null = null;
 
   if (sport === 'fpl') {
-    // TheSportsDB — good coverage for established PL players
-    try {
-      const tsdb = await axios.get(
-        `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(name.trim())}`,
-        { timeout: 4000 }
-      );
-      const p = tsdb.data?.player?.[0];
-      const candidate = p?.strThumb || p?.strCutout || null;
-      if (candidate) {
-        const check = await axios.head(candidate, { timeout: 2000 }).catch(() => null);
-        if (check?.status === 200) url = candidate;
-      }
-    } catch { /* fall through */ }
+    // TheSportsDB — try full name, then short name (first 2 words) if full name yields nothing
+    const nameParts = name.trim().split(' ');
+    const shortName = nameParts.length > 2 ? nameParts.slice(0, 2).join(' ') : null;
+    for (const tryName of [name.trim(), ...(shortName ? [shortName] : [])]) {
+      if (url) break;
+      try {
+        const tsdb = await axios.get(
+          `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(tryName)}`,
+          { timeout: 4000 }
+        );
+        const players: any[] = tsdb.data?.player ?? [];
+        // Prefer the player whose team matches the provided team param
+        const p = team
+          ? players.find(pl => pl.strTeam?.toLowerCase().includes(team.toLowerCase().replace("nott'm", 'nottingham'))) ?? players[0]
+          : players[0];
+        const candidate = p?.strThumb || p?.strCutout || null;
+        if (candidate) {
+          const check = await axios.head(candidate, { timeout: 2000 }).catch(() => null);
+          if (check?.status === 200) url = candidate;
+        }
+      } catch { /* fall through */ }
+    }
 
     // ESPN Premier League headshot search
     if (!url) {
+      const espnQuery = shortName ?? name.trim();
       try {
         const espnRes = await axios.get(
-          `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(name.trim())}&sport=soccer&league=eng.1&limit=3`,
+          `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(espnQuery)}&sport=soccer&league=eng.1&limit=3`,
           { timeout: 4000 }
         );
         const espnId = espnRes.data?.items?.[0]?.id ?? espnRes.data?.results?.[0]?.items?.[0]?.id;
