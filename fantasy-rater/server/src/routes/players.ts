@@ -251,10 +251,12 @@ router.get('/photo', async (req, res) => {
   let url: string | null = null;
 
   if (sport === 'fpl') {
-    // TheSportsDB — try full name, then short name (first 2 words) if full name yields nothing
+    // TheSportsDB — try full name, then first-2-words, then last-2-words (handles "El Hadji X Y" → "X Y")
     const nameParts = name.trim().split(' ');
-    const shortName = nameParts.length > 2 ? nameParts.slice(0, 2).join(' ') : null;
-    for (const tryName of [name.trim(), ...(shortName ? [shortName] : [])]) {
+    const firstName2 = nameParts.length > 2 ? nameParts.slice(0, 2).join(' ') : null;
+    const lastName2 = nameParts.length > 2 ? nameParts.slice(-2).join(' ') : null;
+    const shortNames = [...new Set([firstName2, lastName2].filter(Boolean))];
+    for (const tryName of [name.trim(), ...shortNames]) {
       if (url) break;
       try {
         const tsdb = await axios.get(
