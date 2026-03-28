@@ -325,6 +325,22 @@ router.get('/photo', async (req, res) => {
         } catch { /* fall through */ }
       }
     }
+
+    // 3. Wikipedia search fallback — covers players absent from TheSportsDB
+    //    Use generator=search with +cricket to get the right person in one call
+    if (!url) {
+      try {
+        const wiki = await axios.get(
+          `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(name.trim())}+cricket&gsrlimit=1&prop=pageimages&pithumbsize=250&pilicense=any&format=json`,
+          { timeout: 4000 }
+        );
+        const pages = wiki.data?.query?.pages ?? {};
+        const page = Object.values(pages)[0] as any;
+        const thumb = page?.thumbnail?.source;
+        // Reject SVGs — those are logos, not headshots
+        if (thumb && !thumb.endsWith('.svg')) url = thumb;
+      } catch { /* fall through */ }
+    }
   } else if (sport === 'mlb') {
     // MLB: ESPN baseball headshot
     try {
