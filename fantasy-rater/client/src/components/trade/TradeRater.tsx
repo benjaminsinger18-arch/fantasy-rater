@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
 import { PlayerSearch } from '../shared/PlayerSearch.tsx';
 import { PlayerCard } from '../shared/PlayerCard.tsx';
 import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
+import { TradeShareCard } from './TradeShareCard.tsx';
 import { rateTrade } from '../../lib/api.ts';
 import { useLeague } from '../../lib/LeagueContext.tsx';
 import type { Player, TradeScore } from '../../types/index.ts';
@@ -84,6 +86,42 @@ export function TradeRater() {
   const [score, setScore] = useState<TradeScore | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [sharing, setSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const shareCardRef = useRef<HTMLDivElement>(null);
+
+  async function handleShare() {
+    if (!shareCardRef.current || !score) return;
+    setSharing(true);
+    try {
+      const canvas = await html2canvas(shareCardRef.current, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      const link = document.createElement('a');
+      link.download = `trade-${score.verdict.toLowerCase().replace(' ', '-')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch {
+      // fallback: copy text
+      handleCopyText();
+    } finally {
+      setSharing(false);
+    }
+  }
+
+  function handleCopyText() {
+    if (!score) return;
+    const give = sideA.map(p => p.name).join(', ');
+    const receive = sideB.map(p => p.name).join(', ');
+    const text = `${score.verdict === 'Great Deal' ? '🔥' : score.verdict === 'Good Deal' ? '✅' : score.verdict === 'Toss Up' ? '⚖️' : score.verdict === 'Bad Deal' ? '⚠️' : '🚨'} ${score.verdict.toUpperCase()} on FantasyRater!\nI receive: ${receive}\nI give: ${give}\nRate your trades free at fantasyrater.app`;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   async function handleRate() {
     if (!sideA.length || !sideB.length) { setError('Add at least one player to each side.'); return; }
@@ -199,9 +237,26 @@ export function TradeRater() {
                 </div>
               </div>
               {vs && (
-                <div className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 border ${vs.bg} ${vs.border}`}>
-                  <span className="text-lg">{vs.icon}</span>
-                  <span className={`text-base font-black tracking-wide ${vs.text}`}>{score.verdict}</span>
+                <div className="flex gap-2">
+                  <div className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 border ${vs.bg} ${vs.border}`}>
+                    <span className="text-lg">{vs.icon}</span>
+                    <span className={`text-base font-black tracking-wide ${vs.text}`}>{score.verdict}</span>
+                  </div>
+                  <button
+                    onClick={handleShare}
+                    disabled={sharing}
+                    title="Download share card"
+                    className="px-3 py-2.5 rounded-xl border border-slate-600 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 hover:text-white transition-all text-sm font-bold disabled:opacity-50"
+                  >
+                    {sharing ? '⏳' : '📤'}
+                  </button>
+                  <button
+                    onClick={handleCopyText}
+                    title="Copy share text"
+                    className="px-3 py-2.5 rounded-xl border border-slate-600 bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 hover:text-white transition-all text-sm font-bold"
+                  >
+                    {copied ? '✓' : '📋'}
+                  </button>
                 </div>
               )}
             </div>
@@ -213,6 +268,20 @@ export function TradeRater() {
           </>
         )}
       </div>
+
+      {/* Hidden share card — captured by html2canvas */}
+      {score && (
+        <div style={{ position: 'fixed', left: -9999, top: -9999, pointerEvents: 'none' }}>
+          <TradeShareCard
+            ref={shareCardRef}
+            score={score}
+            sideA={sideA}
+            sideB={sideB}
+            sport={config.sport}
+            scoringFormat={config.scoringFormat}
+          />
+        </div>
+      )}
     </div>
   );
 }
