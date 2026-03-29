@@ -332,7 +332,7 @@ router.get('/photo', async (req, res) => {
       try {
         const wiki = await axios.get(
           `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(name.trim())}+cricket&gsrlimit=1&prop=pageimages&pithumbsize=250&pilicense=any&format=json`,
-          { timeout: 4000 }
+          { timeout: 4000, headers: { 'User-Agent': 'FantasyRater/1.0 (fantasy-rater app; contact@fantasyrater.app)' } }
         );
         const pages = wiki.data?.query?.pages ?? {};
         const page = Object.values(pages)[0] as any;
