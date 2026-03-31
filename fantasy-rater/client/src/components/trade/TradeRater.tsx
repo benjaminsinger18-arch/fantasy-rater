@@ -8,6 +8,36 @@ import { rateTrade } from '../../lib/api.ts';
 import { useLeague } from '../../lib/LeagueContext.tsx';
 import type { Player, TradeScore } from '../../types/index.ts';
 
+async function fetchAsDataUri(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, { mode: 'cors' });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function loadPlayerImage(player: Player, sport: string): Promise<string | null> {
+  const urls: string[] = [];
+  if (player.espnId) urls.push(`https://a.espncdn.com/i/headshots/${sport}/players/full/${player.espnId}.png`);
+  if (player.id) {
+    urls.push(`https://sleepercdn.com/content/${sport}/players/thumb/${player.id}.jpg`);
+    urls.push(`https://sleepercdn.com/content/${sport}/players/${player.id}.jpg`);
+  }
+  for (const url of urls) {
+    const dataUri = await fetchAsDataUri(url);
+    if (dataUri) return dataUri;
+  }
+  return null;
+}
+
 function TradeSide({
   label,
   players,
@@ -88,12 +118,22 @@ export function TradeRater() {
   const [error, setError] = useState('');
   const [sharing, setSharing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [imageUrls, setImageUrls] = useState<{ sideA: (string | null)[]; sideB: (string | null)[] } | null>(null);
   const shareCardRef = useRef<HTMLDivElement>(null);
 
   async function handleShare() {
     if (!shareCardRef.current || !score) return;
     setSharing(true);
     try {
+      // Preload player images as data URIs so html2canvas can capture them cross-origin
+      const [sideAImgs, sideBImgs] = await Promise.all([
+        Promise.all(sideA.map(p => loadPlayerImage(p, config.sport))),
+        Promise.all(sideB.map(p => loadPlayerImage(p, config.sport))),
+      ]);
+      setImageUrls({ sideA: sideAImgs, sideB: sideBImgs });
+      // Let React re-render the share card with images before capturing
+      await new Promise(r => setTimeout(r, 150));
+
       const canvas = await html2canvas(shareCardRef.current, {
         backgroundColor: null,
         scale: 2,
@@ -105,7 +145,6 @@ export function TradeRater() {
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch {
-      // fallback: copy text
       handleCopyText();
     } finally {
       setSharing(false);
@@ -128,6 +167,7 @@ export function TradeRater() {
     setError('');
     setLoading(true);
     setScore(null);
+    setImageUrls(null);
     try {
       const result = await rateTrade({
         sideA, sideB,
@@ -279,6 +319,7 @@ export function TradeRater() {
             sideB={sideB}
             sport={config.sport}
             scoringFormat={config.scoringFormat}
+            imageUrls={imageUrls ?? undefined}
           />
         </div>
       )}
