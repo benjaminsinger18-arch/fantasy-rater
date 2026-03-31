@@ -69,6 +69,9 @@ export function LeagueProvider({ children }: { children: React.ReactNode }) {
       sport,
       scoringFormat: formatMap[sport],
       platform: platformMap[sport],
+      leagueId: '',
+      myRosterId: undefined,
+      fplManagerId: undefined,
     }));
   };
 

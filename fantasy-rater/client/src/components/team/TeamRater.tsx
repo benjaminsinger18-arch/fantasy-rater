@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { ClipboardList, Loader2 } from 'lucide-react';
 import { PlayerSearch } from '../shared/PlayerSearch.tsx';
 import { PlayerCard } from '../shared/PlayerCard.tsx';
 import { GradeChip } from '../shared/GradeChip.tsx';
@@ -6,6 +8,15 @@ import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
 import { rateTeam, importSleeperRoster, importFplRoster, importEspnRoster } from '../../lib/api.ts';
 import { useLeague } from '../../lib/LeagueContext.tsx';
 import type { Player, TeamScore } from '../../types/index.ts';
+
+const containerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.05 } },
+};
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.2 } },
+};
 
 export function TeamRater() {
   const { config } = useLeague();
@@ -55,35 +66,35 @@ export function TeamRater() {
   }
 
   return (
-    <div className="flex h-full" style={{ background: 'linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%)' }}>
+    <div className="flex flex-col md:flex-row h-full">
       {/* Left: Roster Panel */}
-      <div className="w-1/2 flex flex-col p-5 border-r border-slate-700/50 min-w-0">
+      <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-white/5 min-w-0">
         <div className="flex-shrink-0 mb-4">
-          <h1 className="text-xl font-black bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+          <h1 className="text-xl font-display font-black bg-gradient-to-r from-white via-blue-100 to-indigo-300 bg-clip-text text-transparent">
             Team Rater
           </h1>
           <p className="text-slate-500 text-xs mt-0.5">Get an AI grade for your entire roster</p>
         </div>
 
         {/* Import */}
-        <div className="bg-gradient-to-b from-slate-900 to-blue-950/10 rounded-xl p-3 border border-blue-500/20 flex-shrink-0 mb-3">
-          <p className="text-xs text-blue-400 font-semibold mb-2">
-            {config.sport === 'fpl' ? 'Import FPL Team' : 'Import Sleeper Roster'}
+        <div className="card-base p-4 border-l-4 border-l-blue-500/60 flex-shrink-0 mb-3">
+          <p className="text-xs font-display font-bold text-blue-400 uppercase tracking-widest mb-2">
+            {config.sport === 'fpl' ? 'Import FPL Team' : config.sport === 'mlb' ? 'Import ESPN Roster' : 'Import Sleeper Roster'}
           </p>
           <div className="flex gap-2">
             <input
               type="text"
               value={importId}
               onChange={e => setImportId(e.target.value)}
-              placeholder={config.sport === 'fpl' ? 'FPL Manager ID' : 'Sleeper League ID'}
-              className="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-colors"
+              placeholder={config.sport === 'fpl' ? 'FPL Manager ID' : config.sport === 'mlb' ? 'ESPN League ID' : 'Sleeper League ID'}
+              className="input-base flex-1"
             />
             <button
               onClick={handleImport}
               disabled={importing}
-              className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-all"
+              className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 disabled:opacity-50 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-blue-500/20"
             >
-              {importing ? '...' : 'Import'}
+              {importing ? <Loader2 size={14} className="animate-spin" /> : 'Import'}
             </button>
           </div>
         </div>
@@ -96,18 +107,27 @@ export function TeamRater() {
         {/* Roster grid */}
         <div className="flex-1 min-h-0 overflow-y-auto">
           {roster.length === 0 ? (
-            <p className="text-slate-600 text-sm text-center py-8">Import a roster or add players manually</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-2 pb-2">
-              {roster.map((p, i) => (
-                <PlayerCard
-                  key={`${p.id ?? p.name}-${i}`}
-                  player={p}
-                  sport={config.sport}
-                  onRemove={() => setRoster(prev => prev.filter((_, idx) => idx !== i))}
-                />
-              ))}
+            <div className="text-center py-8">
+              <ClipboardList size={40} className="mx-auto mb-3 text-slate-700" />
+              <p className="text-slate-600 text-sm">Import a roster or add players manually</p>
             </div>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-2 gap-2 pb-2"
+            >
+              {roster.map((p, i) => (
+                <motion.div key={`${p.id ?? p.name}-${i}`} variants={itemVariants}>
+                  <PlayerCard
+                    player={p}
+                    sport={config.sport}
+                    onRemove={() => setRoster(prev => prev.filter((_, idx) => idx !== i))}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
           )}
         </div>
 
@@ -116,16 +136,16 @@ export function TeamRater() {
         <button
           onClick={handleRate}
           disabled={loading || !roster.length}
-          className="w-full py-3 mt-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-lg shadow-violet-500/25 flex-shrink-0"
+          className="w-full py-3.5 mt-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-display font-bold rounded-2xl transition-all shadow-lg shadow-amber-500/25 flex-shrink-0 flex items-center justify-center gap-2"
         >
-          {loading ? 'Grading...' : `Rate My Team (${roster.length} players)`}
+          {loading ? <><Loader2 size={16} className="animate-spin" /> Grading...</> : `Rate My Team (${roster.length} players)`}
         </button>
       </div>
 
       {/* Right: Grade Panel */}
-      <div className="w-1/2 flex flex-col p-5 gap-4 min-w-0">
+      <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 gap-4 min-w-0">
         <div className="flex-shrink-0">
-          <h2 className="text-xl font-black bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+          <h2 className="text-xl font-display font-black bg-gradient-to-r from-white via-blue-100 to-indigo-300 bg-clip-text text-transparent">
             Grade
           </h2>
           <p className="text-slate-500 text-xs mt-0.5">Your team rating appears here</p>
@@ -133,26 +153,28 @@ export function TeamRater() {
 
         {!score && !loading && (
           <div className="flex-1 flex items-center justify-center min-h-[200px]">
-            <div className="text-center text-slate-600">
-              <div className="text-4xl mb-3">📋</div>
-              <p className="text-sm">Build your roster on the left<br />and click Rate My Team</p>
+            <div className="text-center">
+              <ClipboardList size={40} className="mx-auto mb-3 text-slate-700" />
+              <p className="text-slate-600 text-sm">Build your roster above<br />and tap Rate My Team</p>
             </div>
           </div>
         )}
 
         {score && (
           <>
-            <div className="bg-slate-900/80 rounded-xl p-5 border border-violet-500/30 flex-shrink-0">
+            <div className="card-base p-5 border-l-4 border-l-violet-500/60 flex-shrink-0">
               <div className="flex items-center gap-5 mb-4">
                 <GradeChip grade={score.grade} size="lg" />
                 <div>
-                  <div className="text-white font-black text-2xl">{score.score} <span className="text-slate-500 text-base font-normal">/ 100</span></div>
+                  <div className="text-white font-display font-black text-2xl animate-count-up">
+                    {score.score} <span className="text-slate-500 text-base font-normal">/ 100</span>
+                  </div>
                   <div className="text-slate-400 text-sm">{roster.length} players evaluated</div>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {Object.entries(score.positionBreakdown).map(([pos, { score: s, grade }]) => (
-                  <div key={pos} className="flex items-center justify-between bg-slate-800/60 rounded-lg px-3 py-2 border border-slate-700/40">
+                  <div key={pos} className="flex items-center justify-between card-base px-3 py-2.5 hover:border-indigo-500/15 transition-colors">
                     <span className="text-slate-300 text-sm font-semibold">{pos}</span>
                     <div className="flex items-center gap-1.5">
                       <span className="text-slate-500 text-xs">{s}</span>
@@ -163,8 +185,8 @@ export function TeamRater() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-b from-slate-900 to-indigo-950/10 rounded-xl p-5 border border-indigo-500/30 min-w-0 flex-shrink-0">
-              <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3">AI Analysis</h3>
+            <div className="card-base p-5 border-l-4 border-l-indigo-500/60 min-w-0 flex-shrink-0">
+              <h3 className="text-xs font-display font-bold text-indigo-400 uppercase tracking-widest mb-3">AI Analysis</h3>
               <StreamingAnalysis hash={score.analysisHash} />
             </div>
           </>

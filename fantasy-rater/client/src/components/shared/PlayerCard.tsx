@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import type { Player } from '../../types/index.ts';
 
 type Tier = 'iron' | 'bronze' | 'silver' | 'emerald' | 'sapphire' | 'amethyst' | 'gold' | 'divine';
@@ -221,14 +223,16 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
   const displayName = (player.web_name ?? player.name.split(' ').slice(-1)[0]).toUpperCase();
 
   return (
-    <div
-      className={`relative rounded-xl border overflow-hidden shadow-xl w-full ${s.border} ${s.glowClass} ${s.isDivine ? '' : s.bgClass} ${onClick ? 'cursor-pointer hover:scale-[1.02] transition-transform' : ''}`}
+    <motion.div
+      whileHover={onClick ? { scale: 1.03, y: -3 } : {}}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      className={`relative rounded-2xl border overflow-hidden shadow-xl w-full ${s.border} ${s.glowClass} ${s.isDivine ? '' : s.bgClass} ${onClick ? 'cursor-pointer' : ''}`}
       onClick={onClick}
     >
       {s.isDivine && (
         <>
-          <div className="absolute inset-0 rainbow-card rounded-xl" />
-          <div className="shine-overlay rounded-xl" />
+          <div className="absolute inset-0 rainbow-card rounded-2xl" />
+          <div className="shine-overlay rounded-2xl" />
         </>
       )}
 
@@ -236,9 +240,9 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
         {onRemove && (
           <button
             onClick={onRemove}
-            className="absolute top-1.5 right-1.5 z-20 w-5 h-5 rounded-full bg-black/40 hover:bg-red-500/80 text-white text-xs flex items-center justify-center transition-colors"
+            className="absolute top-1.5 right-1.5 z-20 w-5 h-5 rounded-full bg-black/40 hover:bg-red-500/80 text-white flex items-center justify-center transition-colors"
           >
-            ✕
+            <X size={10} />
           </button>
         )}
 
@@ -247,7 +251,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           {/* Score + tier row */}
           <div className="w-full flex items-start justify-between mb-1">
             <div>
-              <div className={`text-3xl font-black leading-none ${s.text}`}>{Math.round(rank)}</div>
+              <div className={`text-3xl font-display font-black leading-none animate-count-up ${s.text}`}>{Math.round(rank)}</div>
               <div className={`text-[10px] font-bold uppercase ${s.subtext}`}>{player.position}</div>
             </div>
             <div className="text-right">
@@ -257,7 +261,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           </div>
 
           {/* Headshot */}
-          <div className="w-20 h-20 rounded-lg overflow-hidden flex items-center justify-center mb-2 flex-shrink-0 ring-2 ring-white/10">
+          <div className="w-20 h-20 rounded-lg overflow-hidden flex items-center justify-center mb-2 flex-shrink-0 ring-2 ring-white/20">
             {urlIndex < headshotUrls.length ? (
               <img
                 src={headshotUrls[urlIndex]}
@@ -298,6 +302,6 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Loader2 } from 'lucide-react';
 import { searchPlayers } from '../../lib/api.ts';
 import { InjuryBadge } from './InjuryBadge.tsx';
 import { useLeague } from '../../lib/LeagueContext.tsx';
@@ -97,23 +98,23 @@ export function PlayerSearch({ onSelect, placeholder = 'Search players or "TEAM"
         value={query}
         onChange={e => setQuery(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-colors"
+        className="input-base"
       />
       {loading && (
-        <span className="absolute right-3 top-2.5 text-slate-400 animate-spin text-xs">⟳</span>
+        <Loader2 size={14} className="absolute right-3 top-3 animate-spin text-indigo-400" />
       )}
       {open && results.length > 0 && (
-        <ul className="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 max-h-72 overflow-y-auto">
+        <ul className="absolute z-50 w-full mt-1.5 bg-slate-950 border border-white/[0.08] rounded-2xl shadow-2xl shadow-black/70 max-h-72 overflow-y-auto">
           {query.startsWith('"') && (
-            <li className="px-3 py-1.5 text-xs text-slate-500 border-b border-slate-700">
-              Showing all players for team — click to add individually
+            <li className="px-3 py-1.5 text-xs text-slate-500 border-b border-white/5">
+              Showing all players for team — tap to add individually
             </li>
           )}
           {results.map((p, i) => (
             <li
               key={`${p.id ?? p.name}-${i}`}
               onClick={() => select(p)}
-              className="flex items-center gap-3 px-3 py-2 hover:bg-slate-700/70 cursor-pointer transition-colors"
+              className="flex items-center gap-3 px-3 py-2 hover:bg-white/5 cursor-pointer transition-colors"
             >
               <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 ring-1 ring-white/10">
                 <PlayerAvatar player={p} sport={config.sport} />

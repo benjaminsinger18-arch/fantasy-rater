@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { TrendingUp, TrendingDown, Telescope, Loader2 } from 'lucide-react';
 import { useLeague } from '../../lib/LeagueContext.tsx';
 import { predictLeague } from '../../lib/api.ts';
 import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
@@ -9,7 +10,7 @@ function RankBadge({ rank, total }: { rank: number; total: number }) {
   const isTop = rank <= Math.ceil(total * 0.25);
   const isBottom = rank > Math.floor(total * 0.75);
   return (
-    <span className={`font-bold text-lg ${isTop ? 'text-emerald-400' : isBottom ? 'text-red-400' : 'text-slate-200'}`}>
+    <span className={`font-display font-bold text-lg ${isTop ? 'text-emerald-400' : isBottom ? 'text-red-400' : 'text-slate-200'}`}>
       #{rank}
     </span>
   );
@@ -18,8 +19,8 @@ function RankBadge({ rank, total }: { rank: number; total: number }) {
 function RankArrow({ current, projected }: { current: number; projected: number }) {
   const diff = current - projected; // positive = moving up
   if (diff === 0) return <span className="text-slate-500 text-xs">—</span>;
-  if (diff > 0) return <span className="text-emerald-400 text-xs font-bold">↑{diff}</span>;
-  return <span className="text-red-400 text-xs font-bold">↓{Math.abs(diff)}</span>;
+  if (diff > 0) return <span className="text-emerald-400 text-xs font-bold flex items-center gap-0.5"><TrendingUp size={12} />{diff}</span>;
+  return <span className="text-red-400 text-xs font-bold flex items-center gap-0.5"><TrendingDown size={12} />{Math.abs(diff)}</span>;
 }
 
 export function LeaguePredictor() {
@@ -57,7 +58,6 @@ export function LeaguePredictor() {
   function selectMyTeam(rosterId: string) {
     setConfig({ myRosterId: rosterId });
     if (prediction) {
-      // Re-run with the new myRosterId
       setLoading(true);
       setError('');
       predictLeague({
@@ -80,24 +80,24 @@ export function LeaguePredictor() {
   const teams = prediction?.teams ?? [];
 
   return (
-    <div className="flex min-h-full">
+    <div className="flex flex-col md:flex-row min-h-full">
       {/* Left panel */}
-      <div className="flex-1 flex flex-col border-r border-slate-700/50">
-        <div className="px-6 py-4 border-b border-slate-700/50">
-          <h1 className="text-xl font-bold text-white">League Predictor</h1>
+      <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-white/5">
+        <div className="px-6 py-4 border-b border-white/5">
+          <h1 className="text-xl font-display font-black bg-gradient-to-r from-white via-blue-100 to-indigo-300 bg-clip-text text-transparent">League Predictor</h1>
           <p className="text-sm text-slate-400 mt-0.5">Projected final standings based on roster strength + current record</p>
         </div>
 
-        <div className="px-6 py-4 border-b border-slate-700/50 flex items-center gap-3 flex-wrap">
+        <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3 flex-wrap">
           {!canLoad && (
             <p className="text-sm text-amber-400">Set your League ID in League Setup first.</p>
           )}
           <button
             onClick={loadLeague}
             disabled={!canLoad || loading}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-display font-bold text-sm disabled:opacity-40 transition-all shadow-lg shadow-amber-500/20 flex items-center gap-2"
           >
-            {loading ? 'Loading...' : prediction ? 'Reload' : 'Load League'}
+            {loading ? <><Loader2 size={14} className="animate-spin" /> Loading...</> : prediction ? 'Reload' : 'Load League'}
           </button>
 
           {teams.length > 0 && (
@@ -106,7 +106,7 @@ export function LeaguePredictor() {
               <select
                 value={config.myRosterId ?? ''}
                 onChange={e => selectMyTeam(e.target.value)}
-                className="bg-slate-800 border border-slate-600 text-slate-200 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500"
+                className="bg-slate-900/60 border border-white/[0.08] text-slate-200 text-sm rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500/60"
               >
                 <option value="">— select —</option>
                 {teams.map(t => (
@@ -126,21 +126,21 @@ export function LeaguePredictor() {
           {teams.length > 0 && (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-xs text-slate-500 uppercase tracking-wider border-b border-slate-700/50">
-                  <th className="text-left pb-2 font-semibold">Proj</th>
-                  <th className="text-left pb-2 font-semibold pl-2">Team</th>
-                  <th className="text-center pb-2 font-semibold">Record</th>
-                  <th className="text-center pb-2 font-semibold">Roster</th>
-                  <th className="text-center pb-2 font-semibold">Move</th>
+                <tr className="font-display text-xs text-slate-500 uppercase tracking-widest border-b border-white/5">
+                  <th className="text-left pb-2 font-bold">Proj</th>
+                  <th className="text-left pb-2 font-bold pl-2">Team</th>
+                  <th className="text-center pb-2 font-bold">Record</th>
+                  <th className="text-center pb-2 font-bold">Roster</th>
+                  <th className="text-center pb-2 font-bold">Move</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-white/[0.04]">
                 {teams.map((team: LeagueTeam) => {
                   const isMe = config.myRosterId && String(team.rosterId) === config.myRosterId;
                   return (
                     <tr
                       key={String(team.rosterId)}
-                      className={`transition-colors ${isMe ? 'bg-indigo-500/10 border-l-2 border-indigo-500' : 'hover:bg-slate-800/30'}`}
+                      className={`transition-colors ${isMe ? 'bg-indigo-500/10 border-l-2 border-indigo-500' : 'hover:bg-white/[0.03]'}`}
                     >
                       <td className="py-2.5 pr-2">
                         <RankBadge rank={team.projectedRank} total={teams.length} />
@@ -166,18 +166,18 @@ export function LeaguePredictor() {
           )}
 
           {!loading && !prediction && canLoad && (
-            <div className="flex flex-col items-center justify-center h-48 text-slate-500">
-              <span className="text-3xl mb-3">🔮</span>
-              <p className="text-sm">Click "Load League" to see projected standings</p>
+            <div className="flex flex-col items-center justify-center h-48 text-slate-600 text-center gap-3">
+              <Telescope size={40} className="text-slate-700" />
+              <p className="text-sm">Tap Load League to see projected standings</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Right panel */}
-      <div className="w-80 flex-shrink-0 flex flex-col">
-        <div className="px-5 py-4 border-b border-slate-700/50">
-          <h2 className="text-base font-semibold text-white">Your Prediction</h2>
+      <div className="w-full md:w-80 flex-shrink-0 flex flex-col">
+        <div className="px-5 py-4 border-b border-white/5">
+          <h2 className="text-base font-display font-bold text-white">Your Prediction</h2>
           <p className="text-xs text-slate-500 mt-0.5">Select your team to see a projection</p>
         </div>
 
@@ -185,9 +185,9 @@ export function LeaguePredictor() {
           {myTeam ? (
             <>
               {/* Projected finish */}
-              <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/40 text-center">
-                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Projected Finish</p>
-                <div className="text-5xl font-black text-white mb-1">
+              <div className="card-base p-4 border-l-4 border-l-indigo-500/60 text-center">
+                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1 font-display font-bold">Projected Finish</p>
+                <div className="text-5xl font-display font-black text-white mb-1 animate-count-up">
                   #{myTeam.projectedRank}
                 </div>
                 <div className="text-xs text-slate-400">
@@ -197,27 +197,27 @@ export function LeaguePredictor() {
 
               {/* Stats row */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/40 text-center">
+                <div className="card-base p-3 text-center">
                   <p className="text-xs text-slate-500 mb-1">Current Standing</p>
-                  <p className="text-lg font-bold text-slate-200">#{myTeam.currentRank}</p>
+                  <p className="text-lg font-display font-bold text-slate-200">#{myTeam.currentRank}</p>
                   <p className="text-xs text-slate-400">{myTeam.currentRecord}</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/40 text-center">
+                <div className="card-base p-3 text-center">
                   <p className="text-xs text-slate-500 mb-1">Roster Grade</p>
-                  <p className="text-lg font-bold text-slate-200">{myTeam.rosterGrade}</p>
+                  <p className="text-lg font-display font-bold text-slate-200">{myTeam.rosterGrade}</p>
                   <p className="text-xs text-slate-400">{myTeam.rosterScore}/100</p>
                 </div>
               </div>
 
               {/* Position breakdown vs league avg */}
               {Object.keys(myTeam.positionBreakdown).length > 0 && (
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/40">
-                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Position Breakdown</p>
+                <div className="card-base p-4 border-l-4 border-l-violet-500/40">
+                  <p className="text-xs font-display font-bold text-slate-400 uppercase tracking-widest mb-3">Position Breakdown</p>
                   <div className="space-y-2">
                     {Object.entries(myTeam.positionBreakdown).map(([pos, { grade, score }]) => (
                       <div key={pos} className="flex items-center justify-between">
                         <span className="text-sm text-slate-400 w-10">{pos}</span>
-                        <div className="flex-1 mx-3 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                        <div className="flex-1 mx-3 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full"
                             style={{ width: `${Math.min(100, score)}%` }}
@@ -235,15 +235,15 @@ export function LeaguePredictor() {
 
               {/* AI analysis */}
               {prediction?.analysisHash && (
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/40">
-                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">AI Analysis</p>
+                <div className="card-base p-4 border-l-4 border-l-indigo-500/60">
+                  <p className="text-xs font-display font-bold text-indigo-400 uppercase tracking-widest mb-3">AI Analysis</p>
                   <StreamingAnalysis hash={prediction.analysisHash} />
                 </div>
               )}
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center h-48 text-slate-600 text-center">
-              <span className="text-3xl mb-3">→</span>
+            <div className="flex flex-col items-center justify-center h-48 text-slate-600 text-center gap-3">
+              <Telescope size={32} className="text-slate-700" />
               <p className="text-sm">
                 {teams.length > 0
                   ? 'Select your team from the dropdown to see your prediction'

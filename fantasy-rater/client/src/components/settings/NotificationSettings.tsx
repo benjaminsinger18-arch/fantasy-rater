@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Bell, Loader2 } from 'lucide-react';
 import { useUser } from '@clerk/clerk-react';
 import { getNotificationPrefs, updateNotificationPrefs, subscribePush, unsubscribePush } from '../../lib/api.ts';
 
@@ -17,7 +18,7 @@ function Toggle({ checked, onChange, label, description }: {
   description?: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 border-b border-slate-700/40 last:border-0">
+    <div className="flex items-center justify-between gap-4 py-3 border-b border-white/[0.06] last:border-0">
       <div>
         <p className="text-sm text-white font-medium">{label}</p>
         {description && <p className="text-xs text-slate-500 mt-0.5">{description}</p>}
@@ -79,11 +80,9 @@ export function NotificationSettings() {
 
       const reg = await navigator.serviceWorker.ready;
 
-      // Get VAPID public key from server
       const keyRes = await fetch('/api/notifications/vapid-public-key');
       const { key } = await keyRes.json();
 
-      // Convert VAPID key to Uint8Array
       const vapidKey = urlBase64ToUint8Array(key);
       const subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidKey.buffer as ArrayBuffer });
       const sub = subscription.toJSON();
@@ -114,26 +113,35 @@ export function NotificationSettings() {
     }
   }
 
+  if (!user) return (
+    <div className="flex items-center gap-2 text-slate-500 text-sm p-6">
+      Sign in to manage notification preferences.
+    </div>
+  );
+
   if (!prefs) return (
     <div className="flex items-center gap-2 text-slate-500 text-sm p-6">
-      <span className="animate-spin">⟳</span> Loading preferences...
+      <Loader2 size={14} className="animate-spin text-indigo-400" /> Loading preferences...
     </div>
   );
 
   return (
     <div className="h-full flex flex-col">
-      <div className="px-6 py-5 border-b border-slate-700/50 flex-shrink-0">
-        <h1 className="text-xl font-black bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-          Notification Settings
-        </h1>
+      <div className="px-6 py-5 border-b border-white/5 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <Bell size={20} className="text-indigo-400" />
+          <h1 className="text-xl font-display font-black bg-gradient-to-r from-white via-blue-100 to-indigo-300 bg-clip-text text-transparent">
+            Notification Settings
+          </h1>
+        </div>
         <p className="text-xs text-slate-500 mt-1">Stay ahead of injuries and waiver wire opportunities</p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-lg flex flex-col gap-6">
           {/* Email */}
-          <div className="bg-slate-800/60 rounded-xl border border-slate-700/40 p-5">
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-4 font-semibold">📧 Email Notifications</p>
+          <div className="card-base p-5">
+            <p className="font-display text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Email Notifications</p>
 
             <div className="flex gap-2 mb-4">
               <input
@@ -141,12 +149,12 @@ export function NotificationSettings() {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 type="email"
-                className="flex-1 bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500/50"
+                className="input-base flex-1"
               />
               <button
                 onClick={handleSaveEmail}
                 disabled={saving || !email}
-                className="px-4 py-2 rounded-lg text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 transition-colors"
+                className="px-4 py-2 rounded-xl text-sm font-display font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black disabled:opacity-40 transition-all shadow-lg shadow-amber-500/20"
               >
                 {saved ? '✓ Saved' : saving ? '...' : 'Save'}
               </button>
@@ -167,8 +175,8 @@ export function NotificationSettings() {
           </div>
 
           {/* Push */}
-          <div className="bg-slate-800/60 rounded-xl border border-slate-700/40 p-5">
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-4 font-semibold">🔔 Push Notifications</p>
+          <div className="card-base p-5">
+            <p className="font-display text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Push Notifications</p>
 
             {!pushSupported && (
               <p className="text-xs text-slate-500">Push notifications are not supported in your browser.</p>
@@ -180,9 +188,9 @@ export function NotificationSettings() {
                 <button
                   onClick={handleEnablePush}
                   disabled={pushLoading}
-                  className="px-4 py-2 rounded-lg text-sm font-bold bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-500 hover:to-indigo-500 transition-all disabled:opacity-40"
+                  className="px-4 py-2 rounded-xl text-sm font-display font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white transition-all disabled:opacity-40 flex items-center gap-2"
                 >
-                  {pushLoading ? 'Enabling...' : 'Enable Push Notifications'}
+                  {pushLoading ? <><Loader2 size={14} className="animate-spin" /> Enabling...</> : 'Enable Push Notifications'}
                 </button>
               </div>
             )}

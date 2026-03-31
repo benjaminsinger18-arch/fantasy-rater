@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Target, Loader2 } from 'lucide-react';
 import { PlayerSearch } from '../shared/PlayerSearch.tsx';
 import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
 import { getDraftRecommendation } from '../../lib/api.ts';
@@ -32,21 +34,30 @@ const POSITION_COLORS: Record<string, string> = {
   DEF: 'text-rose-400',
 };
 
+const containerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.04 } },
+};
+const itemVariants = {
+  hidden: { opacity: 0, x: -8 },
+  show:   { opacity: 1, x: 0, transition: { duration: 0.18 } },
+};
+
 function TierList({ label, players, accent }: { label: string; players: DraftPlayer[]; accent: string }) {
   if (!players.length) return null;
   return (
     <div>
-      <p className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${accent}`}>{label}</p>
-      <div className="flex flex-col gap-1.5">
+      <p className={`text-[10px] font-display font-bold uppercase tracking-widest mb-2 ${accent}`}>{label}</p>
+      <motion.div variants={containerVariants} initial="hidden" animate="show" className="flex flex-col gap-1.5">
         {players.map(p => (
-          <div key={p.id} className="flex items-center gap-3 bg-slate-900/40 rounded-lg px-3 py-2">
-            <span className={`text-xs font-bold w-8 ${POSITION_COLORS[p.position] ?? 'text-slate-400'}`}>{p.position}</span>
+          <motion.div key={p.id} variants={itemVariants} className="flex items-center gap-3 card-base px-3 py-2.5 hover:border-white/10 transition-colors">
+            <span className={`text-xs font-display font-bold w-8 ${POSITION_COLORS[p.position] ?? 'text-slate-400'}`}>{p.position}</span>
             <span className="flex-1 text-sm text-white font-medium">{p.name}</span>
             <span className="text-xs text-slate-500">{p.team}</span>
             {p.searchRank && <span className="text-xs text-slate-600">#{p.searchRank}</span>}
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -114,9 +125,9 @@ export function DraftAssistant() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="px-6 py-5 border-b border-slate-700/50 flex-shrink-0">
+      <div className="px-6 py-5 border-b border-white/5 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-black bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+          <h1 className="text-xl font-display font-black bg-gradient-to-r from-white via-blue-100 to-indigo-300 bg-clip-text text-transparent">
             Draft Assistant
           </h1>
           <span className="text-[10px] font-bold bg-violet-500/20 text-violet-400 px-2 py-0.5 rounded-full">PRO</span>
@@ -125,12 +136,12 @@ export function DraftAssistant() {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="p-6 flex gap-6 min-h-0">
+        <div className="p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 min-h-0">
           {/* Left: Draft settings + pick entry */}
-          <div className="w-80 flex-shrink-0 flex flex-col gap-4">
+          <div className="w-full md:w-80 flex-shrink-0 flex flex-col gap-4">
             {/* Settings */}
-            <div className="bg-slate-800/60 rounded-xl border border-slate-700/40 p-4">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-3 font-semibold">Draft Settings</p>
+            <div className="card-base p-4">
+              <p className="text-xs font-display font-bold text-slate-400 uppercase tracking-widest mb-3">Draft Settings</p>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[10px] text-slate-500 uppercase tracking-wider">My Pick #</label>
@@ -138,7 +149,7 @@ export function DraftAssistant() {
                     type="number" min={1} max={totalTeams}
                     value={pickPosition}
                     onChange={e => setPickPosition(Number(e.target.value))}
-                    className="w-full mt-1 bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-indigo-500/50"
+                    className="input-base mt-1"
                   />
                 </div>
                 <div>
@@ -147,18 +158,18 @@ export function DraftAssistant() {
                     type="number" min={8} max={16}
                     value={totalTeams}
                     onChange={e => setTotalTeams(Number(e.target.value))}
-                    className="w-full mt-1 bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-indigo-500/50"
+                    className="input-base mt-1"
                   />
                 </div>
               </div>
             </div>
 
             {/* Current pick status */}
-            <div className={`rounded-xl border p-3 ${myTurn ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-800/60 border-slate-700/40'}`}>
+            <div className={`rounded-2xl border p-3 ${myTurn ? 'bg-emerald-500/10 border-emerald-500/30' : 'card-base'}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-slate-500">Round {round}, Pick {currentPick}</p>
-                  {myTurn && <p className="text-sm font-bold text-emerald-400 mt-0.5">🎯 Your pick!</p>}
+                  <p className="text-xs text-slate-500">Round <span className="font-display font-bold text-white animate-count-up">{round}</span>, Pick <span className="font-display font-bold text-white">{currentPick}</span></p>
+                  {myTurn && <p className="text-sm font-display font-bold text-emerald-400 mt-0.5 flex items-center gap-1"><Target size={14} /> Your pick!</p>}
                 </div>
                 <button onClick={undoLastPick} disabled={!allPicked.length} className="text-xs text-slate-500 hover:text-slate-300 disabled:opacity-30 transition-colors">
                   ↩ Undo
@@ -167,9 +178,9 @@ export function DraftAssistant() {
             </div>
 
             {/* Enter picks */}
-            <div className="bg-slate-800/60 rounded-xl border border-slate-700/40 p-4">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-2 font-semibold">
-                {myTurn ? '🎯 Mark your pick' : 'Mark picked player'}
+            <div className="card-base p-4">
+              <p className="text-xs font-display font-bold text-slate-400 uppercase tracking-widest mb-2">
+                {myTurn ? 'Mark Your Pick' : 'Mark Picked Player'}
               </p>
               <PlayerSearch
                 onSelect={p => addPickedPlayer(p, myTurn)}
@@ -179,12 +190,12 @@ export function DraftAssistant() {
 
             {/* My team */}
             {myPicks.length > 0 && (
-              <div className="bg-slate-800/60 rounded-xl border border-indigo-500/20 p-4">
-                <p className="text-xs text-slate-500 uppercase tracking-wider mb-2 font-semibold">My Team ({myPicks.length})</p>
+              <div className="card-base p-4 border-l-4 border-l-indigo-500/50">
+                <p className="text-xs font-display font-bold text-slate-400 uppercase tracking-widest mb-2">My Team ({myPicks.length})</p>
                 <div className="flex flex-col gap-1">
                   {myPicks.map((p, i) => (
                     <div key={`${p.id}-${i}`} className="flex items-center gap-2">
-                      <span className={`text-[10px] font-bold w-7 ${POSITION_COLORS[p.position] ?? 'text-slate-400'}`}>{p.position}</span>
+                      <span className={`text-[10px] font-display font-bold w-7 ${POSITION_COLORS[p.position] ?? 'text-slate-400'}`}>{p.position}</span>
                       <span className="text-xs text-slate-300 truncate">{p.name}</span>
                     </div>
                   ))}
@@ -195,12 +206,12 @@ export function DraftAssistant() {
             <button
               onClick={handleRecommend}
               disabled={loading}
-              className="w-full py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-500 hover:to-indigo-500 transition-all disabled:opacity-40 shadow-lg shadow-violet-500/20"
+              className="w-full py-3.5 rounded-2xl font-display font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black transition-all disabled:opacity-40 shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
             >
-              {loading ? <span className="flex items-center justify-center gap-2"><span className="animate-spin">⟳</span> Loading...</span> : 'Get Recommendation'}
+              {loading ? <><Loader2 size={16} className="animate-spin" /> Loading...</> : 'Get Recommendation'}
             </button>
 
-            {error && <p className="text-red-400 text-xs">{error}</p>}
+            {error && <p className="text-rose-400 text-xs">{error}</p>}
           </div>
 
           {/* Right: Recommendations */}
@@ -208,8 +219,8 @@ export function DraftAssistant() {
             {!result && !loading && (
               <div className="h-64 flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-4xl mb-3">🎯</div>
-                  <p className="text-slate-500 text-sm">Set up your draft and click "Get Recommendation"</p>
+                  <Target size={40} className="mx-auto mb-3 text-slate-700" />
+                  <p className="text-slate-500 text-sm">Set up your draft and tap Get Recommendation</p>
                 </div>
               </div>
             )}
@@ -217,21 +228,21 @@ export function DraftAssistant() {
             {result && (
               <div className="flex flex-col gap-4">
                 {/* Round / need summary */}
-                <div className="bg-slate-800/60 rounded-xl border border-slate-700/40 p-4 flex items-center gap-4">
+                <div className="card-base p-4 flex items-center gap-4">
                   <div className="text-center">
-                    <p className="text-2xl font-black text-white">{result.round}</p>
+                    <p className="text-2xl font-display font-black text-white animate-count-up">{result.round}</p>
                     <p className="text-xs text-slate-500">Round</p>
                   </div>
-                  <div className="w-px h-10 bg-slate-700" />
+                  <div className="w-px h-10 bg-white/10" />
                   <div>
                     <p className="text-xs text-slate-500 mb-1">Biggest Need</p>
-                    <span className={`text-sm font-bold ${POSITION_COLORS[result.positionalNeed] ?? 'text-white'}`}>
+                    <span className={`text-sm font-display font-bold ${POSITION_COLORS[result.positionalNeed] ?? 'text-white'}`}>
                       {result.positionalNeed}
                     </span>
                   </div>
                   <div className="ml-auto flex gap-2 flex-wrap">
                     {Object.entries(result.positionCounts).map(([pos, count]) => (
-                      <span key={pos} className={`text-[10px] font-bold px-2 py-1 rounded-lg bg-slate-900/60 ${POSITION_COLORS[pos] ?? 'text-slate-400'}`}>
+                      <span key={pos} className={`text-[10px] font-display font-bold px-2 py-1 rounded-lg bg-slate-900/60 ${POSITION_COLORS[pos] ?? 'text-slate-400'}`}>
                         {pos}: {count}
                       </span>
                     ))}
@@ -239,15 +250,15 @@ export function DraftAssistant() {
                 </div>
 
                 {/* Tier lists */}
-                <div className="bg-slate-800/60 rounded-xl border border-slate-700/40 p-5 flex flex-col gap-5">
+                <div className="card-base p-5 flex flex-col gap-5">
                   <TierList label="Tier 1 — Elite" players={result.tier1} accent="text-amber-400" />
                   <TierList label="Tier 2 — Solid" players={result.tier2} accent="text-blue-400" />
                   <TierList label="Tier 3 — Depth" players={result.tier3} accent="text-slate-400" />
                 </div>
 
                 {/* AI Analysis */}
-                <div className="bg-slate-800/60 rounded-xl border border-slate-700/40 p-5">
-                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-3 font-semibold">AI Recommendation</p>
+                <div className="card-base p-5 border-l-4 border-l-indigo-500/60">
+                  <p className="text-xs font-display font-bold text-indigo-400 uppercase tracking-widest mb-3">AI Recommendation</p>
                   <StreamingAnalysis hash={result.analysisHash} />
                 </div>
               </div>
