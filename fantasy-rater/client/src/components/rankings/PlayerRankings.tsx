@@ -24,7 +24,7 @@ const itemVariants = {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl border border-white/5 bg-slate-900/50 animate-pulse" style={{ height: '220px' }} />
+    <div className="rounded-2xl border border-white/5 bg-slate-900/50 animate-pulse min-h-[180px] sm:min-h-[220px]" />
   );
 }
 
@@ -123,7 +123,7 @@ export function PlayerRankings() {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3"
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3"
           >
             {loading
               ? Array.from({ length: 18 }).map((_, i) => <SkeletonCard key={i} />)

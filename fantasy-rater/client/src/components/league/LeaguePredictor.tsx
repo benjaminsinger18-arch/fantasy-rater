@@ -124,7 +124,8 @@ export function LeaguePredictor() {
         {/* Standings table */}
         <div className="px-6 py-4">
           {teams.length > 0 && (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto -mx-6 px-6">
+            <table className="w-full text-sm min-w-[320px]">
               <thead>
                 <tr className="font-display text-xs text-slate-500 uppercase tracking-widest border-b border-white/5">
                   <th className="text-left pb-2 font-bold">Proj</th>
@@ -163,6 +164,7 @@ export function LeaguePredictor() {
                 })}
               </tbody>
             </table>
+            </div>
           )}
 
           {!loading && !prediction && canLoad && (
@@ -187,7 +189,7 @@ export function LeaguePredictor() {
               {/* Projected finish */}
               <div className="card-base p-4 border-l-4 border-l-indigo-500/60 text-center">
                 <p className="text-xs text-slate-500 uppercase tracking-wider mb-1 font-display font-bold">Projected Finish</p>
-                <div className="text-5xl font-display font-black text-white mb-1 animate-count-up">
+                <div className="text-3xl sm:text-5xl font-display font-black text-white mb-1 animate-count-up">
                   #{myTeam.projectedRank}
                 </div>
                 <div className="text-xs text-slate-400">

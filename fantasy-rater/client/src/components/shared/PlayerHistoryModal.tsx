@@ -108,7 +108,8 @@ export function PlayerHistoryModal({ player, sport, onClose }: Props) {
             <p className="text-slate-500 text-sm text-center py-4">No history available.</p>
           )}
           {!loading && history.length > 0 && (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto -mx-4 px-4">
+            <table className="w-full text-sm min-w-[280px]">
               <thead>
                 <tr className="text-slate-500 text-xs uppercase">
                   <th className="text-left pb-2 font-semibold">{sport === 'fpl' ? 'GW' : 'Wk'}</th>
@@ -156,6 +157,7 @@ export function PlayerHistoryModal({ player, sport, onClose }: Props) {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       </div>

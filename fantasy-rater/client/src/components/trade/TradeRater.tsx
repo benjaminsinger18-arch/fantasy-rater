@@ -220,7 +220,7 @@ export function TradeRater() {
           <p className="text-slate-500 text-xs mt-0.5">AI-powered analysis with live player data</p>
         </div>
 
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
           <TradeSide
             label="You Give"
             players={sideA}
@@ -230,7 +230,7 @@ export function TradeRater() {
             colorClass="border-l-rose-500/70"
             headerColor="text-rose-400"
           />
-          <div className="flex items-center flex-shrink-0">
+          <div className="flex items-center justify-center flex-shrink-0">
             <div className="w-8 h-8 rounded-full bg-slate-900/60 border border-white/10 flex items-center justify-center text-slate-400">
               <ArrowLeftRight size={16} />
             </div>

@@ -408,7 +408,7 @@ export default function App() {
             <MobileHeader onMenuOpen={() => setMenuOpen(true)} />
 
             {/* Page content */}
-            <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
+            <main className="flex-1 overflow-y-auto pb-safe md:pb-0">
               <AppRoutes />
             </main>
 

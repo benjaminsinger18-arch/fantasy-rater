@@ -261,7 +261,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           </div>
 
           {/* Headshot */}
-          <div className="w-20 h-20 rounded-lg overflow-hidden flex items-center justify-center mb-2 flex-shrink-0 ring-2 ring-white/20">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex items-center justify-center mb-2 flex-shrink-0 ring-2 ring-white/20">
             {urlIndex < headshotUrls.length ? (
               <img
                 src={headshotUrls[urlIndex]}
@@ -293,7 +293,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
         <div className={`border-t ${s.divider} mx-2`} />
 
         {/* Stats grid */}
-        <div className="grid grid-cols-3 gap-px p-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-px p-2">
           {stats.map(st => (
             <div key={st.label} className={`${s.statBg} rounded px-1 py-1 text-center`}>
               <div className={`text-xs font-bold leading-tight ${s.text}`}>{st.value}</div>

@@ -6,6 +6,10 @@ html, body, #root {
   @apply h-full;
 }
 
+.pb-safe {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+}
+
 body {
   background-color: #020617; /* slate-950 */
   color: #f1f5f9;
