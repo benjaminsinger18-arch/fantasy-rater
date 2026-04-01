@@ -39,7 +39,7 @@ function PlayerAvatar({ player, sport }: { player: Player; sport: string }) {
     );
   }
   return (
-    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-600 to-violet-700 text-white text-xs font-black">
+    <div className="w-full h-full flex items-center justify-center bg-[#222222] text-[#8A8A8A] text-xs font-mono font-bold">
       {initials}
     </div>
   );
@@ -101,12 +101,12 @@ export function PlayerSearch({ onSelect, placeholder = 'Search players or "TEAM"
         className="input-base"
       />
       {loading && (
-        <Loader2 size={14} className="absolute right-3 top-3 animate-spin text-indigo-400" />
+        <Loader2 size={13} className="absolute right-3 top-2.5 animate-spin text-[#E8321A]" />
       )}
       {open && results.length > 0 && (
-        <ul className="absolute z-50 w-full mt-1.5 bg-slate-950 border border-white/[0.08] rounded-2xl shadow-2xl shadow-black/70 max-h-72 overflow-y-auto">
+        <ul className="absolute z-50 w-full mt-1 bg-[#0A0A0A] border border-[#2A2A2A] shadow-2xl shadow-black/80 max-h-72 overflow-y-auto">
           {query.startsWith('"') && (
-            <li className="px-3 py-1.5 text-xs text-slate-500 border-b border-white/5">
+            <li className="px-3 py-1.5 text-[10px] font-mono text-[#444444] border-b border-[#2A2A2A]">
               Showing all players for team — tap to add individually
             </li>
           )}
@@ -114,19 +114,19 @@ export function PlayerSearch({ onSelect, placeholder = 'Search players or "TEAM"
             <li
               key={`${p.id ?? p.name}-${i}`}
               onClick={() => select(p)}
-              className="flex items-center gap-3 px-3 py-2 hover:bg-white/5 cursor-pointer transition-colors"
+              className="flex items-center gap-3 px-3 py-2 hover:bg-[#111111] cursor-pointer transition-colors border-b border-[#1E1E1E] last:border-b-0"
             >
-              <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 ring-1 ring-white/10">
+              <div className="w-8 h-8 overflow-hidden flex-shrink-0 border border-[#2A2A2A]">
                 <PlayerAvatar player={p} sport={config.sport} />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-white text-sm font-semibold block truncate">{p.name}</span>
-                <span className="text-slate-400 text-xs">{p.position} · {p.team}</span>
+                <span className="text-[#F2EFE8] text-xs font-display font-black tracking-wide block truncate">{p.name}</span>
+                <span className="text-[#555555] font-mono text-[10px]">{p.position} · {p.team}</span>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 {p.injuryStatus && <InjuryBadge status={p.injuryStatus} />}
-                {p.avgPoints && <span className="text-xs text-slate-400">{p.avgPoints.toFixed(1)}pts</span>}
-                {p.epNext !== undefined && <span className="text-xs text-slate-400">EP:{p.epNext}</span>}
+                {p.avgPoints && <span className="text-[10px] font-mono text-[#8A8A8A]">{p.avgPoints.toFixed(1)}pts</span>}
+                {p.epNext !== undefined && <span className="text-[10px] font-mono text-[#8A8A8A]">EP:{p.epNext}</span>}
               </div>
             </li>
           ))}

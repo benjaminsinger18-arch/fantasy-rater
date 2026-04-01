@@ -5,22 +5,17 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['"Fira Code"', 'monospace'],
-        body:    ['"Fira Sans"', 'sans-serif'],
+        display: ['"Barlow Condensed"', 'sans-serif'],
+        mono:    ['"IBM Plex Mono"', 'monospace'],
+        serif:   ['"Lora"', 'serif'],
       },
       colors: {
-        brand: {
-          50: '#f0fdf4',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-        },
-        neon: {
-          blue:   '#00d4ff',
-          green:  '#00ff87',
-          purple: '#bf5af2',
-          amber:  '#ffd60a',
-        },
+        signal: '#E8321A',
+        ink:    '#F2EFE8',
+        muted:  '#8A8A8A',
+        dim:    '#555555',
+        surface: '#111111',
+        border:  '#2A2A2A',
       },
       keyframes: {
         'mesh-drift': {

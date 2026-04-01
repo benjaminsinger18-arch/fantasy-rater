@@ -19,96 +19,112 @@ function cardTier(rank: number): Tier {
 interface TierStyle {
   bgClass: string;
   border: string;
+  accentClass: string;
   statBg: string;
   text: string;
   subtext: string;
+  scoreColor: string;
   divider: string;
   glowClass: string;
   avatarGradient: string;
-  isDivine?: boolean;
 }
 
 const TIER_STYLES: Record<Tier, TierStyle> = {
   iron: {
-    bgClass: 'bg-gradient-to-b from-gray-500 to-gray-900',
-    border: 'border-gray-500/40',
-    statBg: 'bg-gray-800/70',
-    text: 'text-gray-300',
-    subtext: 'text-gray-500',
-    divider: 'border-gray-600/30',
-    glowClass: 'glow-iron',
-    avatarGradient: 'from-gray-600 to-gray-800',
+    bgClass: 'bg-[#111111]',
+    border: 'border-[#2A2A2A]',
+    accentClass: 'tier-iron',
+    statBg: 'bg-[#1A1A1A]',
+    text: 'text-[#F2EFE8]',
+    subtext: 'text-[#555555]',
+    scoreColor: 'text-[#8A8A8A]',
+    divider: 'border-[#2A2A2A]',
+    glowClass: '',
+    avatarGradient: 'from-[#333333] to-[#1A1A1A]',
   },
   bronze: {
-    bgClass: 'bg-gradient-to-b from-amber-700 to-amber-950',
-    border: 'border-amber-600/50',
-    statBg: 'bg-amber-950/60',
-    text: 'text-amber-100',
-    subtext: 'text-amber-400',
-    divider: 'border-amber-700/30',
-    glowClass: 'glow-bronze',
-    avatarGradient: 'from-amber-600 to-amber-900',
+    bgClass: 'bg-[#111111]',
+    border: 'border-[#2A2A2A]',
+    accentClass: 'tier-bronze',
+    statBg: 'bg-[#1A1A1A]',
+    text: 'text-[#F2EFE8]',
+    subtext: 'text-[#7A6048]',
+    scoreColor: 'text-[#C4A882]',
+    divider: 'border-[#2A2A2A]',
+    glowClass: '',
+    avatarGradient: 'from-[#5C3D2A] to-[#1A1010]',
   },
   silver: {
-    bgClass: 'bg-gradient-to-b from-slate-300 to-slate-600',
-    border: 'border-slate-300/60',
-    statBg: 'bg-slate-700/60',
-    text: 'text-slate-900',
-    subtext: 'text-slate-700',
-    divider: 'border-slate-400/40',
-    glowClass: 'glow-silver',
-    avatarGradient: 'from-slate-400 to-slate-600',
+    bgClass: 'bg-[#111111]',
+    border: 'border-[#2A2A2A]',
+    accentClass: 'tier-silver',
+    statBg: 'bg-[#1A1A1A]',
+    text: 'text-[#F2EFE8]',
+    subtext: 'text-[#7A8090]',
+    scoreColor: 'text-[#C8D0E0]',
+    divider: 'border-[#2A2A2A]',
+    glowClass: '',
+    avatarGradient: 'from-[#5A6070] to-[#2A2A30]',
   },
   emerald: {
-    bgClass: 'bg-gradient-to-b from-emerald-400 to-emerald-900',
-    border: 'border-emerald-400/50',
-    statBg: 'bg-emerald-950/60',
-    text: 'text-emerald-50',
-    subtext: 'text-emerald-300',
-    divider: 'border-emerald-400/30',
-    glowClass: 'glow-emerald',
-    avatarGradient: 'from-emerald-500 to-emerald-800',
+    bgClass: 'bg-[#111111]',
+    border: 'border-[#2A2A2A]',
+    accentClass: 'tier-emerald',
+    statBg: 'bg-[#1A1A1A]',
+    text: 'text-[#F2EFE8]',
+    subtext: 'text-[#2A7040]',
+    scoreColor: 'text-[#4DC878]',
+    divider: 'border-[#2A2A2A]',
+    glowClass: '',
+    avatarGradient: 'from-[#1A5E30] to-[#0A1E10]',
   },
   sapphire: {
-    bgClass: 'bg-gradient-to-b from-blue-400 to-blue-900',
-    border: 'border-blue-400/60',
-    statBg: 'bg-blue-950/60',
-    text: 'text-blue-50',
-    subtext: 'text-blue-300',
-    divider: 'border-blue-400/30',
-    glowClass: 'glow-sapphire',
-    avatarGradient: 'from-blue-500 to-blue-800',
+    bgClass: 'bg-[#111111]',
+    border: 'border-[#2A2A2A]',
+    accentClass: 'tier-sapphire',
+    statBg: 'bg-[#1A1A1A]',
+    text: 'text-[#F2EFE8]',
+    subtext: 'text-[#2A5080]',
+    scoreColor: 'text-[#5090D8]',
+    divider: 'border-[#2A2A2A]',
+    glowClass: '',
+    avatarGradient: 'from-[#1A3A68] to-[#0A1020]',
   },
   amethyst: {
-    bgClass: 'bg-gradient-to-b from-purple-400 to-purple-950',
-    border: 'border-purple-400/60',
-    statBg: 'bg-purple-950/60',
-    text: 'text-purple-50',
-    subtext: 'text-purple-300',
-    divider: 'border-purple-400/30',
-    glowClass: 'glow-amethyst',
-    avatarGradient: 'from-purple-500 to-purple-900',
+    bgClass: 'bg-[#111111]',
+    border: 'border-[#2A2A2A]',
+    accentClass: 'tier-amethyst',
+    statBg: 'bg-[#1A1A1A]',
+    text: 'text-[#F2EFE8]',
+    subtext: 'text-[#6A4A88]',
+    scoreColor: 'text-[#A88FD8]',
+    divider: 'border-[#2A2A2A]',
+    glowClass: '',
+    avatarGradient: 'from-[#4A2E68] to-[#181020]',
   },
   gold: {
-    bgClass: 'bg-gradient-to-b from-yellow-300 to-yellow-700',
-    border: 'border-yellow-300/70',
-    statBg: 'bg-yellow-900/50',
-    text: 'text-yellow-950',
-    subtext: 'text-yellow-800',
-    divider: 'border-yellow-400/40',
-    glowClass: 'glow-gold',
-    avatarGradient: 'from-yellow-400 to-yellow-700',
+    bgClass: 'bg-[#111111]',
+    border: 'border-[#2A2A2A]',
+    accentClass: 'tier-gold',
+    statBg: 'bg-[#1A1A1A]',
+    text: 'text-[#F2EFE8]',
+    subtext: 'text-[#8A6020]',
+    scoreColor: 'text-[#C8882A]',
+    divider: 'border-[#2A2A2A]',
+    glowClass: '',
+    avatarGradient: 'from-[#6A4A10] to-[#1E1408]',
   },
   divine: {
-    bgClass: 'rainbow-card',
-    border: 'border-white/50',
-    statBg: 'bg-black/25',
-    text: 'text-white',
-    subtext: 'text-white/80',
-    divider: 'border-white/30',
-    glowClass: 'glow-divine',
-    avatarGradient: 'from-purple-600 to-pink-600',
-    isDivine: true,
+    bgClass: 'bg-[#111111]',
+    border: 'border-[#E8321A]/40',
+    accentClass: 'tier-divine',
+    statBg: 'bg-[#1A1A1A]',
+    text: 'text-[#F2EFE8]',
+    subtext: 'text-[#E8321A]/70',
+    scoreColor: 'text-[#E8321A]',
+    divider: 'border-[#E8321A]/20',
+    glowClass: '',
+    avatarGradient: 'from-[#6A1A10] to-[#180808]',
   },
 };
 
@@ -224,23 +240,16 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
 
   return (
     <motion.div
-      whileHover={onClick ? { scale: 1.03, y: -3 } : {}}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className={`relative rounded-2xl border overflow-hidden shadow-xl w-full ${s.border} ${s.glowClass} ${s.isDivine ? '' : s.bgClass} ${onClick ? 'cursor-pointer' : ''}`}
+      whileHover={onClick ? { scale: 1.01, y: -2 } : {}}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
+      className={`relative border border-l-4 overflow-hidden w-full ${s.bgClass} ${s.border} ${s.accentClass} ${onClick ? 'cursor-pointer' : ''}`}
       onClick={onClick}
     >
-      {s.isDivine && (
-        <>
-          <div className="absolute inset-0 rainbow-card rounded-2xl" />
-          <div className="shine-overlay rounded-2xl" />
-        </>
-      )}
-
       <div className="relative z-10">
         {onRemove && (
           <button
             onClick={onRemove}
-            className="absolute top-1.5 right-1.5 z-20 w-5 h-5 rounded-full bg-black/40 hover:bg-red-500/80 text-white flex items-center justify-center transition-colors"
+            className="absolute top-1.5 right-1.5 z-20 w-5 h-5 bg-[#1A1A1A] hover:bg-[#E8321A]/20 text-[#555555] hover:text-[#E8321A] flex items-center justify-center transition-colors"
           >
             <X size={10} />
           </button>
@@ -251,17 +260,17 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           {/* Score + tier row */}
           <div className="w-full flex items-start justify-between mb-1">
             <div>
-              <div className={`text-3xl font-display font-black leading-none animate-count-up ${s.text}`}>{Math.round(rank)}</div>
-              <div className={`text-[10px] font-bold uppercase ${s.subtext}`}>{player.position}</div>
+              <div className={`text-4xl font-display font-black leading-none animate-count-up tracking-tight ${s.scoreColor}`}>{Math.round(rank)}</div>
+              <div className={`text-[10px] font-mono uppercase tracking-wider ${s.subtext}`}>{player.position}</div>
             </div>
             <div className="text-right">
-              <div className={`text-[10px] font-bold uppercase ${s.text} opacity-70`}>{TIER_LABELS[tier]}</div>
-              <div className={`text-[9px] ${s.subtext}`}>{player.team}</div>
+              <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${s.scoreColor}`}>{TIER_LABELS[tier]}</div>
+              <div className={`text-[9px] font-mono ${s.subtext}`}>{player.team}</div>
             </div>
           </div>
 
           {/* Headshot */}
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex items-center justify-center mb-2 flex-shrink-0 ring-2 ring-white/20">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 overflow-hidden flex items-center justify-center mb-2 flex-shrink-0 border border-[#2A2A2A]">
             {urlIndex < headshotUrls.length ? (
               <img
                 src={headshotUrls[urlIndex]}
@@ -278,13 +287,13 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
               />
             ) : (
               <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${s.avatarGradient}`}>
-                <span className="text-white/80 text-2xl font-black tracking-widest">{player.position}</span>
+                <span className={`text-xl font-display font-black tracking-widest ${s.scoreColor}`}>{player.position}</span>
               </div>
             )}
           </div>
 
           {/* Name */}
-          <div className={`text-xs font-black tracking-wide text-center truncate w-full ${s.text}`}>
+          <div className={`text-xs font-display font-black tracking-widest text-center truncate w-full ${s.text}`}>
             {displayName}
           </div>
         </div>
@@ -295,9 +304,9 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
         {/* Stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-px p-2">
           {stats.map(st => (
-            <div key={st.label} className={`${s.statBg} rounded px-1 py-1 text-center`}>
-              <div className={`text-xs font-bold leading-tight ${s.text}`}>{st.value}</div>
-              <div className={`text-[9px] uppercase leading-tight ${s.subtext}`}>{st.label}</div>
+            <div key={st.label} className={`${s.statBg} px-1 py-1 text-center`}>
+              <div className={`text-xs font-mono font-bold leading-tight ${s.text}`}>{st.value}</div>
+              <div className={`text-[9px] font-mono uppercase leading-tight tracking-wider ${s.subtext}`}>{st.label}</div>
             </div>
           ))}
         </div>
