@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -74,7 +75,7 @@ export function TierInfoModal({ open, onClose }: Props) {
     return () => window.removeEventListener('keydown', handler);
   }, [open, onClose]);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -84,7 +85,7 @@ export function TierInfoModal({ open, onClose }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
-            onClick={onClose}
+            onClick={e => { e.stopPropagation(); onClose(); }}
           />
           <motion.div
             className="fixed z-[101] top-1/2 left-1/2 w-[min(92vw,380px)]"
@@ -149,6 +150,7 @@ export function TierInfoModal({ open, onClose }: Props) {
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
