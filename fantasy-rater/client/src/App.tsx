@@ -66,7 +66,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
     `flex items-center gap-3 px-3 py-2 text-xs transition-all duration-150 border-l-2 font-mono tracking-wider uppercase ${
       isActive
         ? 'text-[#F2EFE8] border-[#E8321A] bg-[#E8321A]/5'
-        : 'text-[#555555] hover:text-[#8A8A8A] border-transparent'
+        : 'text-[#888888] hover:text-[#BBBBBB] border-transparent'
     }`;
 
   return (
@@ -83,7 +83,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
       </div>
 
       <div className="px-3 pt-4 pb-2">
-        <p className="text-[9px] text-[#333333] uppercase tracking-widest px-1 mb-2 font-mono font-bold">Sport</p>
+        <p className="text-[9px] text-[#555555] uppercase tracking-widest px-1 mb-2 font-mono font-bold">Sport</p>
         <div className="grid grid-cols-2 gap-1">
           {SPORTS.map(s => (
             <motion.button
@@ -104,7 +104,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
       </div>
 
       <nav className="px-3 pt-2 flex flex-col gap-0.5 overflow-y-auto">
-        <p className="text-[9px] text-[#333333] uppercase tracking-widest px-1 mb-1 mt-2 font-mono font-bold">Tools</p>
+        <p className="text-[9px] text-[#555555] uppercase tracking-widest px-1 mb-1 mt-2 font-mono font-bold">Tools</p>
         {[
           { to: '/', end: true, icon: <ArrowLeftRight size={13} className="flex-shrink-0" />, label: 'Trade Rater' },
           { to: '/team', icon: <ClipboardList size={13} className="flex-shrink-0" />, label: 'Team Rater' },
@@ -126,7 +126,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
             </NavLink>
           </motion.div>
         ))}
-        <p className="text-[9px] text-[#333333] uppercase tracking-widest px-1 mb-1 mt-3 font-mono font-bold">Account</p>
+        <p className="text-[9px] text-[#555555] uppercase tracking-widest px-1 mb-1 mt-3 font-mono font-bold">Account</p>
         {[
           { to: '/leagues', icon: <FolderOpen size={13} className="flex-shrink-0" />, label: 'My Leagues' },
           { to: '/league', icon: <Settings size={13} className="flex-shrink-0" />, label: 'League Setup' },
@@ -264,7 +264,7 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
             to={to}
             end={end}
             className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-mono tracking-wider uppercase transition-colors relative ${
-              isActive ? 'text-[#E8321A]' : 'text-[#444444] active:text-[#666666]'
+              isActive ? 'text-[#E8321A]' : 'text-[#777777] active:text-[#AAAAAA]'
             }`}
           >
             {isActive && (
@@ -286,7 +286,7 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
       })}
       <motion.button
         onClick={onMoreOpen}
-        className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-mono tracking-wider uppercase text-[#444444] active:text-[#666666] transition-colors"
+        className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-mono tracking-wider uppercase text-[#777777] active:text-[#AAAAAA] transition-colors"
         whileTap={{ scale: 0.9 }}
       >
         <MoreHorizontal size={20} />
@@ -346,7 +346,7 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
 
             <div className="px-4 py-3 space-y-0.5">
               <motion.p
-                className="text-[9px] text-[#333333] uppercase tracking-widest font-mono font-bold px-2 pb-1"
+                className="text-[9px] text-[#555555] uppercase tracking-widest font-mono font-bold px-2 pb-1"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.08 }}
@@ -372,7 +372,7 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
               <div className="h-px bg-[#2A2A2A] my-2" />
 
               <motion.p
-                className="text-[9px] text-[#333333] uppercase tracking-widest font-mono font-bold px-2 pb-1"
+                className="text-[9px] text-[#555555] uppercase tracking-widest font-mono font-bold px-2 pb-1"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.28 }}
