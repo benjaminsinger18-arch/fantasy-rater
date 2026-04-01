@@ -4,17 +4,15 @@ import { X, Info } from 'lucide-react';
 import type { Player } from '../../types/index.ts';
 import { TierInfoModal } from './TierInfoModal.tsx';
 
-type Tier = 'waiver' | 'bench' | 'flex' | 'starter' | 'impact' | 'stud' | 'cornerstone' | 'untouchable';
+type Tier = 'f' | 'd' | 'c' | 'b' | 'a' | 's';
 
 function cardTier(rank: number): Tier {
-  if (rank >= 95) return 'untouchable';
-  if (rank >= 85) return 'cornerstone';
-  if (rank >= 75) return 'stud';
-  if (rank >= 60) return 'impact';
-  if (rank >= 45) return 'starter';
-  if (rank >= 30) return 'flex';
-  if (rank >= 15) return 'bench';
-  return 'waiver';
+  if (rank >= 90) return 's';
+  if (rank >= 75) return 'a';
+  if (rank >= 55) return 'b';
+  if (rank >= 35) return 'c';
+  if (rank >= 15) return 'd';
+  return 'f';
 }
 
 interface TierStyle {
@@ -31,43 +29,31 @@ interface TierStyle {
 }
 
 const TIER_STYLES: Record<Tier, TierStyle> = {
-  waiver: {
+  f: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-iron',
     statBg: 'bg-[#1A1A1A]',
     text: 'text-[#F2EFE8]',
     subtext: 'text-[#555555]',
-    scoreColor: 'text-[#8A8A8A]',
+    scoreColor: 'text-[#666666]',
     divider: 'border-[#2A2A2A]',
     glowClass: '',
     avatarGradient: 'from-[#333333] to-[#1A1A1A]',
   },
-  bench: {
-    bgClass: 'bg-[#111111]',
-    border: 'border-[#2A2A2A]',
-    accentClass: 'tier-bronze',
-    statBg: 'bg-[#1A1A1A]',
-    text: 'text-[#F2EFE8]',
-    subtext: 'text-[#7A6048]',
-    scoreColor: 'text-[#C4A882]',
-    divider: 'border-[#2A2A2A]',
-    glowClass: '',
-    avatarGradient: 'from-[#5C3D2A] to-[#1A1010]',
-  },
-  flex: {
+  d: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-silver',
     statBg: 'bg-[#1A1A1A]',
     text: 'text-[#F2EFE8]',
     subtext: 'text-[#7A8090]',
-    scoreColor: 'text-[#C8D0E0]',
+    scoreColor: 'text-[#9BA4B5]',
     divider: 'border-[#2A2A2A]',
     glowClass: '',
-    avatarGradient: 'from-[#5A6070] to-[#2A2A30]',
+    avatarGradient: 'from-[#3A4050] to-[#1A1A20]',
   },
-  starter: {
+  c: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-emerald',
@@ -79,7 +65,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     glowClass: '',
     avatarGradient: 'from-[#1A5E30] to-[#0A1E10]',
   },
-  impact: {
+  b: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-sapphire',
@@ -91,19 +77,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     glowClass: '',
     avatarGradient: 'from-[#1A3A68] to-[#0A1020]',
   },
-  stud: {
-    bgClass: 'bg-[#111111]',
-    border: 'border-[#2A2A2A]',
-    accentClass: 'tier-amethyst',
-    statBg: 'bg-[#1A1A1A]',
-    text: 'text-[#F2EFE8]',
-    subtext: 'text-[#6A4A88]',
-    scoreColor: 'text-[#A88FD8]',
-    divider: 'border-[#2A2A2A]',
-    glowClass: '',
-    avatarGradient: 'from-[#4A2E68] to-[#181020]',
-  },
-  cornerstone: {
+  a: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-gold',
@@ -115,7 +89,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     glowClass: '',
     avatarGradient: 'from-[#6A4A10] to-[#1E1408]',
   },
-  untouchable: {
+  s: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#E8321A]/40',
     accentClass: 'tier-divine',
@@ -130,14 +104,12 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
 };
 
 const TIER_LABELS: Record<Tier, string> = {
-  waiver: 'WAV',
-  bench: 'BCH',
-  flex: 'FLX',
-  starter: 'STR',
-  impact: 'IMP',
-  stud: 'STD',
-  cornerstone: 'CRN',
-  untouchable: 'UTD',
+  f: 'F',
+  d: 'D',
+  c: 'C',
+  b: 'B',
+  a: 'A',
+  s: 'S',
 };
 
 function getHeadshotUrls(player: Player, sport: string): string[] {
@@ -245,7 +217,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative border border-l-4 overflow-hidden w-full ${s.bgClass} ${s.border} ${s.accentClass} ${onClick ? 'cursor-pointer' : ''} ${tier === 'untouchable' ? 'animate-border-pulse' : ''}`}
+      className={`relative border border-l-4 overflow-hidden w-full ${s.bgClass} ${s.border} ${s.accentClass} ${onClick ? 'cursor-pointer' : ''} ${tier === 's' ? 'animate-border-pulse' : ''}`}
       onClick={onClick}
     >
       <TierInfoModal open={infoOpen} onClose={() => setInfoOpen(false)} />
