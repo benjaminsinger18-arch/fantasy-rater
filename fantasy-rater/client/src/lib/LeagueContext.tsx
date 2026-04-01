@@ -73,6 +73,15 @@ export function LeagueProvider({ children }: { children: React.ReactNode }) {
       myRosterId: undefined,
       fplManagerId: undefined,
     }));
+    if (sport === 'fpl') {
+      const apiBase = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
+      fetch(`${apiBase}/players/gameweek?sport=fpl`)
+        .then(r => r.json())
+        .then(({ currentWeek }) => {
+          if (currentWeek) setConfigState(prev => ({ ...prev, currentWeek }));
+        })
+        .catch(() => {});
+    }
   };
 
   return (

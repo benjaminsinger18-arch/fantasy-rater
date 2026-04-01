@@ -31,6 +31,21 @@ function rankToFantasyValue(rank: number | null | undefined, position: string): 
   return POSITION_BASE_SCORE[position?.toUpperCase()] ?? 25;
 }
 
+// GET /api/players/gameweek?sport=fpl  — returns current FPL gameweek
+router.get('/gameweek', async (req, res) => {
+  const { sport = 'nfl' } = req.query as Record<string, string>;
+  try {
+    if (sport === 'fpl') {
+      const bootstrap = await fpl.getBootstrap();
+      const current = bootstrap.events.find(e => e.is_current) ?? bootstrap.events.find(e => e.is_next);
+      return res.json({ currentWeek: current?.id ?? 1 });
+    }
+    return res.json({ currentWeek: 1 });
+  } catch {
+    return res.json({ currentWeek: 1 });
+  }
+});
+
 // GET /api/players/search?q=mahomes&sport=nfl&position=QB&platform=sleeper&week=1
 router.get('/search', async (req, res) => {
   const { q = '', sport = 'nfl', position, platform = 'sleeper', leagueId, espnS2, swid, week = '1' } = req.query as Record<string, string>;
