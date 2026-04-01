@@ -241,8 +241,10 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
   return (
     <motion.div
       whileHover={onClick ? { scale: 1.01, y: -2 } : {}}
-      transition={{ duration: 0.15, ease: 'easeOut' }}
-      className={`relative border border-l-4 overflow-hidden w-full ${s.bgClass} ${s.border} ${s.accentClass} ${onClick ? 'cursor-pointer' : ''}`}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      className={`relative border border-l-4 overflow-hidden w-full ${s.bgClass} ${s.border} ${s.accentClass} ${onClick ? 'cursor-pointer' : ''} ${tier === 'divine' ? 'animate-border-pulse' : ''}`}
       onClick={onClick}
     >
       <div className="relative z-10">
@@ -303,11 +305,17 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-px p-2">
-          {stats.map(st => (
-            <div key={st.label} className={`${s.statBg} px-1 py-1 text-center`}>
+          {stats.map((st, i) => (
+            <motion.div
+              key={st.label}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 + i * 0.04, duration: 0.2, ease: 'easeOut' }}
+              className={`${s.statBg} px-1 py-1 text-center`}
+            >
               <div className={`text-xs font-mono font-bold leading-tight ${s.text}`}>{st.value}</div>
               <div className={`text-[9px] font-mono uppercase leading-tight tracking-wider ${s.subtext}`}>{st.label}</div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

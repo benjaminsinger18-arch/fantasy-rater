@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeftRight, X, Share2, Copy, Check, Loader2, Flame, CheckCircle, Scale, AlertTriangle, Siren } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { PlayerSearch } from '../shared/PlayerSearch.tsx';
@@ -41,7 +41,14 @@ async function loadPlayerImage(player: Player, sport: string): Promise<string | 
 
 function CompactPlayerRow({ player, onRemove }: { player: Player; onRemove: () => void }) {
   return (
-    <div className="flex items-center gap-2 bg-[#1A1A1A] border border-[#2A2A2A] hover:border-[#3A3A3A] px-2.5 py-2 mb-1 transition-colors">
+    <motion.div
+      layout
+      initial={{ opacity: 0, x: -12, height: 0 }}
+      animate={{ opacity: 1, x: 0, height: 'auto' }}
+      exit={{ opacity: 0, x: 12, height: 0 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      className="flex items-center gap-2 bg-[#1A1A1A] border border-[#2A2A2A] hover:border-[#3A3A3A] px-2.5 py-2 mb-1 transition-colors overflow-hidden"
+    >
       <div className="w-6 h-6 bg-[#222222] flex items-center justify-center flex-shrink-0 text-[10px] font-mono font-bold text-[#8A8A8A]">
         {player.position}
       </div>
@@ -53,10 +60,15 @@ function CompactPlayerRow({ player, onRemove }: { player: Player; onRemove: () =
           {player.position}{player.team ? ` · ${player.team}` : ''}
         </p>
       </div>
-      <button onClick={onRemove} className="text-[#444444] hover:text-[#E8321A] flex-shrink-0 transition-colors">
+      <motion.button
+        onClick={onRemove}
+        className="text-[#444444] hover:text-[#E8321A] flex-shrink-0 transition-colors"
+        whileTap={{ scale: 0.8, rotate: 90 }}
+        transition={{ duration: 0.15 }}
+      >
         <X size={12} />
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 }
 
@@ -83,15 +95,27 @@ function TradeSide({
         <PlayerSearch onSelect={onAdd} placeholder='Search player or "TEAM"...' />
       </div>
       <div className="px-2.5 pb-2.5 min-h-[60px]">
-        {players.length === 0 ? (
-          <p className="text-[#444444] font-mono text-[10px] text-center pt-3">Add players above</p>
-        ) : (
-          <div className="mt-1.5">
-            {players.map((p, i) => (
-              <CompactPlayerRow key={`${p.id}-${i}`} player={p} onRemove={() => onRemove(i)} />
-            ))}
-          </div>
-        )}
+        <AnimatePresence initial={false}>
+          {players.length === 0 ? (
+            <motion.p
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-[#444444] font-mono text-[10px] text-center pt-3"
+            >
+              Add players above
+            </motion.p>
+          ) : (
+            <div className="mt-1.5">
+              {players.map((p, i) => (
+                <AnimatePresence key={`${p.id}-${i}`} mode="popLayout">
+                  <CompactPlayerRow player={p} onRemove={() => onRemove(i)} />
+                </AnimatePresence>
+              ))}
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

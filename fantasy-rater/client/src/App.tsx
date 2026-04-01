@@ -86,9 +86,11 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
         <p className="text-[9px] text-[#333333] uppercase tracking-widest px-1 mb-2 font-mono font-bold">Sport</p>
         <div className="grid grid-cols-2 gap-1">
           {SPORTS.map(s => (
-            <button
+            <motion.button
               key={s.id}
               onClick={() => setSport(s.id)}
+              whileTap={{ scale: 0.93 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
               className={`px-2 py-1.5 text-[11px] font-mono font-bold border transition-all tracking-wider ${
                 config.sport === s.id
                   ? 'border-[#E8321A] text-[#E8321A] bg-[#E8321A]/5'
@@ -96,33 +98,49 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
               }`}
             >
               {s.label}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
 
       <nav className="px-3 pt-2 flex flex-col gap-0.5 overflow-y-auto">
         <p className="text-[9px] text-[#333333] uppercase tracking-widest px-1 mb-1 mt-2 font-mono font-bold">Tools</p>
-        <NavLink to="/" end className={linkClass}><ArrowLeftRight size={13} className="flex-shrink-0" /> Trade Rater</NavLink>
-        <NavLink to="/team" className={linkClass}><ClipboardList size={13} className="flex-shrink-0" /> Team Rater</NavLink>
-        <NavLink to="/startsit" className={linkClass}><RefreshCw size={13} className="flex-shrink-0" /> Start/Sit</NavLink>
-        <NavLink to="/waiver" className={linkClass}>
-          <Inbox size={13} className="flex-shrink-0" /> Waiver Wire
-          {!isPro && <span className="ml-auto text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-mono font-bold">PRO</span>}
-        </NavLink>
-        <NavLink to="/draft" className={linkClass}>
-          <Target size={13} className="flex-shrink-0" /> Draft
-          {!isPro && <span className="ml-auto text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-mono font-bold">PRO</span>}
-        </NavLink>
-        <NavLink to="/rankings" className={linkClass}><Medal size={13} className="flex-shrink-0" /> Rankings</NavLink>
-        <NavLink to="/predictor" className={linkClass}>
-          <Telescope size={13} className="flex-shrink-0" /> League Predictor
-          {!isPro && <span className="ml-auto text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-mono font-bold">PRO</span>}
-        </NavLink>
+        {[
+          { to: '/', end: true, icon: <ArrowLeftRight size={13} className="flex-shrink-0" />, label: 'Trade Rater' },
+          { to: '/team', icon: <ClipboardList size={13} className="flex-shrink-0" />, label: 'Team Rater' },
+          { to: '/startsit', icon: <RefreshCw size={13} className="flex-shrink-0" />, label: 'Start/Sit' },
+          { to: '/waiver', icon: <Inbox size={13} className="flex-shrink-0" />, label: 'Waiver Wire', pro: !isPro },
+          { to: '/draft', icon: <Target size={13} className="flex-shrink-0" />, label: 'Draft', pro: !isPro },
+          { to: '/rankings', icon: <Medal size={13} className="flex-shrink-0" />, label: 'Rankings' },
+          { to: '/predictor', icon: <Telescope size={13} className="flex-shrink-0" />, label: 'League Predictor', pro: !isPro },
+        ].map(({ to, end, icon, label, pro }, i) => (
+          <motion.div
+            key={to}
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.04, type: 'spring', stiffness: 400, damping: 30 }}
+          >
+            <NavLink to={to} end={end} className={linkClass}>
+              {icon} {label}
+              {pro && <span className="ml-auto text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-mono font-bold">PRO</span>}
+            </NavLink>
+          </motion.div>
+        ))}
         <p className="text-[9px] text-[#333333] uppercase tracking-widest px-1 mb-1 mt-3 font-mono font-bold">Account</p>
-        <NavLink to="/leagues" className={linkClass}><FolderOpen size={13} className="flex-shrink-0" /> My Leagues</NavLink>
-        <NavLink to="/league" className={linkClass}><Settings size={13} className="flex-shrink-0" /> League Setup</NavLink>
-        <NavLink to="/settings" className={linkClass}><Bell size={13} className="flex-shrink-0" /> Notifications</NavLink>
+        {[
+          { to: '/leagues', icon: <FolderOpen size={13} className="flex-shrink-0" />, label: 'My Leagues' },
+          { to: '/league', icon: <Settings size={13} className="flex-shrink-0" />, label: 'League Setup' },
+          { to: '/settings', icon: <Bell size={13} className="flex-shrink-0" />, label: 'Notifications' },
+        ].map(({ to, icon, label }, i) => (
+          <motion.div
+            key={to}
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.28 + i * 0.04, type: 'spring', stiffness: 400, damping: 30 }}
+          >
+            <NavLink to={to} className={linkClass}>{icon} {label}</NavLink>
+          </motion.div>
+        ))}
       </nav>
 
       <div className="mt-auto px-3 pt-3 pb-1 flex flex-col gap-2">
@@ -227,41 +245,70 @@ function MobileHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
 
 // ─── Mobile Bottom Nav ────────────────────────────────────────────────────────
 function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
-  const tabClass = ({ isActive }: { isActive: boolean }) =>
-    `flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-mono tracking-wider uppercase transition-colors ${
-      isActive ? 'text-[#E8321A]' : 'text-[#444444] active:text-[#666666]'
-    }`;
+  const location = useLocation();
+
+  const tabs = [
+    { to: '/', end: true, icon: ArrowLeftRight, label: 'Trade' },
+    { to: '/team', icon: ClipboardList, label: 'Team' },
+    { to: '/startsit', icon: RefreshCw, label: 'Start/Sit' },
+    { to: '/rankings', icon: Medal, label: 'Rankings' },
+  ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0A0A0A] border-t border-[#2A2A2A] flex items-stretch safe-bottom" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <NavLink to="/" end className={tabClass}>
-        <ArrowLeftRight size={20} />
-        Trade
-      </NavLink>
-      <NavLink to="/team" className={tabClass}>
-        <ClipboardList size={20} />
-        Team
-      </NavLink>
-      <NavLink to="/startsit" className={tabClass}>
-        <RefreshCw size={20} />
-        Start/Sit
-      </NavLink>
-      <NavLink to="/rankings" className={tabClass}>
-        <Medal size={20} />
-        Rankings
-      </NavLink>
-      <button
+      {tabs.map(({ to, end, icon: Icon, label }) => {
+        const isActive = end ? location.pathname === to : location.pathname.startsWith(to);
+        return (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-mono tracking-wider uppercase transition-colors relative ${
+              isActive ? 'text-[#E8321A]' : 'text-[#444444] active:text-[#666666]'
+            }`}
+          >
+            {isActive && (
+              <motion.div
+                layoutId="bottom-nav-indicator"
+                className="absolute top-0 left-2 right-2 h-px bg-[#E8321A]"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
+            <motion.div
+              animate={isActive ? { scale: 1.15 } : { scale: 1 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+            >
+              <Icon size={20} />
+            </motion.div>
+            {label}
+          </NavLink>
+        );
+      })}
+      <motion.button
         onClick={onMoreOpen}
         className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-mono tracking-wider uppercase text-[#444444] active:text-[#666666] transition-colors"
+        whileTap={{ scale: 0.9 }}
       >
         <MoreHorizontal size={20} />
         More
-      </button>
+      </motion.button>
     </nav>
   );
 }
 
 // ─── Mobile Slide-up Menu ────────────────────────────────────────────────────
+const menuItems = [
+  { icon: Inbox, label: 'Waiver Wire', path: '/waiver', pro: true },
+  { icon: Target, label: 'Draft Assistant', path: '/draft', pro: true },
+  { icon: Telescope, label: 'League Predictor', path: '/predictor', pro: true },
+];
+
+const accountItems = [
+  { icon: FolderOpen, label: 'My Leagues', path: '/leagues' },
+  { icon: Settings, label: 'League Setup', path: '/league' },
+  { icon: Bell, label: 'Notifications', path: '/settings' },
+];
+
 function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () => void; onUpgrade: () => void }) {
   const { user } = useUser();
   const tier = (user?.publicMetadata?.tier as string) ?? 'free';
@@ -273,81 +320,122 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
     onClose();
   }
 
-  if (!open) return null;
-
   return (
-    <>
-      <div className="fixed inset-0 z-50 bg-black/80" onClick={onClose} />
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A] border-t border-[#2A2A2A]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="flex justify-center pt-3 pb-1">
-          <div className="w-8 h-0.5 bg-[#2A2A2A]" />
-        </div>
-
-        <div className="px-4 py-3 space-y-0.5">
-          <p className="text-[9px] text-[#333333] uppercase tracking-widest font-mono font-bold px-2 pb-1">More Tools</p>
-          <button onClick={() => go('/waiver')} className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#111111] transition-colors text-sm font-mono border-l-2 border-transparent hover:border-[#E8321A]">
-            <Inbox size={16} />
-            <span>Waiver Wire</span>
-            {!isPro && <span className="ml-auto text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-bold">PRO</span>}
-          </button>
-          <button onClick={() => go('/draft')} className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#111111] transition-colors text-sm font-mono border-l-2 border-transparent hover:border-[#E8321A]">
-            <Target size={16} />
-            <span>Draft Assistant</span>
-            {!isPro && <span className="ml-auto text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-bold">PRO</span>}
-          </button>
-          <button onClick={() => go('/predictor')} className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#111111] transition-colors text-sm font-mono border-l-2 border-transparent hover:border-[#E8321A]">
-            <Telescope size={16} />
-            <span>League Predictor</span>
-            {!isPro && <span className="ml-auto text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-bold">PRO</span>}
-          </button>
-
-          <div className="h-px bg-[#2A2A2A] my-2" />
-
-          <p className="text-[9px] text-[#333333] uppercase tracking-widest font-mono font-bold px-2 pb-1">Account</p>
-          <button onClick={() => go('/leagues')} className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#111111] transition-colors text-sm font-mono">
-            <FolderOpen size={16} /> My Leagues
-          </button>
-          <button onClick={() => go('/league')} className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#111111] transition-colors text-sm font-mono">
-            <Settings size={16} /> League Setup
-          </button>
-          <button onClick={() => go('/settings')} className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#111111] transition-colors text-sm font-mono">
-            <Bell size={16} /> Notifications
-          </button>
-
-          <div className="h-px bg-[#2A2A2A] my-2" />
-
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button onClick={onClose} className="w-full py-3 text-xs font-mono font-bold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors uppercase tracking-wider">
-                Sign In
-              </button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <div className="flex items-center gap-3 px-3 py-2">
-              <UserButton />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-mono text-[#F2EFE8] truncate">{user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress ?? 'My Account'}</p>
-                <p className="text-xs font-mono text-[#555555]">{isPro ? 'Pro member' : 'Free plan'}</p>
-              </div>
-              {isPro && (
-                <button onClick={() => { openBillingPortal(); onClose(); }} className="text-xs font-mono text-[#555555] hover:text-[#8A8A8A]">
-                  Manage
-                </button>
-              )}
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            className="fixed inset-0 z-50 bg-black/80"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+          />
+          <motion.div
+            className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A] border-t border-[#2A2A2A]"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+          >
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-8 h-0.5 bg-[#2A2A2A]" />
             </div>
-            {!isPro && (
-              <button
-                onClick={() => { onUpgrade(); onClose(); }}
-                className="w-full py-3 text-xs font-mono font-bold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-1.5 uppercase tracking-wider"
+
+            <div className="px-4 py-3 space-y-0.5">
+              <motion.p
+                className="text-[9px] text-[#333333] uppercase tracking-widest font-mono font-bold px-2 pb-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.08 }}
               >
-                <Zap size={12} /> Upgrade to Pro
-              </button>
-            )}
-          </SignedIn>
-        </div>
-      </div>
-    </>
+                More Tools
+              </motion.p>
+              {menuItems.map(({ icon: Icon, label, path, pro }, i) => (
+                <motion.button
+                  key={path}
+                  onClick={() => go(path)}
+                  className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#111111] transition-colors text-sm font-mono border-l-2 border-transparent hover:border-[#E8321A]"
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 400, damping: 28 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Icon size={16} />
+                  <span>{label}</span>
+                  {pro && !isPro && <span className="ml-auto text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-bold">PRO</span>}
+                </motion.button>
+              ))}
+
+              <div className="h-px bg-[#2A2A2A] my-2" />
+
+              <motion.p
+                className="text-[9px] text-[#333333] uppercase tracking-widest font-mono font-bold px-2 pb-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.28 }}
+              >
+                Account
+              </motion.p>
+              {accountItems.map(({ icon: Icon, label, path }, i) => (
+                <motion.button
+                  key={path}
+                  onClick={() => go(path)}
+                  className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#111111] transition-colors text-sm font-mono"
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + i * 0.06, type: 'spring', stiffness: 400, damping: 28 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Icon size={16} /> {label}
+                </motion.button>
+              ))}
+
+              <div className="h-px bg-[#2A2A2A] my-2" />
+
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.48 }}
+              >
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button onClick={onClose} className="w-full py-3 text-xs font-mono font-bold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors uppercase tracking-wider">
+                      Sign In
+                    </button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <div className="flex items-center gap-3 px-3 py-2">
+                    <UserButton />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-mono text-[#F2EFE8] truncate">{user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress ?? 'My Account'}</p>
+                      <p className="text-xs font-mono text-[#555555]">{isPro ? 'Pro member' : 'Free plan'}</p>
+                    </div>
+                    {isPro && (
+                      <button onClick={() => { openBillingPortal(); onClose(); }} className="text-xs font-mono text-[#555555] hover:text-[#8A8A8A]">
+                        Manage
+                      </button>
+                    )}
+                  </div>
+                  {!isPro && (
+                    <motion.button
+                      onClick={() => { onUpgrade(); onClose(); }}
+                      className="w-full py-3 text-xs font-mono font-bold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-1.5 uppercase tracking-wider"
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <Zap size={12} /> Upgrade to Pro
+                    </motion.button>
+                  )}
+                </SignedIn>
+              </motion.div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
 
