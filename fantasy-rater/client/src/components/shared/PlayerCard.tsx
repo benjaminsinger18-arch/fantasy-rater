@@ -4,14 +4,15 @@ import { X, Info } from 'lucide-react';
 import type { Player } from '../../types/index.ts';
 import { TierInfoModal } from './TierInfoModal.tsx';
 
-type Tier = 'f' | 'd' | 'c' | 'b' | 'a' | 's';
+type Tier = 'f' | 'e' | 'd' | 'c' | 'b' | 'a' | 's';
 
 function cardTier(rank: number): Tier {
   if (rank >= 90) return 's';
   if (rank >= 75) return 'a';
   if (rank >= 55) return 'b';
   if (rank >= 35) return 'c';
-  if (rank >= 15) return 'd';
+  if (rank >= 20) return 'd';
+  if (rank >= 8)  return 'e';
   return 'f';
 }
 
@@ -29,6 +30,18 @@ interface TierStyle {
 }
 
 const TIER_STYLES: Record<Tier, TierStyle> = {
+  e: {
+    bgClass: 'bg-[#111111]',
+    border: 'border-[#2A2A2A]',
+    accentClass: 'tier-bronze',
+    statBg: 'bg-[#1A1A1A]',
+    text: 'text-[#F2EFE8]',
+    subtext: 'text-[#7A6048]',
+    scoreColor: 'text-[#C4A882]',
+    divider: 'border-[#2A2A2A]',
+    glowClass: '',
+    avatarGradient: 'from-[#5C3D2A] to-[#1A1010]',
+  },
   f: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
@@ -105,6 +118,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
 
 const TIER_LABELS: Record<Tier, string> = {
   f: 'F',
+  e: 'E',
   d: 'D',
   c: 'C',
   b: 'B',
