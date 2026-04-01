@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Info } from 'lucide-react';
 import type { Player } from '../../types/index.ts';
+import { TierInfoModal } from './TierInfoModal.tsx';
 
-type Tier = 'iron' | 'bronze' | 'silver' | 'emerald' | 'sapphire' | 'amethyst' | 'gold' | 'divine';
+type Tier = 'waiver' | 'bench' | 'flex' | 'starter' | 'impact' | 'stud' | 'cornerstone' | 'untouchable';
 
 function cardTier(rank: number): Tier {
-  if (rank >= 95) return 'divine';
-  if (rank >= 85) return 'gold';
-  if (rank >= 75) return 'amethyst';
-  if (rank >= 60) return 'sapphire';
-  if (rank >= 45) return 'emerald';
-  if (rank >= 30) return 'silver';
-  if (rank >= 15) return 'bronze';
-  return 'iron';
+  if (rank >= 95) return 'untouchable';
+  if (rank >= 85) return 'cornerstone';
+  if (rank >= 75) return 'stud';
+  if (rank >= 60) return 'impact';
+  if (rank >= 45) return 'starter';
+  if (rank >= 30) return 'flex';
+  if (rank >= 15) return 'bench';
+  return 'waiver';
 }
 
 interface TierStyle {
@@ -30,7 +31,7 @@ interface TierStyle {
 }
 
 const TIER_STYLES: Record<Tier, TierStyle> = {
-  iron: {
+  waiver: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-iron',
@@ -42,7 +43,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     glowClass: '',
     avatarGradient: 'from-[#333333] to-[#1A1A1A]',
   },
-  bronze: {
+  bench: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-bronze',
@@ -54,7 +55,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     glowClass: '',
     avatarGradient: 'from-[#5C3D2A] to-[#1A1010]',
   },
-  silver: {
+  flex: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-silver',
@@ -66,7 +67,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     glowClass: '',
     avatarGradient: 'from-[#5A6070] to-[#2A2A30]',
   },
-  emerald: {
+  starter: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-emerald',
@@ -78,7 +79,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     glowClass: '',
     avatarGradient: 'from-[#1A5E30] to-[#0A1E10]',
   },
-  sapphire: {
+  impact: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-sapphire',
@@ -90,7 +91,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     glowClass: '',
     avatarGradient: 'from-[#1A3A68] to-[#0A1020]',
   },
-  amethyst: {
+  stud: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-amethyst',
@@ -102,7 +103,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     glowClass: '',
     avatarGradient: 'from-[#4A2E68] to-[#181020]',
   },
-  gold: {
+  cornerstone: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#2A2A2A]',
     accentClass: 'tier-gold',
@@ -114,7 +115,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     glowClass: '',
     avatarGradient: 'from-[#6A4A10] to-[#1E1408]',
   },
-  divine: {
+  untouchable: {
     bgClass: 'bg-[#111111]',
     border: 'border-[#E8321A]/40',
     accentClass: 'tier-divine',
@@ -129,14 +130,14 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
 };
 
 const TIER_LABELS: Record<Tier, string> = {
-  iron: 'IRN',
-  bronze: 'BRZ',
-  silver: 'SLV',
-  emerald: 'EMR',
-  sapphire: 'SAP',
-  amethyst: 'AME',
-  gold: 'GLD',
-  divine: 'GOD',
+  waiver: 'WAV',
+  bench: 'BCH',
+  flex: 'FLX',
+  starter: 'STR',
+  impact: 'IMP',
+  stud: 'STD',
+  cornerstone: 'CRN',
+  untouchable: 'UTD',
 };
 
 function getHeadshotUrls(player: Player, sport: string): string[] {
@@ -220,8 +221,8 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
   const headshotUrls = getHeadshotUrls(player, sport);
   const stats = buildStats(player, sport);
   const [urlIndex, setUrlIndex] = useState(0);
-  // serverUrl: undefined = not yet fetched, null = fetched + no result, string = URL found
   const [serverUrl, setServerUrl] = useState<string | null | undefined>(undefined);
+  const [infoOpen, setInfoOpen] = useState(false);
   const allCdnFailed = urlIndex >= headshotUrls.length;
 
   useEffect(() => {
@@ -244,9 +245,11 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative border border-l-4 overflow-hidden w-full ${s.bgClass} ${s.border} ${s.accentClass} ${onClick ? 'cursor-pointer' : ''} ${tier === 'divine' ? 'animate-border-pulse' : ''}`}
+      className={`relative border border-l-4 overflow-hidden w-full ${s.bgClass} ${s.border} ${s.accentClass} ${onClick ? 'cursor-pointer' : ''} ${tier === 'untouchable' ? 'animate-border-pulse' : ''}`}
       onClick={onClick}
     >
+      <TierInfoModal open={infoOpen} onClose={() => setInfoOpen(false)} />
+
       <div className="relative z-10">
         {onRemove && (
           <button
@@ -265,8 +268,18 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
               <div className={`text-4xl font-display font-black leading-none animate-count-up tracking-tight ${s.scoreColor}`}>{Math.round(rank)}</div>
               <div className={`text-[10px] font-mono uppercase tracking-wider ${s.subtext}`}>{player.position}</div>
             </div>
-            <div className="text-right">
-              <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${s.scoreColor}`}>{TIER_LABELS[tier]}</div>
+            <div className="text-right flex flex-col items-end gap-0.5">
+              <div className="flex items-center gap-1">
+                <motion.button
+                  onClick={e => { e.stopPropagation(); setInfoOpen(true); }}
+                  className="w-3.5 h-3.5 rounded-full border border-current flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity"
+                  style={{ color: s.scoreColor.replace('text-[', '').replace(']', '') }}
+                  whileTap={{ scale: 0.85 }}
+                >
+                  <Info size={8} />
+                </motion.button>
+                <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${s.scoreColor}`}>{TIER_LABELS[tier]}</div>
+              </div>
               <div className={`text-[9px] font-mono ${s.subtext}`}>{player.team}</div>
             </div>
           </div>
