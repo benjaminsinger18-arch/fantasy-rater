@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Info } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { Player } from '../../types/index.ts';
 import { TierInfoModal } from './TierInfoModal.tsx';
 
@@ -258,11 +258,10 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
               <div className="flex items-center gap-1">
                 <motion.button
                   onClick={e => { e.stopPropagation(); setInfoOpen(true); }}
-                  className="w-3.5 h-3.5 rounded-full border border-current flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity"
-                  style={{ color: s.scoreColor.replace('text-[', '').replace(']', '') }}
-                  whileTap={{ scale: 0.85 }}
+                  className={`text-[9px] font-mono opacity-30 hover:opacity-80 transition-opacity leading-none ${s.scoreColor}`}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <Info size={8} />
+                  [i]
                 </motion.button>
                 <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${s.scoreColor}`}>{TIER_LABELS[tier]}</div>
               </div>
