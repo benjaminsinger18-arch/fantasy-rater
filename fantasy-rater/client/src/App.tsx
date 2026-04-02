@@ -70,8 +70,8 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
     }`;
 
   return (
-    <aside className="hidden md:flex w-52 flex-shrink-0 border-r border-[#333336] bg-[#161618] flex-col">
-      <div className="px-4 py-4 border-b border-[#333336]">
+    <aside className="hidden md:flex w-52 flex-shrink-0 border-r border-[#484850] bg-[#222226] flex-col">
+      <div className="px-4 py-4 border-b border-[#484850]">
         <div className="flex items-center gap-2.5">
           <div className="w-6 h-6 border-2 border-[#E8321A] flex items-center justify-center flex-shrink-0">
             <Trophy size={11} className="text-[#E8321A]" />
@@ -94,7 +94,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
               className={`px-2 py-1.5 text-[11px] font-mono font-bold border transition-all tracking-wider ${
                 config.sport === s.id
                   ? 'border-[#E8321A] text-[#E8321A] bg-[#E8321A]/5'
-                  : 'text-[#555555] border-[#333336] hover:text-[#8A8A8A] hover:border-[#3A3A3A]'
+                  : 'text-[#555555] border-[#484850] hover:text-[#8A8A8A] hover:border-[#3A3A3A]'
               }`}
             >
               {s.label}
@@ -146,7 +146,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
       <div className="mt-auto px-3 pt-3 pb-1 flex flex-col gap-2">
         <SignedOut>
           <SignInButton mode="modal">
-            <button className="w-full py-2 text-xs text-[#8A8A8A] hover:text-[#F2EFE8] border border-[#333336] hover:border-[#3A3A3A] transition-colors font-mono uppercase tracking-wider">
+            <button className="w-full py-2 text-xs text-[#8A8A8A] hover:text-[#F2EFE8] border border-[#484850] hover:border-[#3A3A3A] transition-colors font-mono uppercase tracking-wider">
               Sign In
             </button>
           </SignInButton>
@@ -175,7 +175,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
         </SignedIn>
       </div>
 
-      <div className="px-3 py-4 border-t border-[#333336]">
+      <div className="px-3 py-4 border-t border-[#484850]">
         <div className="card-base p-3 border-l-4 border-l-[#E8321A]">
           <p className="text-[9px] text-[#444444] uppercase tracking-widest mb-2 font-mono font-bold">League</p>
           <div className="space-y-1.5">
@@ -206,7 +206,7 @@ function MobileHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
   const isPro = tier === 'pro';
 
   return (
-    <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-2.5 bg-[#161618] border-b border-[#333336]">
+    <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-2.5 bg-[#222226] border-b border-[#484850]">
       <div className="flex items-center gap-2">
         <div className="w-5 h-5 border-2 border-[#E8321A] flex items-center justify-center flex-shrink-0">
           <Trophy size={10} className="text-[#E8321A]" />
@@ -220,7 +220,7 @@ function MobileHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
         <select
           value={config.sport}
           onChange={e => setSport(e.target.value as Sport)}
-          className="bg-[#1E1E20] text-[#F2EFE8] border border-[#333336] px-2 py-1.5 text-xs font-mono font-bold focus:outline-none focus:border-[#E8321A] tracking-wider"
+          className="bg-[#2C2C31] text-[#F2EFE8] border border-[#484850] px-2 py-1.5 text-xs font-mono font-bold focus:outline-none focus:border-[#E8321A] tracking-wider"
         >
           <option value="nfl">NFL</option>
           <option value="mlb">MLB</option>
@@ -229,7 +229,7 @@ function MobileHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
         </select>
         <button
           onClick={onMenuOpen}
-          className="w-8 h-8 bg-[#1E1E20] border border-[#333336] flex items-center justify-center text-[#8A8A8A] hover:text-[#F2EFE8] transition-colors"
+          className="w-8 h-8 bg-[#2C2C31] border border-[#484850] flex items-center justify-center text-[#8A8A8A] hover:text-[#F2EFE8] transition-colors"
         >
           <SignedIn>
             <UserButton />
@@ -255,7 +255,7 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#161618] border-t border-[#333336] flex items-stretch safe-bottom" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#222226] border-t border-[#484850] flex items-stretch safe-bottom" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {tabs.map(({ to, end, icon: Icon, label }) => {
         const isActive = end ? location.pathname === to : location.pathname.startsWith(to);
         return (
@@ -333,7 +333,7 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
             onClick={onClose}
           />
           <motion.div
-            className="fixed bottom-0 left-0 right-0 z-50 bg-[#161618] border-t border-[#333336]"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-[#222226] border-t border-[#484850]"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
@@ -357,7 +357,7 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
                 <motion.button
                   key={path}
                   onClick={() => go(path)}
-                  className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#1E1E20] transition-colors text-sm font-mono border-l-2 border-transparent hover:border-[#E8321A]"
+                  className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#2C2C31] transition-colors text-sm font-mono border-l-2 border-transparent hover:border-[#E8321A]"
                   initial={{ opacity: 0, x: -16 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 400, damping: 28 }}
@@ -383,7 +383,7 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
                 <motion.button
                   key={path}
                   onClick={() => go(path)}
-                  className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#1E1E20] transition-colors text-sm font-mono"
+                  className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#2C2C31] transition-colors text-sm font-mono"
                   initial={{ opacity: 0, x: -16 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + i * 0.06, type: 'spring', stiffness: 400, damping: 28 }}
