@@ -29,9 +29,9 @@ const SPORTS: { id: Sport; label: string }[] = [
 ];
 
 const pageVariants = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } },
-  exit:    { opacity: 0, y: -8, transition: { duration: 0.15 } },
+  initial: { opacity: 0, y: 22, filter: 'blur(3px)' },
+  animate: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } },
+  exit:    { opacity: 0, y: -10, filter: 'blur(3px)', transition: { duration: 0.16, ease: 'easeIn' } },
 };
 
 // Wires Clerk session token into the Axios client
@@ -89,15 +89,23 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
             <motion.button
               key={s.id}
               onClick={() => setSport(s.id)}
-              whileTap={{ scale: 0.93 }}
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.03 }}
               transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-              className={`px-2 py-1.5 text-[11px] font-mono font-bold border transition-all tracking-wider ${
+              className={`relative px-2 py-1.5 text-[11px] font-mono font-bold border transition-colors tracking-wider overflow-hidden ${
                 config.sport === s.id
-                  ? 'border-[#E8321A] text-[#E8321A] bg-[#E8321A]/5'
+                  ? 'border-[#E8321A] text-[#E8321A]'
                   : 'text-[#555555] border-[#484850] hover:text-[#8A8A8A] hover:border-[#3A3A3A]'
               }`}
             >
-              {s.label}
+              {config.sport === s.id && (
+                <motion.div
+                  layoutId="sport-active-bg"
+                  className="absolute inset-0 bg-[#E8321A]/10"
+                  transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+                />
+              )}
+              <span className="relative z-10">{s.label}</span>
             </motion.button>
           ))}
         </div>
@@ -116,9 +124,9 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
         ].map(({ to, end, icon, label, pro }, i) => (
           <motion.div
             key={to}
-            initial={{ opacity: 0, x: -12 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.04, type: 'spring', stiffness: 400, damping: 30 }}
+            transition={{ delay: i * 0.05, type: 'spring', stiffness: 480, damping: 26 }}
           >
             <NavLink to={to} end={end} className={linkClass}>
               {icon} {label}
@@ -134,9 +142,9 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
         ].map(({ to, icon, label }, i) => (
           <motion.div
             key={to}
-            initial={{ opacity: 0, x: -12 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.28 + i * 0.04, type: 'spring', stiffness: 400, damping: 30 }}
+            transition={{ delay: 0.35 + i * 0.05, type: 'spring', stiffness: 480, damping: 26 }}
           >
             <NavLink to={to} className={linkClass}>{icon} {label}</NavLink>
           </motion.div>

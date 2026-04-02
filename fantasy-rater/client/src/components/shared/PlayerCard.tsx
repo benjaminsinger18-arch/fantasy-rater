@@ -200,6 +200,25 @@ interface Props {
   onClick?: () => void;
 }
 
+function AnimatedScore({ value, colorClass }: { value: number; colorClass: string }) {
+  const digits = String(Math.round(value)).split('');
+  return (
+    <div className={`flex leading-none ${colorClass}`} style={{ overflow: 'hidden' }}>
+      {digits.map((digit, i) => (
+        <motion.span
+          key={i}
+          className="text-4xl font-display font-black tracking-tight inline-block"
+          initial={{ y: 28, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: i * 0.08, type: 'spring', stiffness: 650, damping: 22 }}
+        >
+          {digit}
+        </motion.span>
+      ))}
+    </div>
+  );
+}
+
 export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
   const rank = player.rank ?? 25;
   const tier = cardTier(rank);
@@ -236,6 +255,22 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
     >
       <TierInfoModal open={infoOpen} onClose={() => setInfoOpen(false)} />
 
+      {/* Scan line sweep on entrance */}
+      <motion.div
+        className="absolute inset-0 z-20 pointer-events-none overflow-hidden"
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 0 }}
+        transition={{ delay: 0.65, duration: 0.1 }}
+      >
+        <motion.div
+          className="absolute inset-x-0 h-full"
+          style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.04) 46%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.04) 54%, transparent 100%)' }}
+          initial={{ y: '-100%' }}
+          animate={{ y: '100%' }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+        />
+      </motion.div>
+
       <div className="relative z-10">
         {onRemove && (
           <button
@@ -251,7 +286,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           {/* Score + tier row */}
           <div className="w-full flex items-start justify-between mb-1">
             <div>
-              <div className={`text-4xl font-display font-black leading-none animate-count-up tracking-tight ${s.scoreColor}`}>{Math.round(rank)}</div>
+              <AnimatedScore value={rank} colorClass={s.scoreColor} />
               <div className={`text-[10px] font-mono uppercase tracking-wider ${s.subtext}`}>{player.position}</div>
             </div>
             <div className="text-right flex flex-col items-end gap-0.5">
@@ -306,9 +341,9 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           {stats.map((st, i) => (
             <motion.div
               key={st.label}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 + i * 0.04, duration: 0.2, ease: 'easeOut' }}
+              initial={{ opacity: 0, y: 6, scale: 0.88 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.15 + i * 0.05, type: 'spring', stiffness: 500, damping: 24 }}
               className={`${s.statBg} px-1 py-1 text-center`}
             >
               <div className={`text-xs font-mono font-bold leading-tight ${s.text}`}>{st.value}</div>

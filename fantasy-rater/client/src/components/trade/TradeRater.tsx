@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeftRight, X, Share2, Copy, Check, Loader2, Flame, CheckCircle, Scale, AlertTriangle, Siren } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -137,16 +137,35 @@ function FairnessBar({ ratio }: { ratio: number }) {
       </div>
       <div className="relative h-2 bg-[#1A1A1A] border border-[#2A2A2A] overflow-hidden">
         <div className="absolute left-1/2 w-px h-full bg-[#3A3A3A] z-10" />
-        <div
-          className={`absolute top-0 h-full transition-all duration-500 ${color}`}
-          style={{
+        <motion.div
+          className={`absolute top-0 h-full ${color}`}
+          initial={{ left: '50%', width: '0%' }}
+          animate={{
             left: pct < 50 ? `${pct}%` : '50%',
             width: `${Math.abs(pct - 50)}%`,
           }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
         />
       </div>
     </div>
   );
+}
+
+function CountUpScore({ target, className }: { target: number; className: string }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const end = Math.round(target);
+    const duration = 900;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(Math.round(eased * end));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [target]);
+  return <div className={className}>{display}</div>;
 }
 
 const VERDICT_STYLES: Record<string, { bg: string; border: string; text: string; hex: string; Icon: React.ElementType }> = {
@@ -304,24 +323,31 @@ export function TradeRater() {
             <div className="card-base p-5 space-y-4 flex-shrink-0 border-l-4" style={{ borderLeftColor: vs.hex }}>
               <div className="flex justify-between items-end">
                 <div className="text-center">
-                  <div className="text-4xl font-display font-black text-[#E8321A] animate-count-up tracking-tight">{score.sideAScore}</div>
+                  <CountUpScore target={score.sideAScore} className="text-4xl font-display font-black text-[#E8321A] tracking-tight" />
                   <div className="text-xs font-mono text-[#555555] mt-1">You Give</div>
                 </div>
                 <div className="flex-1 px-6">
                   <FairnessBar ratio={score.ratio} />
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl font-display font-black text-[#4DC878] animate-count-up tracking-tight">{score.sideBScore}</div>
+                  <CountUpScore target={score.sideBScore} className="text-4xl font-display font-black text-[#4DC878] tracking-tight" />
                   <div className="text-xs font-mono text-[#555555] mt-1">You Receive</div>
                 </div>
               </div>
               <div className="flex gap-2">
                 <motion.div
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 border ${vs.bg} ${vs.border}`}
+                  initial={{ opacity: 0, scale: 0.82 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 520, damping: 22, delay: 0.5 }}
+                  className={`relative flex-1 flex items-center justify-center gap-2 px-4 py-3 border overflow-hidden ${vs.bg} ${vs.border}`}
                 >
+                  {/* shimmer sweep */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12"
+                    initial={{ x: '-120%' }}
+                    animate={{ x: '220%' }}
+                    transition={{ duration: 0.55, delay: 0.75, ease: 'easeOut' }}
+                  />
                   <vs.Icon size={16} className={vs.text} />
                   <span className={`text-sm font-display font-black tracking-widest uppercase ${vs.text}`}>{score.verdict}</span>
                 </motion.div>
