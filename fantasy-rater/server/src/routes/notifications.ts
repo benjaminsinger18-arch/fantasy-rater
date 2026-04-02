@@ -83,6 +83,35 @@ router.delete('/push/subscribe', requireAuth('free'), (req, res) => {
   return res.json({ unsubscribed: true });
 });
 
+// POST /api/notifications/push/subscribe/expo — register an Expo push token (mobile app)
+router.post('/push/subscribe/expo', requireAuth('free'), (req, res) => {
+  const userId = req.userId!;
+  const { token } = req.body;
+
+  if (!token || typeof token !== 'string' || !token.startsWith('ExponentPushToken[')) {
+    return res.status(400).json({ error: 'Valid Expo push token required (ExponentPushToken[...])' });
+  }
+
+  db.prepare(`
+    INSERT INTO expo_push_tokens (clerk_user_id, token)
+    VALUES (?, ?)
+    ON CONFLICT(token) DO UPDATE SET clerk_user_id = excluded.clerk_user_id
+  `).run(userId, token);
+
+  return res.json({ subscribed: true });
+});
+
+// DELETE /api/notifications/push/subscribe/expo — unregister an Expo push token
+router.delete('/push/subscribe/expo', requireAuth('free'), (req, res) => {
+  const userId = req.userId!;
+  const { token } = req.body;
+
+  if (!token) return res.status(400).json({ error: 'token required' });
+
+  db.prepare('DELETE FROM expo_push_tokens WHERE clerk_user_id = ? AND token = ?').run(userId, token);
+  return res.json({ unsubscribed: true });
+});
+
 // POST /api/notifications/roster/save — save roster player IDs for injury monitoring
 router.post('/roster/save', requireAuth('free'), (req, res) => {
   const userId = req.userId!;
