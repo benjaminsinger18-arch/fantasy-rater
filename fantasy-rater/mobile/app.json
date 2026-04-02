@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "FantasyRater",
-    "slug": "fantasy-rater",
+    "slug": "fantasyrater-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "fantasyrater",
@@ -43,7 +43,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "YOUR_EAS_PROJECT_ID"
+        "projectId": "5787a4ad-2cc5-4fc1-a2d6-5cb037741dbb"
       }
     }
   }
