@@ -144,7 +144,12 @@ export async function getBillingStatus(): Promise<{ tier: string }> {
 }
 
 // Start/Sit
-export async function compareStartSit(payload: object) {
+export async function compareStartSit(payload: {
+  players: { name: string; position?: string; team?: string; id?: string; injuryStatus?: string; avgPoints?: number }[];
+  sport: string;
+  scoringFormat: string;
+  week?: number;
+}) {
   const res = await api.post('/startsit/compare', payload);
   return res.data;
 }

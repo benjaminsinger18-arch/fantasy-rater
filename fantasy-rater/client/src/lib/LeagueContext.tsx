@@ -37,6 +37,31 @@ export function LeagueProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('fantasy-rater-league', JSON.stringify(config));
   }, [config]);
 
+  // Auto-populate leagueId from saved primary league if not set
+  useEffect(() => {
+    if (config.leagueId) return;
+    const apiBase = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
+    // Use native fetch to bypass axios interceptors (avoid triggering login modal)
+    fetch(`${apiBase}/leagues`, {
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then((leagues: Array<{ league_id: string; roster_id?: string; platform?: string; sport?: string; scoring_format?: string; league_size?: number; is_primary?: number }> | null) => {
+        if (!leagues) return;
+        const primary = leagues.find(l => l.is_primary === 1) ?? leagues[0];
+        if (primary?.league_id) {
+          setConfigState(prev => ({
+            ...prev,
+            leagueId: prev.leagueId || primary.league_id,
+            myRosterId: prev.myRosterId || primary.roster_id,
+          }));
+        }
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Pick up Yahoo session from URL on redirect back from OAuth
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

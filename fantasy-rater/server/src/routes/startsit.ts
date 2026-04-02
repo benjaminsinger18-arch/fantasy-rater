@@ -11,83 +11,75 @@ const router = Router();
 
 // POST /api/startsit/compare
 router.post('/compare', requireAuth('free'), checkUsage('startsit', 2), async (req, res) => {
-  const { playerA, playerB, sport = 'nfl', scoringFormat = 'PPR', week = 1 } = req.body as {
-    playerA: RaterPlayer & { id?: string };
-    playerB: RaterPlayer & { id?: string };
+  const { players, sport = 'nfl', scoringFormat = 'PPR', week = 1 } = req.body as {
+    players: (RaterPlayer & { id?: string })[];
     sport?: string;
     scoringFormat?: string;
     week?: number;
   };
 
-  if (!playerA?.name || !playerB?.name) {
-    return res.status(400).json({ error: 'Both playerA and playerB are required' });
+  if (!players?.length || players.length < 2) {
+    return res.status(400).json({ error: 'At least 2 players are required' });
   }
 
+  const limited = players.slice(0, 4);
+
   try {
-    // Fetch recent weekly stats for both players (last 3 weeks)
-    let statsA: Record<string, Record<string, number>> = {};
-    let statsB: Record<string, Record<string, number>> = {};
+    const statsArr = await Promise.all(
+      limited.map(p =>
+        sport === 'nfl' && p.id
+          ? sleeper.getPlayerWeeklyStats(p.id).catch(() => ({}))
+          : Promise.resolve({})
+      )
+    );
 
-    if (sport === 'nfl' && playerA.id) {
-      statsA = await sleeper.getPlayerWeeklyStats(playerA.id).catch(() => ({}));
-    }
-    if (sport === 'nfl' && playerB.id) {
-      statsB = await sleeper.getPlayerWeeklyStats(playerB.id).catch(() => ({}));
-    }
-
-    // Get last 3 weeks of points
     function recentPoints(stats: Record<string, Record<string, number>>): number[] {
       return Object.entries(stats)
         .map(([, s]) => ({ pts: s.pts_ppr ?? s.pts_std ?? 0 }))
-        .sort((a, b) => b.pts - a.pts) // sort by recency approximation
+        .sort((a, b) => b.pts - a.pts)
         .slice(0, 3)
         .map(e => Math.round(e.pts * 10) / 10);
     }
 
-    const recentA = recentPoints(statsA);
-    const recentB = recentPoints(statsB);
-    const avgA = recentA.length ? recentA.reduce((s, p) => s + p, 0) / recentA.length : (playerA.avgPoints ?? 0);
-    const avgB = recentB.length ? recentB.reduce((s, p) => s + p, 0) / recentB.length : (playerB.avgPoints ?? 0);
+    const ranked = limited
+      .map((p, i) => {
+        const recent = recentPoints(statsArr[i] as Record<string, Record<string, number>>);
+        const avg = recent.length
+          ? recent.reduce((s, x) => s + x, 0) / recent.length
+          : (p.avgPoints ?? 0);
+        const score = scorePlayer(p);
+        return { player: p, score, recent, avg: Math.round(avg * 10) / 10 };
+      })
+      .sort((a, b) => b.score - a.score);
 
-    const scoreA = scorePlayer(playerA);
-    const scoreB = scorePlayer(playerB);
-    const recommended = scoreA >= scoreB ? 'A' : 'B';
-    const diff = Math.abs(scoreA - scoreB);
+    const recommended = ranked[0].player.name;
+    const diff = ranked[0].score - ranked[1].score;
     const confidence = diff < 5 ? 'Lean' : diff < 15 ? 'Start' : 'Clear Start';
 
-    const injuryLineA = playerA.injuryStatus ? ` [${playerA.injuryStatus.toUpperCase()}]` : '';
-    const injuryLineB = playerB.injuryStatus ? ` [${playerB.injuryStatus.toUpperCase()}]` : '';
-
+    const labels = ['RECOMMENDED START', 'OPTION 2', 'OPTION 3', 'OPTION 4'];
     const prompt = `SPORT: ${sport.toUpperCase()} | FORMAT: ${scoringFormat} | WEEK: ${week}
 
 === START/SIT COMPARISON ===
+${ranked.map((r, i) => `
+${labels[i]}: ${r.player.name} (${r.player.position}, ${r.player.team ?? 'FA'})${r.player.injuryStatus ? ` [${r.player.injuryStatus.toUpperCase()}]` : ''}
+Fantasy Value Score: ${Math.round(r.score)}
+Recent PPR points: ${r.recent.length ? r.recent.join(', ') : 'N/A'}
+Season avg: ${r.avg} pts/wk`).join('\n')}
 
-PLAYER A: ${playerA.name} (${playerA.position}, ${playerA.team ?? 'FA'})${injuryLineA}
-Fantasy Value Score: ${Math.round(scoreA)}
-Recent PPR points (last 3 weeks): ${recentA.length ? recentA.join(', ') : 'N/A'}
-Season avg: ${avgA.toFixed(1)} pts/wk
-
-PLAYER B: ${playerB.name} (${playerB.position}, ${playerB.team ?? 'FA'})${injuryLineB}
-Fantasy Value Score: ${Math.round(scoreB)}
-Recent PPR points (last 3 weeks): ${recentB.length ? recentB.join(', ') : 'N/A'}
-Season avg: ${avgB.toFixed(1)} pts/wk
-
-ALGORITHMIC RECOMMENDATION: Start ${recommended === 'A' ? playerA.name : playerB.name} (${confidence})
-
-In 2-3 tight sentences: explain who to start and why (cite recent stats and injury risk). Be direct.`;
+In 2-3 tight sentences: who to start and why. Be direct and cite recent stats.`;
 
     const hash = crypto.createHash('sha256').update(prompt).digest('hex').slice(0, 16);
     storePrompt(hash, prompt);
 
     return res.json({
-      recommended: recommended === 'A' ? playerA.name : playerB.name,
+      recommended,
       confidence,
-      scoreA: Math.round(scoreA),
-      scoreB: Math.round(scoreB),
-      recentA,
-      recentB,
-      avgA: Math.round(avgA * 10) / 10,
-      avgB: Math.round(avgB * 10) / 10,
+      rankedPlayers: ranked.map(r => ({
+        name: r.player.name,
+        score: Math.round(r.score),
+        recent: r.recent,
+        avg: r.avg,
+      })),
       analysisHash: hash,
     });
   } catch (err: unknown) {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart3, Loader2 } from 'lucide-react';
+import { BarChart3, Loader2, X } from 'lucide-react';
 import { fetchRankings, analyzePlayer } from '../../lib/api.ts';
 import { PlayerCard } from '../shared/PlayerCard.tsx';
 import { PlayerHistoryModal } from '../shared/PlayerHistoryModal.tsx';
@@ -38,7 +38,16 @@ export function PlayerRankings() {
   const [selected, setSelected] = useState<Player | null>(null);
   const [hoveredPlayer, setHoveredPlayer] = useState<Player | null>(null);
   const [analysisHash, setAnalysisHash] = useState('');
+  const [mobileAnalysisPlayer, setMobileAnalysisPlayer] = useState<Player | null>(null);
+  const [mobileAnalysisHash, setMobileAnalysisHash] = useState('');
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const positions = config.sport === 'fpl' ? FPL_POSITIONS : config.sport === 'mlb' ? MLB_POSITIONS : config.sport === 'ipl' ? IPL_POSITIONS : NFL_POSITIONS;
 
@@ -70,6 +79,17 @@ export function PlayerRankings() {
         // ignore
       }
     }, 400);
+  }
+
+  async function handleMobileTap(player: Player) {
+    setMobileAnalysisPlayer(player);
+    setMobileAnalysisHash('');
+    try {
+      const { analysisHash: hash } = await analyzePlayer(player, config.sport, config.scoringFormat);
+      setMobileAnalysisHash(hash);
+    } catch {
+      // ignore
+    }
   }
 
   return (
@@ -132,7 +152,7 @@ export function PlayerRankings() {
                     key={`${p.id}-${i}`}
                     variants={itemVariants}
                     className="relative"
-                    onMouseEnter={() => handleHover(p)}
+                    onMouseEnter={() => !isMobile && handleHover(p)}
                   >
                     <div className="absolute -top-1.5 -left-1.5 z-10 w-6 h-6 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-[10px] font-display font-black text-slate-400">
                       {i + 1}
@@ -140,7 +160,7 @@ export function PlayerRankings() {
                     <PlayerCard
                       player={p}
                       sport={config.sport}
-                      onClick={() => setSelected(p)}
+                      onClick={() => isMobile ? handleMobileTap(p) : setSelected(p)}
                     />
                   </motion.div>
                 ))
@@ -237,6 +257,66 @@ export function PlayerRankings() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Mobile analysis slide-up sheet */}
+      <AnimatePresence>
+        {mobileAnalysisPlayer && isMobile && (
+          <>
+            <motion.div
+              className="fixed inset-0 z-40 bg-black/60"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileAnalysisPlayer(null)}
+            />
+            <motion.div
+              className="fixed bottom-0 inset-x-0 z-50 bg-[#2C2C31] border-t border-[#484850] p-4 max-h-[65vh] overflow-y-auto"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-sm font-display font-black text-[#F2EFE8]">{mobileAnalysisPlayer.name}</h3>
+                  <p className="text-[10px] font-mono text-[#555555]">{mobileAnalysisPlayer.position} · {mobileAnalysisPlayer.team}</p>
+                </div>
+                <button onClick={() => setMobileAnalysisPlayer(null)} className="text-[#484850] hover:text-[#F2EFE8] transition-colors">
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                {mobileAnalysisPlayer.avgPoints !== undefined && (
+                  <div className="card-base p-2">
+                    <div className="text-[#F2EFE8] font-display font-bold text-sm">{mobileAnalysisPlayer.avgPoints.toFixed(1)}</div>
+                    <div className="text-[10px] font-mono text-[#555555]">pts/wk</div>
+                  </div>
+                )}
+                {mobileAnalysisPlayer.searchRank && (
+                  <div className="card-base p-2">
+                    <div className="text-[#F2EFE8] font-display font-bold text-sm">#{mobileAnalysisPlayer.searchRank}</div>
+                    <div className="text-[10px] font-mono text-[#555555]">overall rank</div>
+                  </div>
+                )}
+                {mobileAnalysisPlayer.injuryStatus && (
+                  <div className="bg-rose-900/40 p-2 col-span-2 border border-rose-500/20">
+                    <div className="text-rose-300 font-mono font-bold uppercase text-[11px]">{mobileAnalysisPlayer.injuryStatus}</div>
+                    <div className="text-[10px] font-mono text-[#555555]">injury status</div>
+                  </div>
+                )}
+              </div>
+              <p className="text-[10px] font-mono text-[#E8321A] uppercase tracking-widest mb-2">AI Analysis</p>
+              {mobileAnalysisHash ? (
+                <StreamingAnalysis hash={mobileAnalysisHash} />
+              ) : (
+                <div className="flex items-center gap-2 text-[#555555] text-xs font-mono">
+                  <Loader2 size={12} className="animate-spin text-[#E8321A]" /> Analyzing...
+                </div>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* History Modal */}
       {selected && (

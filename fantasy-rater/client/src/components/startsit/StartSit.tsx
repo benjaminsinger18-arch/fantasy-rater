@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { RefreshCw, Loader2, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { RefreshCw, Loader2, X, Plus } from 'lucide-react';
 import { PlayerSearch } from '../shared/PlayerSearch.tsx';
 import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
 import { GradeChip } from '../shared/GradeChip.tsx';
@@ -8,15 +8,17 @@ import { compareStartSit } from '../../lib/api.ts';
 import { useLeague } from '../../lib/LeagueContext.tsx';
 import type { Player } from '../../types/index.ts';
 
+interface RankedPlayer {
+  name: string;
+  score: number;
+  recent: number[];
+  avg: number;
+}
+
 interface StartSitResult {
   recommended: string;
   confidence: string;
-  scoreA: number;
-  scoreB: number;
-  recentA: number[];
-  recentB: number[];
-  avgA: number;
-  avgB: number;
+  rankedPlayers: RankedPlayer[];
   analysisHash: string;
 }
 
@@ -34,42 +36,42 @@ function scoreToGrade(score: number): string {
 }
 
 function PlayerSlot({
-  label,
+  index,
   player,
   onSelect,
   onClear,
-  accentClass,
 }: {
-  label: string;
+  index: number;
   player: Player | null;
   onSelect: (p: Player) => void;
   onClear: () => void;
-  sport: string;
-  accentClass: string;
 }) {
+  const accentColors = ['border-l-[#E8321A]', 'border-l-[#4DC878]', 'border-l-[#E8C432]', 'border-l-[#6B8CFF]'];
   return (
-    <div className={`card-base border-l-4 flex flex-col min-w-0 ${accentClass}`}>
+    <div className={`card-base border-l-4 flex flex-col min-w-0 ${accentColors[index] ?? 'border-l-[#484850]'}`}>
       <div className="px-3 pt-3 pb-2">
-        <h3 className="text-xs font-display font-bold uppercase tracking-widest text-slate-500 mb-2">{label}</h3>
+        <h3 className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#555555] mb-2">
+          Player {index + 1}
+        </h3>
         <PlayerSearch onSelect={onSelect} placeholder="Search player..." />
       </div>
       {player && (
         <div className="px-3 pb-3">
-          <div className="card-base p-3 flex items-center gap-3">
+          <div className="flex items-center gap-3 p-2 bg-[#222226] border border-[#2A2A2A]">
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-white text-sm truncate">{player.name}</p>
-              <p className="text-xs text-slate-400">{player.position} · {player.team}</p>
+              <p className="font-display font-black text-[#F2EFE8] text-sm truncate">{player.name}</p>
+              <p className="text-xs font-mono text-[#555555]">{player.position} · {player.team}</p>
               {player.injuryStatus && (
-                <span className="inline-block mt-1 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400">
+                <span className="inline-block mt-1 text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 bg-rose-500/20 text-rose-400">
                   {player.injuryStatus}
                 </span>
               )}
             </div>
             <button
               onClick={onClear}
-              className="text-slate-600 hover:text-slate-300 transition-colors flex-shrink-0"
+              className="text-[#484850] hover:text-[#F2EFE8] transition-colors flex-shrink-0"
             >
-              <X size={16} />
+              <X size={14} />
             </button>
           </div>
         </div>
@@ -80,21 +82,46 @@ function PlayerSlot({
 
 export function StartSit() {
   const { config } = useLeague();
-  const [playerA, setPlayerA] = useState<Player | null>(null);
-  const [playerB, setPlayerB] = useState<Player | null>(null);
+  const [players, setPlayers] = useState<(Player | null)[]>([null, null]);
   const [result, setResult] = useState<StartSitResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const filledPlayers = players.filter((p): p is Player => p !== null);
+  const canCompare = filledPlayers.length >= 2;
+
+  function setPlayerAt(index: number, player: Player) {
+    setPlayers(prev => {
+      const next = [...prev];
+      next[index] = player;
+      return next;
+    });
+    setResult(null);
+  }
+
+  function clearPlayerAt(index: number) {
+    setPlayers(prev => {
+      const next = [...prev];
+      next[index] = null;
+      // Remove trailing nulls beyond minimum 2 slots
+      while (next.length > 2 && next[next.length - 1] === null) next.pop();
+      return next;
+    });
+    setResult(null);
+  }
+
+  function addSlot() {
+    if (players.length < 4) setPlayers(prev => [...prev, null]);
+  }
+
   async function handleCompare() {
-    if (!playerA || !playerB) return;
+    if (!canCompare) return;
     setLoading(true);
     setError('');
     setResult(null);
     try {
       const data = await compareStartSit({
-        playerA: { ...playerA, id: playerA.id },
-        playerB: { ...playerB, id: playerB.id },
+        players: filledPlayers,
         sport: config.sport,
         scoringFormat: config.scoringFormat,
         week: config.currentWeek,
@@ -109,115 +136,123 @@ export function StartSit() {
   }
 
   const confidenceColor =
-    result?.confidence === 'Clear Start' ? 'text-emerald-400' :
-    result?.confidence === 'Start' ? 'text-blue-400' : 'text-amber-400';
+    result?.confidence === 'Clear Start' ? 'text-[#4DC878]' :
+    result?.confidence === 'Start' ? 'text-[#6B8CFF]' : 'text-[#E8C432]';
 
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="hidden md:flex flex-col px-6 py-5 border-b border-white/5 flex-shrink-0">
-        <h1 className="text-xl font-display font-black bg-gradient-to-r from-white via-blue-100 to-indigo-300 bg-clip-text text-transparent">
-          Start/Sit Optimizer
-        </h1>
-        <p className="text-xs text-slate-500 mt-1">Compare two players at the same position — get an AI-powered start recommendation</p>
+      <div className="hidden md:flex flex-col px-5 py-4 border-b border-[#2A2A2A] flex-shrink-0">
+        <h1 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">Start/Sit Optimizer</h1>
+        <p className="text-[10px] font-mono text-[#555555] mt-0.5 tracking-wider">Compare up to 4 players — get an AI-powered start recommendation</p>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 h-full min-h-0">
+        <div className="p-4 md:p-5 flex flex-col md:flex-row gap-4 md:gap-5 h-full min-h-0">
           {/* Left: Player selection */}
-          <div className="w-full md:w-80 flex-shrink-0 flex flex-col gap-2 md:gap-4">
-            <PlayerSlot
-              label="Player A"
-              player={playerA}
-              onSelect={setPlayerA}
-              onClear={() => { setPlayerA(null); setResult(null); }}
-              sport={config.sport}
-              accentClass="border-l-indigo-500/40"
-            />
-            <div className="flex items-center justify-center gap-3">
-              <div className="flex-1 h-px bg-white/5" />
-              <span className="text-slate-600 text-xs font-display font-bold uppercase tracking-widest">vs</span>
-              <div className="flex-1 h-px bg-white/5" />
-            </div>
-            <PlayerSlot
-              label="Player B"
-              player={playerB}
-              onSelect={setPlayerB}
-              onClear={() => { setPlayerB(null); setResult(null); }}
-              sport={config.sport}
-              accentClass="border-l-violet-500/40"
-            />
+          <div className="w-full md:w-80 flex-shrink-0 flex flex-col gap-2">
+            <AnimatePresence initial={false}>
+              {players.map((player, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <PlayerSlot
+                    index={i}
+                    player={player}
+                    onSelect={p => setPlayerAt(i, p)}
+                    onClear={() => clearPlayerAt(i)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {players.length < 4 && (
+              <button
+                onClick={addSlot}
+                className="w-full py-2 border border-dashed border-[#484850] text-[#555555] hover:text-[#F2EFE8] hover:border-[#E8321A]/40 transition-colors text-xs font-mono flex items-center justify-center gap-1.5"
+              >
+                <Plus size={12} />
+                Add Player ({players.length}/4)
+              </button>
+            )}
 
             <button
               onClick={handleCompare}
-              disabled={!playerA || !playerB || loading}
-              className="w-full py-3.5 rounded-2xl font-display font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
+              disabled={!canCompare || loading}
+              className="w-full py-3.5 bg-[#E8321A] hover:bg-[#C82818] disabled:opacity-40 disabled:cursor-not-allowed text-white font-display font-black tracking-widest uppercase text-sm transition-colors flex items-center justify-center gap-2 mt-1"
             >
               {loading ? (
-                <><Loader2 size={16} className="animate-spin" /> Analyzing...</>
+                <><Loader2 size={14} className="animate-spin" /> Analyzing...</>
               ) : 'Compare Players'}
             </button>
 
             {error && (
-              <div className="text-rose-300 text-sm bg-rose-500/10 rounded-xl p-3 border border-rose-500/20">{error}</div>
+              <p className="text-rose-400 text-xs font-mono">{error}</p>
             )}
           </div>
 
           {/* Right: Results */}
           <div className="flex-1 min-w-0">
             {!result && !loading && (
-              <div className="h-full flex items-center justify-center">
+              <div className="h-full flex items-center justify-center min-h-[200px]">
                 <div className="text-center">
-                  <RefreshCw size={40} className="mx-auto mb-3 text-slate-700" />
-                  <p className="text-slate-500 text-sm">Select two players to compare</p>
+                  <RefreshCw size={32} className="mx-auto mb-3 text-[#2A2A2A]" />
+                  <p className="text-xs font-mono text-[#444444]">Add 2–4 players and tap<br />Compare Players</p>
                 </div>
               </div>
             )}
 
             {result && (
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 {/* Recommendation */}
                 <motion.div
-                  initial={{ opacity: 0, y: 12 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="card-base p-5 border-l-4 border-l-emerald-500/60 animate-verdict-pop"
+                  className="card-base p-4 border-l-4 border-l-[#4DC878]"
                 >
-                  <p className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest mb-2">Recommendation</p>
+                  <p className="text-[10px] font-mono text-[#555555] uppercase tracking-widest mb-2">Recommendation</p>
                   <div className="flex items-baseline gap-3">
-                    <span className="text-2xl font-display font-black text-white">Start {result.recommended}</span>
-                    <span className={`text-sm font-bold ${confidenceColor}`}>{result.confidence}</span>
+                    <span className="text-xl font-display font-black text-[#F2EFE8]">Start {result.recommended}</span>
+                    <span className={`text-xs font-mono font-bold ${confidenceColor}`}>{result.confidence}</span>
                   </div>
                 </motion.div>
 
-                {/* Stat comparison */}
-                <div className="card-base p-5">
-                  <p className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest mb-3">Comparison</p>
-                  <div className="grid grid-cols-3 gap-2 text-sm">
-                    <div className="text-center">
-                      <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">{playerA?.name.split(' ').slice(-1)[0] ?? 'Player A'}</p>
-                      <GradeChip grade={scoreToGrade(result.scoreA)} />
-                      <p className="text-xs text-slate-400 mt-2">{result.avgA} avg</p>
-                      <p className="text-[10px] text-slate-600 mt-1">
-                        {result.recentA.length > 0 ? result.recentA.join(', ') : 'No data'}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-center">
-                      <span className="text-slate-600 font-display font-bold">vs</span>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">{playerB?.name.split(' ').slice(-1)[0] ?? 'Player B'}</p>
-                      <GradeChip grade={scoreToGrade(result.scoreB)} />
-                      <p className="text-xs text-slate-400 mt-2">{result.avgB} avg</p>
-                      <p className="text-[10px] text-slate-600 mt-1">
-                        {result.recentB.length > 0 ? result.recentB.join(', ') : 'No data'}
-                      </p>
-                    </div>
+                {/* Ranked comparison */}
+                <div className="card-base p-4">
+                  <p className="text-[10px] font-mono text-[#555555] uppercase tracking-widest mb-3">Rankings</p>
+                  <div className="flex flex-col gap-2">
+                    {result.rankedPlayers.map((rp, i) => (
+                      <motion.div
+                        key={rp.name}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className={`flex items-center gap-3 p-2 ${i === 0 ? 'bg-[#4DC878]/5 border border-[#4DC878]/20' : 'bg-[#222226] border border-[#2A2A2A]'}`}
+                      >
+                        <div className={`w-5 h-5 flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0 ${i === 0 ? 'text-[#4DC878]' : 'text-[#555555]'}`}>
+                          {i + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-xs font-display font-black truncate ${i === 0 ? 'text-[#F2EFE8]' : 'text-[#8A8A8A]'}`}>{rp.name}</p>
+                          <p className="text-[10px] font-mono text-[#444444]">
+                            {rp.avg} avg · {rp.recent.length > 0 ? rp.recent.join(', ') : 'no data'}
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <GradeChip grade={scoreToGrade(rp.score)} />
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
 
                 {/* AI Analysis */}
-                <div className="card-base p-5 border-l-4 border-l-indigo-500/60">
-                  <p className="text-xs font-display font-bold text-indigo-400 uppercase tracking-widest mb-3">AI Analysis</p>
+                <div className="card-base p-4 border-l-4 border-l-[#E8321A]">
+                  <p className="text-[10px] font-mono text-[#E8321A] uppercase tracking-widest mb-3">AI Analysis</p>
                   <StreamingAnalysis hash={result.analysisHash} />
                 </div>
               </div>
