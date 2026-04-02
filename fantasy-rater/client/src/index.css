@@ -109,6 +109,34 @@ h1, h2, h3, .font-display {
 .animate-border-pulse { animation: border-pulse 2s ease-in-out infinite; }
 .animate-scan-line   { animation: scan-line 0.6s ease-out both; }
 
+/* ── Shimmer skeleton ─────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 60%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── S-tier score glow pulse ──────────────────────────────────── */
+
+@keyframes score-glow {
+  0%, 100% { text-shadow: 0 0 6px rgba(232,50,26,0.45), 0 0 18px rgba(232,50,26,0.15); }
+  50%       { text-shadow: 0 0 12px rgba(232,50,26,0.9), 0 0 32px rgba(232,50,26,0.35), 0 0 52px rgba(232,50,26,0.1); }
+}
+.animate-score-glow { animation: score-glow 2.5s ease-in-out infinite; }
+
+/* ── Dot grid background ──────────────────────────────────────── */
+
+.bg-dot-grid {
+  background-image: radial-gradient(circle, rgba(72,72,80,0.22) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
 /* ── Rainbow / shine stubs (legacy — not used in new design) ──── */
 
 @keyframes rainbow-shimmer {

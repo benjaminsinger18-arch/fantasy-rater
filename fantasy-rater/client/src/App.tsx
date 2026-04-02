@@ -63,15 +63,22 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
   const isPro = tier === 'pro';
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-3 px-3 py-2 text-xs transition-all duration-150 border-l-2 font-mono tracking-wider uppercase ${
+    `flex items-center gap-3 px-3 py-2 text-xs transition-all duration-200 border-l-2 font-mono tracking-wider uppercase relative overflow-hidden ${
       isActive
-        ? 'text-[#F2EFE8] border-[#E8321A] bg-[#E8321A]/5'
-        : 'text-[#888888] hover:text-[#BBBBBB] border-transparent'
+        ? 'text-[#F2EFE8] border-[#E8321A] bg-[#E8321A]/5 shadow-[inset_2px_0_12px_rgba(232,50,26,0.12)]'
+        : 'text-[#888888] hover:text-[#BBBBBB] border-transparent hover:bg-[#2A2A2E] hover:border-[#3A3A3A]'
     }`;
 
   return (
-    <aside className="hidden md:flex w-52 flex-shrink-0 border-r border-[#484850] bg-[#222226] flex-col">
-      <div className="px-4 py-4 border-b border-[#484850]">
+    <aside className="hidden md:flex w-52 flex-shrink-0 border-r border-[#484850] bg-[#222226] flex-col relative overflow-hidden bg-dot-grid">
+      {/* Animated vertical scan line */}
+      <motion.div
+        className="absolute inset-x-0 h-32 pointer-events-none z-0"
+        style={{ background: 'linear-gradient(to bottom, transparent, rgba(232,50,26,0.04), transparent)' }}
+        animate={{ top: ['-10%', '110%'] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'linear', repeatDelay: 3 }}
+      />
+      <div className="px-4 py-4 border-b border-[#484850] relative z-10">
         <div className="flex items-center gap-2.5">
           <div className="w-6 h-6 border-2 border-[#E8321A] flex items-center justify-center flex-shrink-0">
             <Trophy size={11} className="text-[#E8321A]" />
@@ -82,7 +89,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
         </div>
       </div>
 
-      <div className="px-3 pt-4 pb-2">
+      <div className="px-3 pt-4 pb-2 relative z-10">
         <p className="text-[9px] text-[#555555] uppercase tracking-widest px-1 mb-2 font-mono font-bold">Sport</p>
         <div className="grid grid-cols-2 gap-1">
           {SPORTS.map(s => (
@@ -111,7 +118,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
         </div>
       </div>
 
-      <nav className="px-3 pt-2 flex flex-col gap-0.5 overflow-y-auto">
+      <nav className="px-3 pt-2 flex flex-col gap-0.5 overflow-y-auto relative z-10">
         <p className="text-[9px] text-[#555555] uppercase tracking-widest px-1 mb-1 mt-2 font-mono font-bold">Tools</p>
         {[
           { to: '/', end: true, icon: <ArrowLeftRight size={13} className="flex-shrink-0" />, label: 'Trade Rater' },
@@ -151,7 +158,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
         ))}
       </nav>
 
-      <div className="mt-auto px-3 pt-3 pb-1 flex flex-col gap-2">
+      <div className="mt-auto px-3 pt-3 pb-1 flex flex-col gap-2 relative z-10">
         <SignedOut>
           <SignInButton mode="modal">
             <button className="w-full py-2 text-xs text-[#8A8A8A] hover:text-[#F2EFE8] border border-[#484850] hover:border-[#3A3A3A] transition-colors font-mono uppercase tracking-wider">
@@ -183,7 +190,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
         </SignedIn>
       </div>
 
-      <div className="px-3 py-4 border-t border-[#484850]">
+      <div className="px-3 py-4 border-t border-[#484850] relative z-10">
         <div className="card-base p-3 border-l-4 border-l-[#E8321A]">
           <p className="text-[9px] text-[#444444] uppercase tracking-widest mb-2 font-mono font-bold">League</p>
           <div className="space-y-1.5">
@@ -279,14 +286,23 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
               <motion.div
                 layoutId="bottom-nav-indicator"
                 className="absolute top-0 left-2 right-2 h-px bg-[#E8321A]"
+                style={{ boxShadow: '0 0 8px 2px rgba(232,50,26,0.5)' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
             <motion.div
-              animate={isActive ? { scale: 1.15 } : { scale: 1 }}
+              animate={isActive ? { scale: 1.18 } : { scale: 1 }}
               transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+              className="relative"
             >
-              <Icon size={20} />
+              {isActive && (
+                <motion.div
+                  className="absolute inset-0 rounded-full bg-[#E8321A]/15 blur-sm scale-150"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              )}
+              <Icon size={20} className="relative z-10" />
             </motion.div>
             {label}
           </NavLink>

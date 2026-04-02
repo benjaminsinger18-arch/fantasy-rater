@@ -24,7 +24,24 @@ const itemVariants = {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl border border-white/5 bg-slate-900/50 animate-pulse min-h-[180px] sm:min-h-[220px]" />
+    <div className="border border-[#484850] bg-[#2C2C31] min-h-[180px] sm:min-h-[220px] overflow-hidden relative">
+      {/* Shimmer sweep overlay */}
+      <div className="animate-shimmer absolute inset-0 z-10 pointer-events-none" />
+      {/* Faint card structure */}
+      <div className="relative p-3 flex flex-col gap-2 opacity-20">
+        <div className="flex justify-between mb-1">
+          <div className="w-10 h-8 bg-[#484850]" />
+          <div className="w-5 h-5 bg-[#484850]" />
+        </div>
+        <div className="w-14 h-14 bg-[#484850] mx-auto" />
+        <div className="w-16 h-2.5 bg-[#484850] mx-auto mt-2" />
+        <div className="grid grid-cols-3 gap-px mt-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-7 bg-[#484850]" />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 

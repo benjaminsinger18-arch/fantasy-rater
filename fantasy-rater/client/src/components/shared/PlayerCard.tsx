@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { Player } from '../../types/index.ts';
 import { TierInfoModal } from './TierInfoModal.tsx';
@@ -200,10 +200,10 @@ interface Props {
   onClick?: () => void;
 }
 
-function AnimatedScore({ value, colorClass }: { value: number; colorClass: string }) {
+function AnimatedScore({ value, colorClass, glow }: { value: number; colorClass: string; glow?: boolean }) {
   const digits = String(Math.round(value)).split('');
   return (
-    <div className={`flex leading-none ${colorClass}`} style={{ overflow: 'hidden' }}>
+    <div className={`flex leading-none ${colorClass} ${glow ? 'animate-score-glow' : ''}`} style={{ overflow: 'hidden' }}>
       {digits.map((digit, i) => (
         <motion.span
           key={i}
@@ -230,6 +230,22 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
   const [infoOpen, setInfoOpen] = useState(false);
   const allCdnFailed = urlIndex >= headshotUrls.length;
 
+  // 3D tilt on hover
+  const cardRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springConfig = { damping: 20, stiffness: 140 };
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], ['7deg', '-7deg']), springConfig);
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], ['-7deg', '7deg']), springConfig);
+
+  function handleTiltMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!onClick || !cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+  }
+  function handleTiltLeave() { mouseX.set(0); mouseY.set(0); }
+
   useEffect(() => {
     if (!allCdnFailed || serverUrl !== undefined) return;
     const params = new URLSearchParams({ name: player.name, sport });
@@ -246,14 +262,37 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
 
   return (
     <motion.div
-      whileHover={onClick ? { scale: 1.01, y: -2 } : {}}
+      ref={cardRef}
+      whileHover={onClick ? { scale: 1.02, y: -3 } : {}}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      style={onClick ? { rotateX, rotateY, transformStyle: 'preserve-3d', perspective: '800px' } : {}}
+      onMouseMove={handleTiltMove}
+      onMouseLeave={handleTiltLeave}
       className={`relative border border-l-4 overflow-hidden w-full ${s.bgClass} ${s.border} ${s.accentClass} ${onClick ? 'cursor-pointer' : ''} ${tier === 's' ? 'animate-border-pulse' : ''}`}
       onClick={onClick}
     >
       <TierInfoModal open={infoOpen} onClose={() => setInfoOpen(false)} />
+
+      {/* Orbital glow for S/A tier */}
+      {(tier === 's' || tier === 'a') && (
+        <motion.div
+          className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+        >
+          <motion.div
+            className={`absolute w-24 h-24 rounded-full blur-3xl ${tier === 's' ? 'bg-[#E8321A]/18' : 'bg-[#C8882A]/14'}`}
+            animate={{
+              top: ['8%', '8%', '60%', '60%', '8%'],
+              left: ['8%', '65%', '65%', '8%', '8%'],
+            }}
+            transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+          />
+        </motion.div>
+      )}
 
       {/* Scan line sweep on entrance */}
       <motion.div
@@ -286,7 +325,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           {/* Score + tier row */}
           <div className="w-full flex items-start justify-between mb-1">
             <div>
-              <AnimatedScore value={rank} colorClass={s.scoreColor} />
+              <AnimatedScore value={rank} colorClass={s.scoreColor} glow={tier === 's'} />
               <div className={`text-[10px] font-mono uppercase tracking-wider ${s.subtext}`}>{player.position}</div>
             </div>
             <div className="text-right flex flex-col items-end gap-0.5">
