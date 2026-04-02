@@ -473,6 +473,8 @@ export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'upgrade' | 'login'>('upgrade');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+  const { user } = useUser();
 
   useUpgradeModal(setModalOpen, setModalMode);
 
@@ -480,8 +482,18 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('checkout') === 'success') {
       window.history.replaceState({}, '', '/');
+      setCheckoutSuccess(true);
+      // Webhook fires async — reload Clerk user object after short delays
+      // so publicMetadata.tier updates without requiring a manual page refresh
+      const refresh = async () => {
+        await new Promise(r => setTimeout(r, 1500));
+        await user?.reload();
+        await new Promise(r => setTimeout(r, 3000));
+        await user?.reload();
+      };
+      refresh();
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <LeagueProvider>
@@ -493,6 +505,26 @@ export default function App() {
           onClose={() => setMenuOpen(false)}
           onUpgrade={() => { setModalMode('upgrade'); setModalOpen(true); }}
         />
+
+        {/* Post-checkout success banner */}
+        <AnimatePresence>
+          {checkoutSuccess && (
+            <motion.div
+              initial={{ y: -48, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -48, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+              className="fixed top-0 inset-x-0 z-[200] bg-[#E8321A] text-white flex items-center justify-center gap-3 py-2.5 px-4"
+            >
+              <Zap size={14} className="flex-shrink-0" />
+              <span className="text-xs font-mono font-bold tracking-widest uppercase">Pro activated — welcome to the elite tier</span>
+              <button
+                onClick={() => setCheckoutSuccess(false)}
+                className="ml-2 text-white/60 hover:text-white transition-colors text-xs"
+              >✕</button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="h-screen flex bg-mesh">
           {/* Desktop sidebar */}
