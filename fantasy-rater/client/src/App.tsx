@@ -18,7 +18,7 @@ import { DraftAssistant } from './components/draft/DraftAssistant.tsx';
 import { MultiLeague } from './components/league/MultiLeague.tsx';
 import { NotificationSettings } from './components/settings/NotificationSettings.tsx';
 import { UpgradeModal, useUpgradeModal } from './components/shared/UpgradeModal.tsx';
-import { setTokenGetter, setClerkReadyGate, openBillingPortal } from './lib/api.ts';
+import { setTokenGetter, setClerkReadyGate } from './lib/api.ts';
 import type { Sport } from './types/index.ts';
 
 const SPORTS: { id: Sport; label: string }[] = [
@@ -181,11 +181,6 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
               <span className="text-[#8A8A8A] text-xs font-mono truncate">{user?.firstName ?? 'My Account'}</span>
               {isPro && <span className="text-[#E8321A] text-[10px] font-mono font-bold">PRO</span>}
             </div>
-            {isPro && (
-              <button onClick={() => openBillingPortal()} className="ml-auto text-[#444444] hover:text-[#8A8A8A] text-xs font-mono transition-colors">
-                Manage
-              </button>
-            )}
           </div>
         </SignedIn>
       </div>
@@ -438,11 +433,6 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
                       <p className="text-sm font-mono text-[#F2EFE8] truncate">{user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress ?? 'My Account'}</p>
                       <p className="text-xs font-mono text-[#555555]">{isPro ? 'Pro member' : 'Free plan'}</p>
                     </div>
-                    {isPro && (
-                      <button onClick={() => { openBillingPortal(); onClose(); }} className="text-xs font-mono text-[#555555] hover:text-[#8A8A8A]">
-                        Manage
-                      </button>
-                    )}
                   </div>
                   {!isPro && (
                     <motion.button
