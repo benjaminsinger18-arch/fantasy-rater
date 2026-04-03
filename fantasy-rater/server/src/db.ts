@@ -60,13 +60,6 @@ db.exec(`
     UNIQUE(clerk_user_id, platform, league_id)
   );
 
-  CREATE TABLE IF NOT EXISTS expo_push_tokens (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    clerk_user_id TEXT NOT NULL,
-    token TEXT NOT NULL UNIQUE,
-    created_at INTEGER DEFAULT (unixepoch())
-  );
-
   CREATE TABLE IF NOT EXISTS injury_alerts_sent (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     clerk_user_id TEXT NOT NULL,

@@ -330,13 +330,13 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
             </div>
             <div className="text-right flex flex-col items-end gap-0.5">
               <div className="flex items-center gap-1">
-                <motion.button
-                  onClick={e => { e.stopPropagation(); setInfoOpen(true); }}
+                <button
+                  onClick={e => { e.stopPropagation(); e.preventDefault(); setInfoOpen(true); }}
+                  onMouseDown={e => e.stopPropagation()}
                   className={`text-[9px] font-mono opacity-30 hover:opacity-80 transition-opacity leading-none ${s.scoreColor}`}
-                  whileTap={{ scale: 0.9 }}
                 >
                   [i]
-                </motion.button>
+                </button>
                 <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${s.scoreColor}`}>{TIER_LABELS[tier]}</div>
               </div>
               <div className={`text-[9px] font-mono ${s.subtext}`}>{player.team}</div>

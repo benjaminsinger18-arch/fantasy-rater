@@ -46,7 +46,7 @@ export interface SleeperUser {
 let playerRefreshInterval: ReturnType<typeof setInterval> | null = null;
 
 async function fetchAndCachePlayers(): Promise<Record<string, SleeperPlayer>> {
-  const res = await axios.get<Record<string, SleeperPlayer>>(`${BASE}/players/nfl`);
+  const res = await axios.get<Record<string, SleeperPlayer>>(`${BASE}/players/nfl`, { timeout: 10000 });
   cache.set('sleeper:players:nfl', res.data, TTL.SLEEPER_PLAYERS);
   return res.data;
 }

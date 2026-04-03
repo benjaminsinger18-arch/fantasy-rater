@@ -9,5 +9,9 @@
     "dev": "npm run dev:server & npm run dev:client",
     "build": "cd server && npm install && npm run build",
     "start": "cd server && npm start"
+  },
+  "devDependencies": {
+    "@21st-sdk/agent": "^0.0.14",
+    "zod": "^4.3.6"
   }
 }
