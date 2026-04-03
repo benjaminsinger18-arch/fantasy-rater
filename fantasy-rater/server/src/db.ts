@@ -68,6 +68,20 @@ db.exec(`
     sent_at INTEGER DEFAULT (unixepoch()),
     UNIQUE(clerk_user_id, player_id, injury_status)
   );
+
+  CREATE TABLE IF NOT EXISTS trade_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    clerk_user_id TEXT NOT NULL,
+    sport TEXT NOT NULL,
+    side_a TEXT NOT NULL,
+    side_b TEXT NOT NULL,
+    side_a_score REAL NOT NULL,
+    side_b_score REAL NOT NULL,
+    verdict TEXT NOT NULL,
+    scoring_format TEXT,
+    created_at INTEGER NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_trade_history_user ON trade_history(clerk_user_id, created_at DESC);
 `);
 
 export default db;

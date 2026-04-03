@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeftRight, X, Share2, Copy, Check, Loader2, Flame, CheckCircle, Scale, AlertTriangle, Siren } from 'lucide-react';
+import { ArrowLeftRight, X, Share2, Copy, Check, Loader2, Flame, CheckCircle, Scale, AlertTriangle, Siren, History } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { PlayerSearch } from '../shared/PlayerSearch.tsx';
 import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
 import { TradeShareCard } from './TradeShareCard.tsx';
 import { rateTrade } from '../../lib/api.ts';
+import { TradeHistory } from './TradeHistory.tsx';
 import { useLeague } from '../../lib/LeagueContext.tsx';
 import type { Player, TradeScore } from '../../types/index.ts';
 
@@ -178,6 +179,7 @@ const VERDICT_STYLES: Record<string, { bg: string; border: string; text: string;
 
 export function TradeRater() {
   const { config } = useLeague();
+  const [tab, setTab] = useState<'rate' | 'history'>('rate');
   const [sideA, setSideA] = useState<Player[]>([]);
   const [sideB, setSideB] = useState<Player[]>([]);
   const [score, setScore] = useState<TradeScore | null>(null);
@@ -263,41 +265,69 @@ export function TradeRater() {
           <p className="text-[#555555] text-xs font-mono mt-0.5">AI-powered analysis with live player data</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
-          <TradeSide
-            label="You Give"
-            players={sideA}
-            sport={config.sport}
-            onAdd={p => setSideA(prev => [...prev, p])}
-            onRemove={i => setSideA(prev => prev.filter((_, idx) => idx !== i))}
-            colorClass="border-l-[#E8321A]"
-            headerColor="text-[#E8321A]"
-          />
-          <div className="flex items-center justify-center flex-shrink-0">
-            <div className="w-7 h-7 bg-[#1A1A1A] border border-[#2A2A2A] flex items-center justify-center text-[#555555]">
-              <ArrowLeftRight size={14} />
-            </div>
-          </div>
-          <TradeSide
-            label="You Receive"
-            players={sideB}
-            sport={config.sport}
-            onAdd={p => setSideB(prev => [...prev, p])}
-            onRemove={i => setSideB(prev => prev.filter((_, idx) => idx !== i))}
-            colorClass="border-l-[#4DC878]"
-            headerColor="text-[#4DC878]"
-          />
+        {/* Tabs */}
+        <div className="flex gap-0 border-b border-[#2A2A2A] flex-shrink-0 -mt-2">
+          {([['rate', 'Rate Trade'], ['history', 'History']] as const).map(([t, label]) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`flex items-center gap-1.5 px-3 py-2 text-[10px] font-mono font-bold uppercase tracking-widest border-b-2 transition-colors ${
+                tab === t
+                  ? 'border-[#E8321A] text-[#F2EFE8]'
+                  : 'border-transparent text-[#555555] hover:text-[#8A8A8A]'
+              }`}
+            >
+              {t === 'history' && <History size={10} />}
+              {label}
+            </button>
+          ))}
         </div>
 
-        {error && <p className="text-rose-400 text-sm flex-shrink-0">{error}</p>}
+        {tab === 'history' && (
+          <div className="flex-1 overflow-y-auto">
+            <TradeHistory />
+          </div>
+        )}
 
-        <button
-          onClick={handleRate}
-          disabled={loading}
-          className="w-full py-3.5 bg-[#E8321A] hover:bg-[#C82818] disabled:opacity-40 disabled:cursor-not-allowed text-white font-display font-black tracking-widest uppercase text-sm transition-colors flex-shrink-0 flex items-center justify-center gap-2"
-        >
-          {loading ? <><Loader2 size={14} className="animate-spin" /> Analyzing...</> : 'Rate This Trade'}
-        </button>
+        {tab === 'rate' && (
+          <>
+            <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
+              <TradeSide
+                label="You Give"
+                players={sideA}
+                sport={config.sport}
+                onAdd={p => setSideA(prev => [...prev, p])}
+                onRemove={i => setSideA(prev => prev.filter((_, idx) => idx !== i))}
+                colorClass="border-l-[#E8321A]"
+                headerColor="text-[#E8321A]"
+              />
+              <div className="flex items-center justify-center flex-shrink-0">
+                <div className="w-7 h-7 bg-[#1A1A1A] border border-[#2A2A2A] flex items-center justify-center text-[#555555]">
+                  <ArrowLeftRight size={14} />
+                </div>
+              </div>
+              <TradeSide
+                label="You Receive"
+                players={sideB}
+                sport={config.sport}
+                onAdd={p => setSideB(prev => [...prev, p])}
+                onRemove={i => setSideB(prev => prev.filter((_, idx) => idx !== i))}
+                colorClass="border-l-[#4DC878]"
+                headerColor="text-[#4DC878]"
+              />
+            </div>
+
+            {error && <p className="text-rose-400 text-sm flex-shrink-0">{error}</p>}
+
+            <button
+              onClick={handleRate}
+              disabled={loading}
+              className="w-full py-3.5 bg-[#E8321A] hover:bg-[#C82818] disabled:opacity-40 disabled:cursor-not-allowed text-white font-display font-black tracking-widest uppercase text-sm transition-colors flex-shrink-0 flex items-center justify-center gap-2"
+            >
+              {loading ? <><Loader2 size={14} className="animate-spin" /> Analyzing...</> : 'Rate This Trade'}
+            </button>
+          </>
+        )}
       </div>
 
       {/* Right: Analysis Panel */}

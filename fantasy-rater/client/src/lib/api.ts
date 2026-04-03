@@ -265,3 +265,13 @@ export async function streamChatMessage(
   }
   onDone();
 }
+
+export async function getTradeHistory() {
+  const res = await api.get('/trade/history');
+  return res.data;
+}
+
+export async function analyzeMatchup(payload: { myRoster: object[]; opponentRoster: object[]; sport: string; scoringFormat: string; week?: number }) {
+  const res = await api.post('/matchup/analyze', payload);
+  return res.data;
+}
