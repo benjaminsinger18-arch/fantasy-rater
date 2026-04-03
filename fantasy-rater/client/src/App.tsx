@@ -18,6 +18,7 @@ import { DraftAssistant } from './components/draft/DraftAssistant.tsx';
 import { MultiLeague } from './components/league/MultiLeague.tsx';
 import { NotificationSettings } from './components/settings/NotificationSettings.tsx';
 import { LiveScoring } from './components/live/LiveScoring.tsx';
+import { LineupOptimizer } from './components/lineup/LineupOptimizer.tsx';
 import { UpgradeModal, useUpgradeModal } from './components/shared/UpgradeModal.tsx';
 import { setTokenGetter, setClerkReadyGate } from './lib/api.ts';
 import type { Sport } from './types/index.ts';
@@ -129,6 +130,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
           { to: '/draft', icon: <Target size={13} className="flex-shrink-0" />, label: 'Draft', pro: !isPro },
           { to: '/rankings', icon: <Medal size={13} className="flex-shrink-0" />, label: 'Rankings' },
           { to: '/live', icon: <Activity size={13} className="flex-shrink-0" />, label: 'Live Score' },
+          { to: '/lineup', icon: <Zap size={13} className="flex-shrink-0" />, label: 'Lineup Optimizer', pro: !isPro },
           { to: '/predictor', icon: <Telescope size={13} className="flex-shrink-0" />, label: 'League Predictor', pro: !isPro },
         ].map(({ to, end, icon, label, pro }, i) => (
           <motion.div
@@ -320,6 +322,7 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
 // ─── Mobile Slide-up Menu ────────────────────────────────────────────────────
 const menuItems = [
   { icon: ClipboardList, label: 'Team Rater', path: '/team', pro: false },
+  { icon: Zap, label: 'Lineup Optimizer', path: '/lineup', pro: true },
   { icon: Inbox, label: 'Waiver Wire', path: '/waiver', pro: true },
   { icon: Target, label: 'Draft Assistant', path: '/draft', pro: true },
   { icon: Telescope, label: 'League Predictor', path: '/predictor', pro: true },
@@ -473,6 +476,7 @@ function AppRoutes() {
         <Route path="/leagues" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><MultiLeague /></motion.div>} />
         <Route path="/settings" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><NotificationSettings /></motion.div>} />
         <Route path="/live" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LiveScoring /></motion.div>} />
+        <Route path="/lineup" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LineupOptimizer /></motion.div>} />
       </Routes>
     </AnimatePresence>
   );

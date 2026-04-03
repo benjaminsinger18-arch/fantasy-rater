@@ -210,3 +210,8 @@ export async function getLiveMatchup(leagueId: string, week: number, rosterId: n
   const res = await api.get('/live/matchup', { params: { leagueId, week, rosterId } });
   return res.data;
 }
+
+export async function optimizeLineup(payload: { players: object[]; sport: string; scoringFormat: string; week?: number }) {
+  const res = await api.post('/lineup/optimize', payload);
+  return res.data;
+}
