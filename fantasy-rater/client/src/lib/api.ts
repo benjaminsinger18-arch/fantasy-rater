@@ -53,7 +53,8 @@ api.interceptors.response.use(
         if (_clerkReady) await _clerkReady;
         err.config._clerkRetried = true;
         if (_getToken) {
-          const token = await _getToken();
+          const timeout = new Promise<null>(r => setTimeout(() => r(null), 3000));
+          const token = await Promise.race([_getToken(), timeout]);
           if (token) {
             err.config.headers = { ...err.config.headers, Authorization: `Bearer ${token}` };
             return api.request(err.config);
