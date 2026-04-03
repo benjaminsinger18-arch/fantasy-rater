@@ -17,6 +17,7 @@ import draftRouter from './routes/draft.js';
 import notificationsRouter from './routes/notifications.js';
 import liveRouter from './routes/live.js';
 import lineupRouter from './routes/lineup.js';
+import chatRouter from './routes/chat.js';
 
 import { startPlayerRefresh } from './services/platforms/sleeper.js';
 import { startCronJobs } from './services/cron.js';
@@ -60,6 +61,7 @@ app.use('/api/draft', draftRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/live', liveRouter);
 app.use('/api/lineup', lineupRouter);
+app.use('/api/chat', chatRouter);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 

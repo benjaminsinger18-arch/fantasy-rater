@@ -5,6 +5,7 @@ interface DailyUsage {
   team: number;
   startsit: number;
   lineup: number;
+  chat: number;
   date: string;
 }
 
@@ -14,7 +15,7 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function checkUsage(action: 'trade' | 'team' | 'startsit' | 'lineup', limit: number) {
+export function checkUsage(action: 'trade' | 'team' | 'startsit' | 'lineup' | 'chat', limit: number) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.userTier === 'pro') return next();
 
@@ -23,14 +24,14 @@ export function checkUsage(action: 'trade' | 'team' | 'startsit' | 'lineup', lim
     const u = usage.get(userId);
 
     if (!u || u.date !== d) {
-      usage.set(userId, { trade: 0, team: 0, startsit: 0, lineup: 0, date: d });
+      usage.set(userId, { trade: 0, team: 0, startsit: 0, lineup: 0, chat: 0, date: d });
     }
 
     const current = usage.get(userId)!;
     if (current[action] >= limit) {
       return res.status(402).json({
         error: 'upgrade_required',
-        message: `Free tier limit: ${limit} ${action} ratings per day`,
+        message: `Free tier limit: ${limit} ${action} per day`,
       });
     }
 

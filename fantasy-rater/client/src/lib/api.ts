@@ -7,6 +7,9 @@ let _getToken: (() => Promise<string | null>) | null = null;
 export function setTokenGetter(fn: () => Promise<string | null>) {
   _getToken = fn;
 }
+export async function getAuthToken(): Promise<string | null> {
+  return _getToken ? _getToken() : null;
+}
 
 // Clerk ready gate — resolves when Clerk finishes loading
 let _clerkReady: Promise<void> | null = null;
@@ -214,4 +217,51 @@ export async function getLiveMatchup(leagueId: string, week: number, rosterId: n
 export async function optimizeLineup(payload: { players: object[]; sport: string; scoringFormat: string; week?: number }) {
   const res = await api.post('/lineup/optimize', payload);
   return res.data;
+}
+
+export async function streamChatMessage(
+  payload: { messages: Array<{ role: 'user' | 'assistant'; content: string }>; context: object },
+  onText: (t: string) => void,
+  onDone: () => void,
+  onError: (msg: string) => void,
+): Promise<void> {
+  const token = await getAuthToken();
+  const base = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
+  const res = await fetch(`${base}/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 402) throw Object.assign(new Error('upgrade_required'), { response: { status: 402, data } });
+    throw new Error(data.error ?? 'Chat failed');
+  }
+
+  const reader = res.body!.getReader();
+  const decoder = new TextDecoder();
+  let buf = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop() ?? '';
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const raw = line.slice(6);
+      if (raw === '[DONE]') { onDone(); return; }
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed.error) { onError(parsed.error); return; }
+        if (parsed.text) onText(parsed.text);
+      } catch { /* ignore */ }
+    }
+  }
+  onDone();
 }
