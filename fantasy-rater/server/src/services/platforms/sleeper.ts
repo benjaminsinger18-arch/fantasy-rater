@@ -152,3 +152,64 @@ export async function getTrending(type: 'add' | 'drop' = 'add') {
   cache.set(key, res.data, TTL.SLEEPER_TRENDING);
   return res.data;
 }
+
+export interface LiveMatchupPlayer {
+  id: string;
+  name: string;
+  position: string;
+  team: string;
+  points: number;
+  isStarter: boolean;
+}
+
+export interface LiveMatchupSide {
+  rosterId: number;
+  matchupId: number;
+  totalPoints: number;
+  players: LiveMatchupPlayer[];
+}
+
+export async function getMatchup(leagueId: string, week: number, rosterId: number): Promise<{ mine: LiveMatchupSide; opponent: LiveMatchupSide | null }> {
+  const matchups = await axios.get<Array<{
+    roster_id: number;
+    matchup_id: number;
+    points: number;
+    players: string[];
+    starters: string[];
+    players_points: Record<string, number>;
+  }>>(`${BASE}/league/${leagueId}/matchups/${week}`, { timeout: 8000 }).then(r => r.data);
+
+  const mine = matchups.find(m => m.roster_id === rosterId);
+  if (!mine) throw new Error(`Roster ${rosterId} not found in week ${week} matchups`);
+  const opponent = matchups.find(m => m.matchup_id === mine.matchup_id && m.roster_id !== rosterId) ?? null;
+
+  const allPlayers = await getAllPlayers();
+
+  type SleeperMatchup = { roster_id: number; matchup_id: number; points: number; players: string[]; starters: string[]; players_points: Record<string, number> };
+  function hydrateSide(side: SleeperMatchup): LiveMatchupSide {
+    const starters = new Set(side.starters ?? []);
+    const players: LiveMatchupPlayer[] = (side.players ?? []).map(pid => {
+      const p = allPlayers[pid];
+      return {
+        id: pid,
+        name: p?.full_name ?? pid,
+        position: p?.position ?? '?',
+        team: p?.team ?? 'FA',
+        points: side.players_points?.[pid] ?? 0,
+        isStarter: starters.has(pid),
+      };
+    });
+    players.sort((a, b) => {
+      if (a.isStarter !== b.isStarter) return a.isStarter ? -1 : 1;
+      return b.points - a.points;
+    });
+    return {
+      rosterId: side.roster_id,
+      matchupId: side.matchup_id,
+      totalPoints: side.points ?? 0,
+      players,
+    };
+  }
+
+  return { mine: hydrateSide(mine), opponent: opponent ? hydrateSide(opponent) : null };
+}

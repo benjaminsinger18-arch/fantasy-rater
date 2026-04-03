@@ -205,3 +205,8 @@ export async function saveRosterForAlerts(payload: object) {
   const res = await api.post('/notifications/roster/save', payload);
   return res.data;
 }
+
+export async function getLiveMatchup(leagueId: string, week: number, rosterId: number) {
+  const res = await api.get('/live/matchup', { params: { leagueId, week, rosterId } });
+  return res.data;
+}

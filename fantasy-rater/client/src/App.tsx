@@ -3,7 +3,7 @@ import { BrowserRouter, NavLink, Route, Routes, useNavigate, useLocation } from 
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeftRight, ClipboardList, RefreshCw, Inbox, Target, Medal,
-  Telescope, FolderOpen, Settings, Bell, Trophy, Zap, MoreHorizontal,
+  Telescope, FolderOpen, Settings, Bell, Trophy, Zap, MoreHorizontal, Activity,
 } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useUser } from '@clerk/clerk-react';
 import { LeagueProvider, useLeague } from './lib/LeagueContext.tsx';
@@ -17,6 +17,7 @@ import { WaiverWire } from './components/waiver/WaiverWire.tsx';
 import { DraftAssistant } from './components/draft/DraftAssistant.tsx';
 import { MultiLeague } from './components/league/MultiLeague.tsx';
 import { NotificationSettings } from './components/settings/NotificationSettings.tsx';
+import { LiveScoring } from './components/live/LiveScoring.tsx';
 import { UpgradeModal, useUpgradeModal } from './components/shared/UpgradeModal.tsx';
 import { setTokenGetter, setClerkReadyGate } from './lib/api.ts';
 import type { Sport } from './types/index.ts';
@@ -127,6 +128,7 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
           { to: '/waiver', icon: <Inbox size={13} className="flex-shrink-0" />, label: 'Waiver Wire', pro: !isPro },
           { to: '/draft', icon: <Target size={13} className="flex-shrink-0" />, label: 'Draft', pro: !isPro },
           { to: '/rankings', icon: <Medal size={13} className="flex-shrink-0" />, label: 'Rankings' },
+          { to: '/live', icon: <Activity size={13} className="flex-shrink-0" />, label: 'Live Score' },
           { to: '/predictor', icon: <Telescope size={13} className="flex-shrink-0" />, label: 'League Predictor', pro: !isPro },
         ].map(({ to, end, icon, label, pro }, i) => (
           <motion.div
@@ -259,7 +261,7 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
 
   const tabs = [
     { to: '/', end: true, icon: ArrowLeftRight, label: 'Trade' },
-    { to: '/team', icon: ClipboardList, label: 'Team' },
+    { to: '/live', icon: Activity, label: 'Live' },
     { to: '/startsit', icon: RefreshCw, label: 'Start/Sit' },
     { to: '/rankings', icon: Medal, label: 'Rankings' },
   ];
@@ -317,6 +319,7 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
 
 // ─── Mobile Slide-up Menu ────────────────────────────────────────────────────
 const menuItems = [
+  { icon: ClipboardList, label: 'Team Rater', path: '/team', pro: false },
   { icon: Inbox, label: 'Waiver Wire', path: '/waiver', pro: true },
   { icon: Target, label: 'Draft Assistant', path: '/draft', pro: true },
   { icon: Telescope, label: 'League Predictor', path: '/predictor', pro: true },
@@ -469,6 +472,7 @@ function AppRoutes() {
         <Route path="/draft" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><DraftAssistant /></motion.div>} />
         <Route path="/leagues" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><MultiLeague /></motion.div>} />
         <Route path="/settings" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><NotificationSettings /></motion.div>} />
+        <Route path="/live" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LiveScoring /></motion.div>} />
       </Routes>
     </AnimatePresence>
   );
