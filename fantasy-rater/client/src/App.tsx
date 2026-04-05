@@ -6,6 +6,8 @@ import {
   Telescope, FolderOpen, Settings, Bell, Trophy, Zap, MoreHorizontal, Activity, MessageCircle, Swords,
 } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useUser } from '@clerk/clerk-react';
+import { AuthGatePage } from './components/shared/AuthGatePage.tsx';
+import { OnboardingTutorial, ONBOARDING_KEY } from './components/shared/OnboardingTutorial.tsx';
 import { LeagueProvider, useLeague } from './lib/LeagueContext.tsx';
 import { TradeRater } from './components/trade/TradeRater.tsx';
 import { TeamRater } from './components/team/TeamRater.tsx';
@@ -496,6 +498,8 @@ export default function App() {
   const [modalMode, setModalMode] = useState<'upgrade' | 'login'>('upgrade');
   const [menuOpen, setMenuOpen] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
 
   useUpgradeModal(setModalOpen, setModalMode);
@@ -517,10 +521,30 @@ export default function App() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (isLoaded && isSignedIn && !localStorage.getItem(ONBOARDING_KEY)) {
+      setTutorialOpen(true);
+    }
+  }, [isLoaded, isSignedIn]);
+
+  if (!isLoaded) return null;
+
+  if (!isSignedIn) return (
+    <BrowserRouter>
+      <AuthSync />
+      <AuthGatePage />
+    </BrowserRouter>
+  );
+
   return (
     <LeagueProvider>
       <BrowserRouter>
         <AuthSync />
+        <OnboardingTutorial
+          open={tutorialOpen}
+          onClose={() => setTutorialOpen(false)}
+          onUpgrade={() => { setModalMode('upgrade'); setModalOpen(true); }}
+        />
         <UpgradeModal open={modalOpen} mode={modalMode} onClose={() => setModalOpen(false)} />
         <MobileMenu
           open={menuOpen}
