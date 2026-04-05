@@ -62,7 +62,7 @@ function AuthSync() {
 }
 
 // ─── Desktop Sidebar ────────────────────────────────────────────────────────
-function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
+function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial: () => void }) {
   const { config, setSport } = useLeague();
   const { user } = useUser();
   const tier = (user?.publicMetadata?.tier as string) ?? 'free';
@@ -92,6 +92,13 @@ function Sidebar({ onUpgrade }: { onUpgrade: () => void }) {
           <span className="font-display text-lg font-black tracking-widest text-[#F2EFE8] uppercase">
             FantasyRater
           </span>
+          <button
+            onClick={onTutorial}
+            className="ml-auto w-5 h-5 border border-[#484850] hover:border-[#888888] text-[#444444] hover:text-[#888888] flex items-center justify-center text-[10px] font-mono transition-colors cursor-pointer flex-shrink-0"
+            title="Show tutorial"
+          >
+            ?
+          </button>
         </div>
       </div>
 
@@ -574,7 +581,10 @@ export default function App() {
 
         <div className="h-screen flex bg-mesh">
           {/* Desktop sidebar */}
-          <Sidebar onUpgrade={() => { setModalMode('upgrade'); setModalOpen(true); }} />
+          <Sidebar
+            onUpgrade={() => { setModalMode('upgrade'); setModalOpen(true); }}
+            onTutorial={() => setTutorialOpen(true)}
+          />
 
           {/* Main area */}
           <div className="flex-1 flex flex-col min-h-0 min-w-0">
