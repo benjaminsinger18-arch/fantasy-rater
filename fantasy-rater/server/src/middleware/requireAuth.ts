@@ -46,8 +46,9 @@ export function requireAuth(minTier: 'free' | 'pro' = 'free') {
 
       return next();
     } catch (err) {
-      console.error('Auth error:', err instanceof Error ? err.message : err);
-      return res.status(401).json({ error: 'invalid_token' });
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('Auth error:', msg);
+      return res.status(401).json({ error: 'invalid_token', debug: msg });
     }
   };
 }
