@@ -16,7 +16,14 @@ interface ChatContext {
   scoringFormat: string;
   leagueSize: number;
   currentWeek: number;
-  roster?: Array<{ name: string; position: string; team: string; rank?: number }>;
+  roster?: Array<{
+    name: string;
+    position: string;
+    team: string;
+    injuryStatus?: string | null;
+    avgPoints?: number;
+    rank?: number;
+  }>;
 }
 
 // POST /api/chat — PRO + 20 messages/day free limit, streams SSE
@@ -30,6 +37,10 @@ router.post('/', requireAuth('free'), checkUsage('chat', 20), async (req, res) =
   const systemPrompt = [
     `You are an expert fantasy ${context.sport.toUpperCase()} advisor with deep knowledge of player values, start/sit decisions, trade strategy, and waiver wire pickups.`,
     '',
+    `Today's date: ${new Date().toISOString().split('T')[0]}.`,
+    '',
+    "CRITICAL: Only reference player names, teams, stats, and facts explicitly provided in this prompt. Never fill gaps from your training knowledge — it goes stale and causes hallucinations. If asked about a player not listed here, say you don't have current data on them rather than guessing.",
+    '',
     'LEAGUE CONTEXT:',
     `  Sport: ${context.sport.toUpperCase()}`,
     `  Scoring: ${context.scoringFormat}`,
@@ -37,11 +48,16 @@ router.post('/', requireAuth('free'), checkUsage('chat', 20), async (req, res) =
     `  Current week: ${context.currentWeek}`,
     ...(context.roster?.length ? [
       '',
-      'MY ROSTER:',
-      ...context.roster.map(p => `  ${p.position} ${p.name} (${p.team})${p.rank ? ` — value ${Math.round(p.rank)}` : ''}`),
+      'MY ROSTER (authoritative — treat these team assignments as current fact):',
+      ...context.roster.map(p => {
+        const injury = p.injuryStatus ? ` [${p.injuryStatus.toUpperCase()}]` : '';
+        const pts = p.avgPoints ? ` — ${p.avgPoints.toFixed(1)} pts/wk` : '';
+        const rank = p.rank ? ` (value ${Math.round(p.rank)}/100)` : '';
+        return `  ${p.position} ${p.name} (${p.team})${injury}${pts}${rank}`;
+      }),
     ] : []),
     '',
-    'Rules: Be direct and opinionated. Pick a side. Use specific player names. 2–4 sentences unless a detailed breakdown is requested. No hedging.',
+    'Rules: Be direct and opinionated. Pick a side. Use specific player names from the roster above. 2–4 sentences unless a detailed breakdown is requested. No hedging.',
   ].join('\n');
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -52,8 +68,8 @@ router.post('/', requireAuth('free'), checkUsage('chat', 20), async (req, res) =
 
   try {
     const stream = anthropic.messages.stream({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 512,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 800,
       system: systemPrompt,
       messages: messages.slice(-12), // last 12 turns for context
     });
