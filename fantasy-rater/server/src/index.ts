@@ -27,6 +27,8 @@ import './db.js'; // Initialize database on startup
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
+app.set('trust proxy', 1);
+
 app.use(cors({
   origin: (origin, cb) => {
     const allowed = [
