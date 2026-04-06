@@ -4,7 +4,11 @@ import type { RaterPlayer } from './rater.js';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const SYSTEM_PROMPT = `You are a sharp fantasy sports analyst. Be extremely brief and stat-focused. Never use markdown headers or bullet lists. Write 2-3 tight sentences max. Lead with the numbers, end with a clear verdict. No filler, no hedging.`;
+function getSystemPrompt(): string {
+  return `You are a sharp fantasy sports analyst. Be extremely brief and stat-focused. Never use markdown headers or bullet lists. Write 2-3 tight sentences max. Lead with the numbers, end with a clear verdict. No filler, no hedging.
+
+Today's date: ${new Date().toISOString().split('T')[0]}. CRITICAL: Only reference player names, teams, stats, and facts explicitly provided in this prompt. Never fill gaps from your training knowledge — it goes stale and causes errors. If a player's info isn't in the prompt, don't invent it.`;
+}
 
 function playerLine(p: RaterPlayer): string {
   const injury = p.injuryStatus ? ` [${p.injuryStatus.toUpperCase()}]` : '';
@@ -172,7 +176,7 @@ export async function streamAnalysis(
     const stream = await anthropic.messages.stream({
       model: 'claude-sonnet-4-6',
       max_tokens: 200,
-      system: SYSTEM_PROMPT,
+      system: getSystemPrompt(),
       messages: [{ role: 'user', content: prompt }],
     });
 
