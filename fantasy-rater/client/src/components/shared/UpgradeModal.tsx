@@ -44,7 +44,7 @@ export function UpgradeModal({ open, mode, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/60 rounded-2xl p-6 w-full max-w-md shadow-2xl shadow-black/50"
+        className="relative bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-700/60 rounded-2xl p-6 w-full max-w-md shadow-2xl shadow-black/50 max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         {mode === 'login' ? (
