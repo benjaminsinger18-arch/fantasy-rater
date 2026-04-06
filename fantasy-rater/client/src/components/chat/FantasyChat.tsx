@@ -45,13 +45,42 @@ export function FantasyChat() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<boolean>(false);
+  const [roster, setRoster] = useState<Array<{
+    name: string; position: string; team: string;
+    injuryStatus?: string | null; avgPoints?: number; rank?: number;
+  }> | undefined>(undefined);
 
   // Reset history when sport changes
   useEffect(() => {
     setMessages(loadHistory(config.sport));
     setStreamingText('');
     setStreaming(false);
+    setRoster(undefined);
   }, [config.sport]);
+
+  // Fetch roster from connected platform to give AI current player context
+  useEffect(() => {
+    if (!config.leagueId) return;
+    const apiBase = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
+
+    let url = '';
+    if (config.sport === 'fpl' && config.fplManagerId) {
+      url = `${apiBase}/team/import/fpl?managerId=${config.fplManagerId}&gameweek=${config.currentWeek}`;
+    } else if (config.platform === 'sleeper') {
+      url = `${apiBase}/team/import/sleeper?leagueId=${config.leagueId}${config.myRosterId ? `&rosterId=${config.myRosterId}` : ''}`;
+    } else if (config.platform === 'espn') {
+      url = `${apiBase}/team/import/espn?leagueId=${config.leagueId}&sport=${config.sport}${config.myRosterId ? `&rosterId=${config.myRosterId}` : ''}`;
+    }
+
+    if (!url) return;
+
+    fetch(url, { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.roster) setRoster(data.roster);
+      })
+      .catch(() => {}); // non-fatal — chat works fine without roster
+  }, [config.leagueId, config.sport, config.platform, config.myRosterId, config.fplManagerId, config.currentWeek]);
 
   // Persist history
   useEffect(() => {
@@ -68,7 +97,8 @@ export function FantasyChat() {
     scoringFormat: config.scoringFormat,
     leagueSize: config.leagueSize,
     currentWeek: config.currentWeek,
-  }), [config]);
+    roster,
+  }), [config, roster]);
 
   async function send(text: string) {
     if (!text.trim() || streaming) return;
