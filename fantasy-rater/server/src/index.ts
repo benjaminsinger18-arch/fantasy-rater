@@ -35,7 +35,7 @@ app.use(cors({
       process.env.CLIENT_URL,
       'http://localhost:5173',
     ].filter(Boolean);
-    if (!origin || allowed.some(o => origin === o) || /\.vercel\.app$/.test(origin)) {
+    if (!origin || allowed.some(o => origin === o) || /\.vercel\.app$/.test(origin) || /raterzone\.xyz$/.test(origin)) {
       cb(null, true);
     } else {
       cb(new Error('Not allowed by CORS'));
