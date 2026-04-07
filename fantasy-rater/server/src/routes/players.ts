@@ -341,7 +341,23 @@ router.get('/photo', async (req, res) => {
       }
     }
 
-    // 3. Wikipedia search fallback — covers players absent from TheSportsDB
+    // 3. ESPN cricket search — covers international stars well
+    if (!url) {
+      try {
+        const espnCricket = await axios.get(
+          `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(name.trim())}&limit=3&type=player&sport=cricket`,
+          { timeout: 4000 }
+        );
+        const espnId = espnCricket.data?.items?.[0]?.id;
+        if (espnId) {
+          const candidate = `https://a.espncdn.com/i/headshots/cricket/players/full/${espnId}.png`;
+          const check = await axios.head(candidate, { timeout: 3000 }).catch(() => null);
+          if (check?.status === 200) url = candidate;
+        }
+      } catch { /* fall through */ }
+    }
+
+    // 4. Wikipedia search fallback — covers players absent from ESPN/TheSportsDB
     //    Use generator=search with +cricket to get the right person in one call
     if (!url) {
       try {
