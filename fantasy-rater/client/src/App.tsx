@@ -276,21 +276,20 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
   const location = useLocation();
 
   const tabs = [
-    { to: '/', end: true, icon: ArrowLeftRight, label: 'Trade' },
-    { to: '/live', icon: Activity, label: 'Live' },
-    { to: '/startsit', icon: RefreshCw, label: 'Start/Sit' },
-    { to: '/rankings', icon: Medal, label: 'Rankings' },
+    { to: '/chat',     icon: MessageCircle, label: 'Chat' },
+    { to: '/rankings', icon: Medal,         label: 'Rankings' },
+    { to: '/live',     icon: Activity,      label: 'Live' },
+    { to: '/team',     icon: ClipboardList, label: 'Team' },
   ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#222226] border-t border-[#484850] flex items-stretch safe-bottom" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      {tabs.map(({ to, end, icon: Icon, label }) => {
-        const isActive = end ? location.pathname === to : location.pathname.startsWith(to);
+      {tabs.map(({ to, icon: Icon, label }) => {
+        const isActive = location.pathname === to || location.pathname.startsWith(to + '/');
         return (
           <NavLink
             key={to}
             to={to}
-            end={end}
             className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-mono tracking-wider uppercase transition-colors relative ${
               isActive ? 'text-[#E8321A]' : 'text-[#777777] active:text-[#AAAAAA]'
             }`}
@@ -335,13 +334,13 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
 
 // ─── Mobile Slide-up Menu ────────────────────────────────────────────────────
 const menuItems = [
-  { icon: ClipboardList, label: 'Team Rater', path: '/team', pro: false },
-  { icon: Swords, label: 'Matchup Analyzer', path: '/matchup', pro: false },
-  { icon: MessageCircle, label: 'AI Advisor', path: '/chat', pro: true },
-  { icon: Zap, label: 'Lineup Optimizer', path: '/lineup', pro: true },
-  { icon: Inbox, label: 'Waiver Wire', path: '/waiver', pro: true },
-  { icon: Target, label: 'Draft Assistant', path: '/draft', pro: true },
-  { icon: Telescope, label: 'League Predictor', path: '/predictor', pro: true },
+  { icon: ArrowLeftRight, label: 'Trade Rater',      path: '/',          pro: false },
+  { icon: RefreshCw,      label: 'Start / Sit',      path: '/startsit',  pro: false },
+  { icon: Swords,         label: 'Matchup Analyzer', path: '/matchup',   pro: false },
+  { icon: Zap,            label: 'Lineup Optimizer', path: '/lineup',    pro: true },
+  { icon: Inbox,          label: 'Waiver Wire',      path: '/waiver',    pro: true },
+  { icon: Target,         label: 'Draft Assistant',  path: '/draft',     pro: true },
+  { icon: Telescope,      label: 'League Predictor', path: '/predictor', pro: true },
 ];
 
 const accountItems = [
