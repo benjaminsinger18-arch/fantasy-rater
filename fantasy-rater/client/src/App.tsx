@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { BrowserRouter, NavLink, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -10,20 +10,20 @@ import { AuthGatePage } from './components/shared/AuthGatePage.tsx';
 import { ErrorBoundary } from './components/shared/ErrorBoundary.tsx';
 import { OnboardingTutorial, ONBOARDING_KEY } from './components/shared/OnboardingTutorial.tsx';
 import { LeagueProvider, useLeague } from './lib/LeagueContext.tsx';
-import { TradeRater } from './components/trade/TradeRater.tsx';
-import { TeamRater } from './components/team/TeamRater.tsx';
-import { LeagueSetup } from './components/league/LeagueSetup.tsx';
-import { LeaguePredictor } from './components/league/LeaguePredictor.tsx';
-import { PlayerRankings } from './components/rankings/PlayerRankings.tsx';
-import { StartSit } from './components/startsit/StartSit.tsx';
-import { WaiverWire } from './components/waiver/WaiverWire.tsx';
-import { DraftAssistant } from './components/draft/DraftAssistant.tsx';
-import { MultiLeague } from './components/league/MultiLeague.tsx';
-import { NotificationSettings } from './components/settings/NotificationSettings.tsx';
-import { LiveScoring } from './components/live/LiveScoring.tsx';
-import { LineupOptimizer } from './components/lineup/LineupOptimizer.tsx';
-import { FantasyChat } from './components/chat/FantasyChat.tsx';
-import { MatchupAnalyzer } from './components/matchup/MatchupAnalyzer.tsx';
+const TradeRater           = lazy(() => import('./components/trade/TradeRater.tsx').then(m => ({ default: m.TradeRater })));
+const TeamRater            = lazy(() => import('./components/team/TeamRater.tsx').then(m => ({ default: m.TeamRater })));
+const LeagueSetup          = lazy(() => import('./components/league/LeagueSetup.tsx').then(m => ({ default: m.LeagueSetup })));
+const LeaguePredictor      = lazy(() => import('./components/league/LeaguePredictor.tsx').then(m => ({ default: m.LeaguePredictor })));
+const PlayerRankings       = lazy(() => import('./components/rankings/PlayerRankings.tsx').then(m => ({ default: m.PlayerRankings })));
+const StartSit             = lazy(() => import('./components/startsit/StartSit.tsx').then(m => ({ default: m.StartSit })));
+const WaiverWire           = lazy(() => import('./components/waiver/WaiverWire.tsx').then(m => ({ default: m.WaiverWire })));
+const DraftAssistant       = lazy(() => import('./components/draft/DraftAssistant.tsx').then(m => ({ default: m.DraftAssistant })));
+const MultiLeague          = lazy(() => import('./components/league/MultiLeague.tsx').then(m => ({ default: m.MultiLeague })));
+const NotificationSettings = lazy(() => import('./components/settings/NotificationSettings.tsx').then(m => ({ default: m.NotificationSettings })));
+const LiveScoring          = lazy(() => import('./components/live/LiveScoring.tsx').then(m => ({ default: m.LiveScoring })));
+const LineupOptimizer      = lazy(() => import('./components/lineup/LineupOptimizer.tsx').then(m => ({ default: m.LineupOptimizer })));
+const FantasyChat          = lazy(() => import('./components/chat/FantasyChat.tsx').then(m => ({ default: m.FantasyChat })));
+const MatchupAnalyzer      = lazy(() => import('./components/matchup/MatchupAnalyzer.tsx').then(m => ({ default: m.MatchupAnalyzer })));
 import { UpgradeModal, useUpgradeModal } from './components/shared/UpgradeModal.tsx';
 import { setTokenGetter, setClerkReadyGate } from './lib/api.ts';
 import type { Sport } from './types/index.ts';
@@ -476,27 +476,37 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
 }
 
 // ─── Page Routes with transitions ───────────────────────────────────────────
+function PageLoader() {
+  return (
+    <div className="h-full flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-[#E8321A] border-t-transparent animate-spin" />
+    </div>
+  );
+}
+
 function AppRoutes() {
   const location = useLocation();
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><TradeRater /></motion.div>} />
-        <Route path="/team" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><TeamRater /></motion.div>} />
-        <Route path="/rankings" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><PlayerRankings /></motion.div>} />
-        <Route path="/predictor" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LeaguePredictor /></motion.div>} />
-        <Route path="/league" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LeagueSetup /></motion.div>} />
-        <Route path="/startsit" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><StartSit /></motion.div>} />
-        <Route path="/waiver" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><WaiverWire /></motion.div>} />
-        <Route path="/draft" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><DraftAssistant /></motion.div>} />
-        <Route path="/leagues" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><MultiLeague /></motion.div>} />
-        <Route path="/settings" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><NotificationSettings /></motion.div>} />
-        <Route path="/live" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LiveScoring /></motion.div>} />
-        <Route path="/lineup" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LineupOptimizer /></motion.div>} />
-        <Route path="/chat" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><FantasyChat /></motion.div>} />
-        <Route path="/matchup" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><MatchupAnalyzer /></motion.div>} />
-      </Routes>
-    </AnimatePresence>
+    <Suspense fallback={<PageLoader />}>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/"         element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><TradeRater /></motion.div>} />
+          <Route path="/team"     element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><TeamRater /></motion.div>} />
+          <Route path="/rankings" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><PlayerRankings /></motion.div>} />
+          <Route path="/predictor" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LeaguePredictor /></motion.div>} />
+          <Route path="/league"   element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LeagueSetup /></motion.div>} />
+          <Route path="/startsit" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><StartSit /></motion.div>} />
+          <Route path="/waiver"   element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><WaiverWire /></motion.div>} />
+          <Route path="/draft"    element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><DraftAssistant /></motion.div>} />
+          <Route path="/leagues"  element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><MultiLeague /></motion.div>} />
+          <Route path="/settings" element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><NotificationSettings /></motion.div>} />
+          <Route path="/live"     element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LiveScoring /></motion.div>} />
+          <Route path="/lineup"   element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><LineupOptimizer /></motion.div>} />
+          <Route path="/chat"     element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><FantasyChat /></motion.div>} />
+          <Route path="/matchup"  element={<motion.div className="h-full" variants={pageVariants} initial="initial" animate="animate" exit="exit"><MatchupAnalyzer /></motion.div>} />
+        </Routes>
+      </AnimatePresence>
+    </Suspense>
   );
 }
 
