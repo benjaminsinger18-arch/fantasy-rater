@@ -247,7 +247,8 @@ function MobileHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
         <select
           value={config.sport}
           onChange={e => setSport(e.target.value as Sport)}
-          className="bg-[#2C2C31] text-[#F2EFE8] border border-[#484850] px-2 py-1.5 text-xs font-mono font-bold focus:outline-none focus:border-[#E8321A] tracking-wider"
+          style={{ fontSize: '16px' }}
+          className="bg-[#2C2C31] text-[#F2EFE8] border border-[#484850] px-2 py-1.5 font-mono font-bold focus:outline-none focus:border-[#E8321A] tracking-wider"
         >
           <option value="nfl">NFL</option>
           <option value="mlb">MLB</option>
