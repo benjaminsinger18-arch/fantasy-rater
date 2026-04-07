@@ -383,22 +383,44 @@ router.get('/photo', async (req, res) => {
       } catch { /* fall through */ }
     }
   } else {
-    // 1. ESPN NFL name search
-    try {
-      const espnSearch = await axios.get(
-        `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(name.trim())}&limit=3&mode=prefix&type=player&sport=football&league=nfl`,
-        { timeout: 4000 }
-      );
-      const espnId = espnSearch.data?.results?.[0]?.items?.[0]?.id;
-      if (espnId) {
-        const candidate = `https://a.espncdn.com/i/headshots/nfl/players/full/${espnId}.png`;
-        const check = await axios.head(candidate, { timeout: 3000 }).catch(() => null);
-        if (check?.status === 200) url = candidate;
-      }
-    } catch { /* fall through */ }
+    // NFL DEF unit — return a key defender's face from the team roster
+    const isDefUnit = (req.query.position === 'DEF') || name.includes('D/ST');
+    if (isDefUnit && team) {
+      try {
+        const rosterRes = await axios.get(
+          `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.toLowerCase()}/roster`,
+          { timeout: 4000 }
+        );
+        const defPositions = new Set(['LB', 'DL', 'DB', 'DE', 'DT', 'CB', 'S', 'MLB', 'OLB', 'ILB', 'FS', 'SS']);
+        outer: for (const group of rosterRes.data?.athletes ?? []) {
+          for (const athlete of group?.items ?? []) {
+            if (defPositions.has(athlete.position?.abbreviation) && athlete.headshot?.href) {
+              url = athlete.headshot.href;
+              break outer;
+            }
+          }
+        }
+      } catch { /* fall through */ }
+    }
+
+    // 1. ESPN NFL name search (for non-DEF players)
+    if (!url) {
+      try {
+        const espnSearch = await axios.get(
+          `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(name.trim())}&limit=3&mode=prefix&type=player&sport=football&league=nfl`,
+          { timeout: 4000 }
+        );
+        const espnId = espnSearch.data?.results?.[0]?.items?.[0]?.id;
+        if (espnId) {
+          const candidate = `https://a.espncdn.com/i/headshots/nfl/players/full/${espnId}.png`;
+          const check = await axios.head(candidate, { timeout: 3000 }).catch(() => null);
+          if (check?.status === 200) url = candidate;
+        }
+      } catch { /* fall through */ }
+    }
 
     // 2. ESPN team roster lookup (most comprehensive — covers every active rostered player)
-    if (!url && team) {
+    if (!url && team && !isDefUnit) {
       try {
         const rosterRes = await axios.get(
           `https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${team.toLowerCase()}/roster`,
