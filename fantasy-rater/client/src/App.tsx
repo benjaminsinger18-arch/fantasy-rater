@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useUser } from '@clerk/clerk-react';
 import { AuthGatePage } from './components/shared/AuthGatePage.tsx';
+import { ErrorBoundary } from './components/shared/ErrorBoundary.tsx';
 import { OnboardingTutorial, ONBOARDING_KEY } from './components/shared/OnboardingTutorial.tsx';
 import { LeagueProvider, useLeague } from './lib/LeagueContext.tsx';
 import { TradeRater } from './components/trade/TradeRater.tsx';
@@ -593,7 +594,9 @@ export default function App() {
 
             {/* Page content */}
             <main className="flex-1 overflow-y-auto pb-safe md:pb-0">
-              <AppRoutes />
+              <ErrorBoundary>
+                <AppRoutes />
+              </ErrorBoundary>
             </main>
 
             {/* Mobile bottom nav */}
