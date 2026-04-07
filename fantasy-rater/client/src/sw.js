@@ -1,3 +1,19 @@
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { registerRoute } from 'workbox-routing';
+import { NetworkFirst } from 'workbox-strategies';
+
+// vite-plugin-pwa replaces self.__WB_MANIFEST with the list of built assets at build time
+precacheAndRoute(self.__WB_MANIFEST);
+cleanupOutdatedCaches();
+
+// API calls bypass the cache — always go to network, fall back to cache on timeout
+registerRoute(
+  ({ url }) => url.pathname.startsWith('/api/'),
+  new NetworkFirst({ cacheName: 'api-cache', networkTimeoutSeconds: 10 })
+);
+
+// ── Push notification handlers (preserved from original sw.js) ──────────────
+
 self.addEventListener('push', (event) => {
   let data = { title: 'FantasyRater', body: 'You have a new notification', url: '/' };
   try {
@@ -7,8 +23,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
       data: { url: data.url },
     })
   );
