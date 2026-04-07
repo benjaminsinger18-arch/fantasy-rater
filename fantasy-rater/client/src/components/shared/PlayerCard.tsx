@@ -135,9 +135,6 @@ function getHeadshotUrls(player: Player, sport: string): string[] {
       `https://resources.premierleague.com/premierleague/photos/players/250x250/p${player.photoCode}.png`,
     ];
   }
-  if (player.position === 'DEF' && player.team && sport !== 'fpl') {
-    return [`https://a.espncdn.com/i/teamlogos/nfl/500/${player.team.toLowerCase()}.png`];
-  }
   const urls: string[] = [];
   if (player.espnId) {
     urls.push(`https://a.espncdn.com/i/headshots/${sport}/players/full/${player.espnId}.png`);
@@ -148,12 +145,6 @@ function getHeadshotUrls(player: Player, sport: string): string[] {
   if (player.id) {
     urls.push(`https://sleepercdn.com/content/${sport}/players/thumb/${player.id}.jpg`);
     urls.push(`https://sleepercdn.com/content/${sport}/players/${player.id}.jpg`);
-  }
-  if (player.team && player.team !== 'FA' && (sport === 'nfl' || sport === 'mlb')) {
-    urls.push(`https://a.espncdn.com/i/teamlogos/${sport}/500/${player.team.toLowerCase()}.png`);
-  }
-  if (sport === 'nfl' || sport === 'mlb') {
-    urls.push(`https://a.espncdn.com/i/teamlogos/leagues/500/${sport}.png`);
   }
   return urls;
 }
@@ -251,12 +242,13 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
     const params = new URLSearchParams({ name: player.name, sport });
     if (player.team) params.set('team', player.team);
     if (player.teamCode) params.set('teamCode', String(player.teamCode));
+    if (player.position) params.set('position', player.position);
     const apiBase = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
     fetch(`${apiBase}/players/photo?${params}`)
       .then(r => r.ok ? r.json() : { url: null })
       .then(d => setServerUrl(d.url || null))
       .catch(() => setServerUrl(null));
-  }, [allCdnFailed, player.name, player.team, serverUrl, sport]);
+  }, [allCdnFailed, player.name, player.team, player.position, serverUrl, sport]);
 
   const displayName = (player.web_name ?? player.name.split(' ').slice(-1)[0]).toUpperCase();
 
