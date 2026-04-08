@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, useInView } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { Player } from '../../types/index.ts';
 import { TierInfoModal } from './TierInfoModal.tsx';
@@ -306,10 +306,18 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
   return (
     <motion.div
       ref={cardRef}
-      whileHover={onClick ? { scale: 1.02, y: -3 } : {}}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={onClick ? { scale: 1.04, y: -10, zIndex: 10 } : {}}
+      initial={{ opacity: 0, y: -24, scale: 0.94 }}
+      animate={
+        (tier === 's' || tier === 'a') && !isHovering
+          ? { opacity: 1, y: 0, scale: [1, 1.008, 1] }
+          : { opacity: 1, y: 0, scale: 1 }
+      }
+      transition={
+        (tier === 's' || tier === 'a') && !isHovering
+          ? { scale: { duration: 3, repeat: Infinity, ease: 'easeInOut' } }
+          : { type: 'spring', stiffness: 220, damping: 18 }
+      }
       style={onClick ? { rotateX, rotateY, transformStyle: 'preserve-3d', perspective: '800px' } : {}}
       onMouseMove={handleTiltMove}
       onMouseLeave={handleTiltLeave}
@@ -353,6 +361,14 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
         />
       </motion.div>
 
+      {/* Holographic shine — radial gradient tracks mouse position */}
+      {onClick && (
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: shineBackground, opacity: shineOpacity, zIndex: 15 }}
+        />
+      )}
+
       <div className="relative z-10">
         {onRemove && (
           <button
@@ -380,59 +396,85 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
                 >
                   [i]
                 </button>
-                <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${s.scoreColor}`}>{TIER_LABELS[tier]}</div>
+                <div className="relative flex items-center justify-center">
+                  {(tier === 's' || tier === 'a') && (
+                    <span
+                      className={`absolute inline-flex h-full w-full rounded-full opacity-40 animate-ping ${tier === 's' ? 'bg-[#E8321A]' : 'bg-[#C8882A]'}`}
+                      style={{ animationDuration: '2.5s' }}
+                    />
+                  )}
+                  <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${s.scoreColor} relative`}>{TIER_LABELS[tier]}</div>
+                </div>
               </div>
               <div className={`text-[9px] font-mono ${s.subtext}`}>{player.team}</div>
             </div>
           </div>
 
-          {/* Headshot */}
-          <div className="w-16 h-16 sm:w-20 sm:h-20 overflow-hidden flex items-center justify-center mb-2 flex-shrink-0 border border-[#2A2A2A]">
-            {urlIndex < headshotUrls.length ? (
-              <img
-                src={headshotUrls[urlIndex]}
-                alt={player.name}
-                onError={() => setUrlIndex(i => i + 1)}
-                className="w-full h-full object-cover object-top"
-              />
-            ) : serverUrl ? (
-              <img
-                src={serverUrl}
-                alt={player.name}
-                onError={() => setServerUrl(null)}
-                className="w-full h-full object-cover object-top"
-              />
-            ) : (
-              <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${s.avatarGradient}`}>
-                <span className={`text-xl font-display font-black tracking-widest ${s.scoreColor}`}>{player.position}</span>
-              </div>
-            )}
-          </div>
+          {/* Headshot — photo parallax + blur-to-sharp entrance */}
+          <motion.div style={{ x: photoX, y: photoY }} className="mb-2">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 overflow-hidden flex items-center justify-center flex-shrink-0 border border-[#2A2A2A]">
+              {urlIndex < headshotUrls.length ? (
+                <img
+                  src={headshotUrls[urlIndex]}
+                  alt={player.name}
+                  onError={() => { setUrlIndex(i => i + 1); setImageLoaded(false); }}
+                  onLoad={() => setImageLoaded(true)}
+                  className="w-full h-full object-cover object-top"
+                  style={{
+                    filter: imageLoaded ? 'blur(0px)' : 'blur(6px)',
+                    transform: imageLoaded ? 'scale(1)' : 'scale(1.06)',
+                    transition: 'filter 0.4s ease-out, transform 0.4s ease-out',
+                  }}
+                />
+              ) : serverUrl ? (
+                <img
+                  src={serverUrl}
+                  alt={player.name}
+                  onError={() => { setServerUrl(null); setImageLoaded(false); }}
+                  onLoad={() => setImageLoaded(true)}
+                  className="w-full h-full object-cover object-top"
+                  style={{
+                    filter: imageLoaded ? 'blur(0px)' : 'blur(6px)',
+                    transform: imageLoaded ? 'scale(1)' : 'scale(1.06)',
+                    transition: 'filter 0.4s ease-out, transform 0.4s ease-out',
+                  }}
+                />
+              ) : (
+                <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${s.avatarGradient}`}>
+                  <span className={`text-xl font-display font-black tracking-widest ${s.scoreColor}`}>{player.position}</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
 
-          {/* Name */}
-          <div className={`text-xs font-display font-black tracking-widest text-center truncate w-full ${s.text}`}>
-            {displayName}
-          </div>
+          {/* Name — magnetic parallax layer */}
+          <motion.div style={{ x: nameX, y: nameY }} className="w-full">
+            <div className={`text-xs font-display font-black tracking-widest text-center truncate w-full ${s.text}`}>
+              {displayName}
+            </div>
+          </motion.div>
         </div>
 
         {/* Divider */}
         <div className={`border-t ${s.divider} mx-2`} />
 
-        {/* Stats grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-px p-2">
-          {stats.map((st, i) => (
-            <motion.div
-              key={st.label}
-              initial={{ opacity: 0, y: 6, scale: 0.88 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.15 + i * 0.05, type: 'spring', stiffness: 500, damping: 24 }}
-              className={`${s.statBg} px-1 py-1 text-center`}
-            >
-              <div className={`text-xs font-mono font-bold leading-tight ${s.text}`}>{st.value}</div>
-              <div className={`text-[9px] font-mono uppercase leading-tight tracking-wider ${s.subtext}`}>{st.label}</div>
-            </motion.div>
-          ))}
-        </div>
+        {/* Stats grid — counterweight magnetic layer */}
+        <motion.div style={{ x: statsX }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px p-2">
+            {stats.map((st, i) => (
+              <motion.div
+                key={st.label}
+                initial={{ opacity: 0, y: 6, scale: 0.88 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: 0.15 + i * 0.05, type: 'spring', stiffness: 500, damping: 24 }}
+                className={`${s.statBg} px-1 py-1 text-center`}
+              >
+                <div className={`text-xs font-mono font-bold leading-tight ${s.text}`}>{st.value}</div>
+                <div className={`text-[9px] font-mono uppercase leading-tight tracking-wider ${s.subtext}`}>{st.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );
