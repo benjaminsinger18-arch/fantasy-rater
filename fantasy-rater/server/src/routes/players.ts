@@ -130,17 +130,54 @@ router.get('/rankings', async (req, res) => {
   try {
     if (sport === 'mlb') {
       const pos = position?.toUpperCase();
-      const results = await espn.getTopMLBPlayers(pos, 100);
-      return res.json(normalizeRanks(results.map(p => ({
-        id: String(p.espnId),
-        espnId: p.espnId,
-        name: p.name,
-        position: p.position,
-        team: p.team,
-        injuryStatus: p.injuryStatus,
-        percentOwned: p.percentOwned,
-        rank: 0,
-      }))));
+
+      const [espnPlayers, mlbPlayers, mlbState] = await Promise.all([
+        espn.getTopMLBPlayers(pos, 300),
+        sleeper.getMLBPlayers().catch(() => ({} as Record<string, any>)),
+        sleeper.getSeasonState('mlb').catch(() => ({ season_type: 'off', week: 1, season: '2024' })),
+      ]);
+
+      const isMLBRegular = mlbState.season_type === 'regular';
+      const mlbStatsSeason = isMLBRegular ? mlbState.season : '2024';
+      const mlbStatsWeek = isMLBRegular ? Number(week || mlbState.week) : null;
+
+      const mlbStats = await (isMLBRegular
+        ? sleeper.getMLBProjections(mlbStatsWeek!, mlbStatsSeason).catch(() => ({} as Record<string, Record<string, number>>))
+        : sleeper.getMLBSeasonStats(mlbStatsSeason).catch(() => ({} as Record<string, Record<string, number>>))
+      );
+
+      // Build espnId → Sleeper pts lookup
+      const espnIdToSleeperPts = new Map<number, number>();
+      for (const sp of Object.values(mlbPlayers)) {
+        if (!sp.espn_id) continue;
+        const espnId = Number(sp.espn_id);
+        const stats = mlbStats[sp.player_id];
+        if (stats) {
+          const pts = stats.pts_std ?? stats.pts_half_ppr ?? stats.pts_ppr ?? 0;
+          if (pts > 0) espnIdToSleeperPts.set(espnId, pts);
+        }
+      }
+
+      const sorted = espnPlayers
+        .sort((a, b) => {
+          const aPts = espnIdToSleeperPts.get(a.espnId) ?? -1;
+          const bPts = espnIdToSleeperPts.get(b.espnId) ?? -1;
+          if (aPts !== bPts) return bPts - aPts;
+          return (b.percentOwned ?? 0) - (a.percentOwned ?? 0);
+        })
+        .slice(0, 100)
+        .map(p => ({
+          id: String(p.espnId),
+          espnId: p.espnId,
+          name: p.name,
+          position: p.position,
+          team: p.team,
+          injuryStatus: p.injuryStatus,
+          percentOwned: p.percentOwned,
+          rank: 0,
+        }));
+
+      return res.json(normalizeRanks(sorted));
     }
 
     if (sport === 'fpl') {
