@@ -246,13 +246,47 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
   const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], ['7deg', '-7deg']), springConfig);
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], ['-7deg', '7deg']), springConfig);
 
+  const [isHovering, setIsHovering] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Holographic shine driven by mouse position
+  const shineBackground = useTransform(
+    [mouseX, mouseY],
+    ([x, y]: number[]) => {
+      const px = (x + 0.5) * 100;
+      const py = (y + 0.5) * 100;
+      const color =
+        tier === 's' ? 'rgba(232,50,26,0.22)' :
+        tier === 'a' ? 'rgba(200,136,42,0.18)' :
+        tier === 'b' ? 'rgba(80,144,216,0.16)' :
+        tier === 'c' ? 'rgba(77,200,120,0.14)' :
+                       'rgba(255,255,255,0.08)';
+      return `radial-gradient(ellipse 65% 55% at ${px}% ${py}%, ${color}, transparent)`;
+    }
+  );
+  const shineOpacity = useTransform(mouseX, [-0.5, -0.05, 0, 0.05, 0.5], [1, 1, 0, 1, 1]);
+
+  // Photo parallax — moves at 30% of tilt speed
+  const photoX = useTransform(mouseX, [-0.5, 0.5], ['-8px', '8px']);
+  const photoY = useTransform(mouseY, [-0.5, 0.5], ['-6px', '6px']);
+
+  // Magnetic layers — name moves with cursor, stats counterweight
+  const nameX = useTransform(mouseX, [-0.5, 0.5], ['-6px', '6px']);
+  const nameY = useTransform(mouseY, [-0.5, 0.5], ['-4px', '4px']);
+  const statsX = useTransform(mouseX, [-0.5, 0.5], ['3px', '-3px']);
+
   function handleTiltMove(e: React.MouseEvent<HTMLDivElement>) {
     if (!onClick || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
     mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+    setIsHovering(true);
   }
-  function handleTiltLeave() { mouseX.set(0); mouseY.set(0); }
+  function handleTiltLeave() {
+    mouseX.set(0);
+    mouseY.set(0);
+    setIsHovering(false);
+  }
 
   useEffect(() => {
     if (!allCdnFailed || serverUrl !== undefined) return;
