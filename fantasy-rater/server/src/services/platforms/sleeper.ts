@@ -213,3 +213,81 @@ export async function getMatchup(leagueId: string, week: number, rosterId: numbe
 
   return { mine: hydrateSide(mine), opponent: opponent ? hydrateSide(opponent) : null };
 }
+
+export interface SleeperSeasonState {
+  week: number;
+  season_type: string; // 'pre' | 'regular' | 'post' | 'off'
+  season: string;      // e.g. '2025'
+}
+
+export async function getSeasonState(sport: 'nfl' | 'mlb'): Promise<SleeperSeasonState> {
+  const key = `sleeper:state:${sport}`;
+  const cached = cache.get<SleeperSeasonState>(key);
+  if (cached) return cached;
+  const res = await axios.get<SleeperSeasonState>(`${BASE}/state/${sport}`, { timeout: 5000 });
+  cache.set(key, res.data, 60 * 60 * 1000); // 1 hour
+  return res.data;
+}
+
+export async function getNFLSeasonStats(
+  season = '2024'
+): Promise<Record<string, Record<string, number>>> {
+  const key = `sleeper:season_stats:nfl:${season}`;
+  const cached = cache.get<Record<string, Record<string, number>>>(key);
+  if (cached) return cached;
+  const res = await axios.get<Record<string, Record<string, number>>>(
+    `${BASE}/stats/nfl/${season}?season_type=regular&grouping=season`,
+    { timeout: 10000 }
+  );
+  cache.set(key, res.data, 24 * 60 * 60 * 1000); // 24 hours — historical data never changes
+  return res.data;
+}
+
+export interface SleeperMLBPlayer {
+  player_id: string;
+  full_name: string;
+  first_name: string;
+  last_name: string;
+  position: string;
+  team: string;
+  status: string;
+  espn_id?: string;
+}
+
+export async function getMLBPlayers(): Promise<Record<string, SleeperMLBPlayer>> {
+  const key = 'sleeper:players:mlb';
+  const cached = cache.get<Record<string, SleeperMLBPlayer>>(key);
+  if (cached) return cached;
+  const res = await axios.get<Record<string, SleeperMLBPlayer>>(`${BASE}/players/mlb`, { timeout: 10000 });
+  cache.set(key, res.data, TTL.SLEEPER_PLAYERS); // 1 hour
+  return res.data;
+}
+
+export async function getMLBSeasonStats(
+  season = '2024'
+): Promise<Record<string, Record<string, number>>> {
+  const key = `sleeper:season_stats:mlb:${season}`;
+  const cached = cache.get<Record<string, Record<string, number>>>(key);
+  if (cached) return cached;
+  const res = await axios.get<Record<string, Record<string, number>>>(
+    `${BASE}/stats/mlb/${season}?season_type=regular&grouping=season`,
+    { timeout: 10000 }
+  );
+  cache.set(key, res.data, 24 * 60 * 60 * 1000); // 24 hours
+  return res.data;
+}
+
+export async function getMLBProjections(
+  week: number,
+  season = '2025'
+): Promise<Record<string, Record<string, number>>> {
+  const key = `sleeper:projections:mlb:${season}:${week}`;
+  const cached = cache.get<Record<string, Record<string, number>>>(key);
+  if (cached) return cached;
+  const res = await axios.get<Record<string, Record<string, number>>>(
+    `${BASE}/projections/mlb/${season}/${week}`,
+    { timeout: 8000 }
+  );
+  cache.set(key, res.data, TTL.SLEEPER_PROJECTIONS); // 30 min
+  return res.data;
+}
