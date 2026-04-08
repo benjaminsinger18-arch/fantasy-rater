@@ -165,31 +165,49 @@ router.get('/rankings', async (req, res) => {
       }))));
     }
 
-    const [all, projections] = await Promise.all([
+    const [all, nflState] = await Promise.all([
       sleeper.getAllPlayers(),
-      sleeper.getProjections(Number(week)).catch(() => ({} as Record<string, Record<string, number>>)),
+      sleeper.getSeasonState('nfl').catch(() => ({ season_type: 'off', week: 1, season: '2024' })),
     ]);
+
+    const isRegularSeason = nflState.season_type === 'regular';
+    const statsSeason = isRegularSeason ? nflState.season : '2024';
+    const statsWeek = isRegularSeason ? Number(week || nflState.week) : null;
+
+    const [projections, seasonStats] = await Promise.all([
+      isRegularSeason
+        ? sleeper.getProjections(statsWeek!, statsSeason).catch(() => ({} as Record<string, Record<string, number>>))
+        : Promise.resolve({} as Record<string, Record<string, number>>),
+      !isRegularSeason
+        ? sleeper.getNFLSeasonStats(statsSeason).catch(() => ({} as Record<string, Record<string, number>>))
+        : Promise.resolve({} as Record<string, Record<string, number>>),
+    ]);
+
+    // Score each player: regular season → projected pts this week; offseason → 2024 season total pts
+    const getScore = (playerId: string): number => {
+      if (isRegularSeason) return projections[playerId]?.pts_ppr ?? 0;
+      return seasonStats[playerId]?.pts_ppr ?? 0;
+    };
+
     const players = Object.values(all)
       .filter(p => {
         const posMatch = position ? p.position === position.toUpperCase() : ['QB','RB','WR','TE','K','DEF'].includes(p.position);
         const isDef = p.position === 'DEF';
-        return p.status !== 'Inactive' && posMatch && (isDef || (p.search_rank != null && p.search_rank > 0));
+        const hasData = isDef || (p.search_rank != null && p.search_rank > 0);
+        return p.status !== 'Inactive' && posMatch && hasData;
       })
       .sort((a, b) => {
-        if (!a.search_rank && !b.search_rank) {
-          const aProj = projections[a.player_id]?.pts_ppr ?? 0;
-          const bProj = projections[b.player_id]?.pts_ppr ?? 0;
-          if (aProj !== bProj) return bProj - aProj;
-          return (a.team || '').localeCompare(b.team || '');
-        }
-        return (a.search_rank || 9999) - (b.search_rank || 9999);
+        const aScore = getScore(a.player_id);
+        const bScore = getScore(b.player_id);
+        if (aScore !== bScore) return bScore - aScore; // higher score = better rank
+        return (a.search_rank || 9999) - (b.search_rank || 9999); // tiebreak: search_rank
       })
       .slice(0, 100)
-      .map(p => {
-        const defPts = projections[p.player_id]?.pts_ppr;
-        const defRank = p.position === 'DEF'
-          ? (defPts ? Math.min(90, Math.round(defPts * 4)) : POSITION_BASE_SCORE.DEF)
-          : rankToFantasyValue(p.search_rank, p.position);
+      .map((p, i) => {
+        const score = getScore(p.player_id);
+        const rank = score > 0
+          ? rankToFantasyValue(i + 1, p.position) // use sorted position as rank input
+          : (p.position === 'DEF' ? POSITION_BASE_SCORE.DEF : rankToFantasyValue(p.search_rank, p.position));
         return {
           id: p.player_id,
           espnId: p.espn_id ? Number(p.espn_id) : undefined,
@@ -200,9 +218,9 @@ router.get('/rankings', async (req, res) => {
           injuryStatus: p.injury_status,
           age: p.age,
           yearsExp: p.years_exp,
-          rank: defRank,
+          rank,
           searchRank: p.search_rank ?? null,
-          avgPoints: projections[p.player_id]?.pts_ppr ?? undefined,
+          avgPoints: isRegularSeason ? (projections[p.player_id]?.pts_ppr ?? undefined) : (seasonStats[p.player_id]?.pts_ppr ?? undefined),
         };
       });
     return res.json(normalizeRanks(players));
