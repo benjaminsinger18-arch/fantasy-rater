@@ -236,7 +236,7 @@ export async function getNFLSeasonStats(
   const cached = cache.get<Record<string, Record<string, number>>>(key);
   if (cached) return cached;
   const res = await axios.get<Record<string, Record<string, number>>>(
-    `${BASE}/stats/nfl/${season}?season_type=regular&grouping=season`,
+    `${BASE}/stats/nfl/regular/${season}?grouping=season`,
     { timeout: 10000 }
   );
   cache.set(key, res.data, 24 * 60 * 60 * 1000); // 24 hours — historical data never changes
@@ -270,7 +270,7 @@ export async function getMLBSeasonStats(
   const cached = cache.get<Record<string, Record<string, number>>>(key);
   if (cached) return cached;
   const res = await axios.get<Record<string, Record<string, number>>>(
-    `${BASE}/stats/mlb/${season}?season_type=regular&grouping=season`,
+    `${BASE}/stats/mlb/regular/${season}?grouping=season`,
     { timeout: 10000 }
   );
   cache.set(key, res.data, 24 * 60 * 60 * 1000); // 24 hours
