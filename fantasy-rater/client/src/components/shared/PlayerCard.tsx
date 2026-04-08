@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, useInView } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { Player } from '../../types/index.ts';
 import { TierInfoModal } from './TierInfoModal.tsx';
@@ -191,20 +191,37 @@ interface Props {
   onClick?: () => void;
 }
 
-function AnimatedScore({ value, colorClass, glow }: { value: number; colorClass: string; glow?: boolean }) {
-  const digits = String(Math.round(value)).split('');
+const DIGIT_HEIGHT = 36; // px — matches text-4xl line-height
+
+function SlotDigit({ target, delay }: { target: number; delay: number }) {
   return (
-    <div className={`flex leading-none ${colorClass} ${glow ? 'animate-score-glow' : ''}`} style={{ overflow: 'hidden' }}>
-      {digits.map((digit, i) => (
-        <motion.span
-          key={i}
-          className="text-4xl font-display font-black tracking-tight inline-block"
-          initial={{ y: 28, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: i * 0.08, type: 'spring', stiffness: 650, damping: 22 }}
-        >
-          {digit}
-        </motion.span>
+    <div style={{ height: DIGIT_HEIGHT, overflow: 'hidden', display: 'inline-flex', alignItems: 'flex-start' }}>
+      <motion.div
+        style={{ display: 'flex', flexDirection: 'column' }}
+        initial={{ y: 0 }}
+        animate={{ y: -target * DIGIT_HEIGHT }}
+        transition={{ delay, duration: 0.55, type: 'spring', stiffness: 180, damping: 18 }}
+      >
+        {Array.from({ length: 10 }, (_, n) => (
+          <span
+            key={n}
+            style={{ height: DIGIT_HEIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            className="text-4xl font-display font-black tracking-tight"
+          >
+            {n}
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+function SlotMachineScore({ value, colorClass, glow }: { value: number; colorClass: string; glow?: boolean }) {
+  const digits = String(Math.round(value)).split('').map(Number);
+  return (
+    <div className={`flex leading-none ${colorClass} ${glow ? 'animate-score-glow' : ''}`}>
+      {digits.map((d, i) => (
+        <SlotDigit key={i} target={d} delay={i * 0.08} />
       ))}
     </div>
   );
@@ -317,7 +334,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           {/* Score + tier row */}
           <div className="w-full flex items-start justify-between mb-1">
             <div>
-              <AnimatedScore value={rank} colorClass={s.scoreColor} glow={tier === 's'} />
+              <SlotMachineScore value={rank} colorClass={s.scoreColor} glow={tier === 's'} />
               <div className={`text-[10px] font-mono uppercase tracking-wider ${s.subtext}`}>{player.position}</div>
             </div>
             <div className="text-right flex flex-col items-end gap-0.5">
