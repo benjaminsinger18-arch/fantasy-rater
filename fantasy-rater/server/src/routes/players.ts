@@ -146,22 +146,21 @@ router.get('/rankings', async (req, res) => {
         : sleeper.getMLBSeasonStats(mlbStatsSeason).catch(() => ({} as Record<string, Record<string, number>>))
       );
 
-      // Build espnId → Sleeper pts lookup
-      const espnIdToSleeperPts = new Map<number, number>();
+      // Build name → Sleeper pts lookup (Sleeper MLB players have no espn_id, so match by name)
+      const normalize = (n: string) => n.toLowerCase().replace(/[^a-z]/g, '');
+      const nameToSleeperPts = new Map<string, number>();
       for (const sp of Object.values(mlbPlayers)) {
-        if (!sp.espn_id) continue;
-        const espnId = Number(sp.espn_id);
         const stats = mlbStats[sp.player_id];
         if (stats) {
-          const pts = stats.pts_std ?? stats.pts_half_ppr ?? stats.pts_ppr ?? 0;
-          if (pts > 0) espnIdToSleeperPts.set(espnId, pts);
+          const pts = (stats.pts_std_dfs ?? 0) + (stats.pts_std ?? 0) + (stats.pts_half_ppr ?? 0) + (stats.pts_ppr ?? 0);
+          if (pts > 0) nameToSleeperPts.set(normalize(sp.full_name), pts);
         }
       }
 
       const sorted = espnPlayers
         .sort((a, b) => {
-          const aPts = espnIdToSleeperPts.get(a.espnId) ?? -1;
-          const bPts = espnIdToSleeperPts.get(b.espnId) ?? -1;
+          const aPts = nameToSleeperPts.get(normalize(a.name)) ?? -1;
+          const bPts = nameToSleeperPts.get(normalize(b.name)) ?? -1;
           if (aPts !== bPts) return bPts - aPts;
           return (b.percentOwned ?? 0) - (a.percentOwned ?? 0);
         })
@@ -174,6 +173,7 @@ router.get('/rankings', async (req, res) => {
           team: p.team,
           injuryStatus: p.injuryStatus,
           percentOwned: p.percentOwned,
+          avgPoints: nameToSleeperPts.get(normalize(p.name)) || undefined,
           rank: 0,
         }));
 
