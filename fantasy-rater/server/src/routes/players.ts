@@ -137,14 +137,10 @@ router.get('/rankings', async (req, res) => {
         sleeper.getSeasonState('mlb').catch(() => ({ season_type: 'off', week: 1, season: '2024' })),
       ]);
 
-      const isMLBRegular = mlbState.season_type === 'regular';
-      const mlbStatsSeason = isMLBRegular ? mlbState.season : '2024';
-      const mlbStatsWeek = isMLBRegular ? Number(week || mlbState.week) : null;
-
-      const mlbStats = await (isMLBRegular
-        ? sleeper.getMLBProjections(mlbStatsWeek!, mlbStatsSeason).catch(() => ({} as Record<string, Record<string, number>>))
-        : sleeper.getMLBSeasonStats(mlbStatsSeason).catch(() => ({} as Record<string, Record<string, number>>))
-      );
+      // Sleeper has no MLB projections — always use season stats.
+      // Use previous season (full data) as it's more reliable than a partial current season.
+      const mlbStatsSeason = String(Number(mlbState.season) - 1);
+      const mlbStats = await sleeper.getMLBSeasonStats(mlbStatsSeason).catch(() => ({} as Record<string, Record<string, number>>));
 
       // Build name → Sleeper pts lookup (Sleeper MLB players have no espn_id, so match by name)
       const normalize = (n: string) => n.toLowerCase().replace(/[^a-z]/g, '');

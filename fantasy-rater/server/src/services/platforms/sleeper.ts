@@ -218,6 +218,7 @@ export interface SleeperSeasonState {
   week: number;
   season_type: string; // 'pre' | 'regular' | 'post' | 'off'
   season: string;      // e.g. '2025'
+  previous_season?: string | number;
 }
 
 export async function getSeasonState(sport: 'nfl' | 'mlb'): Promise<SleeperSeasonState> {
