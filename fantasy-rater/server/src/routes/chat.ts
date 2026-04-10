@@ -33,6 +33,14 @@ router.post('/', requireAuth('free'), checkUsage('chat', 20), async (req, res) =
   if (!messages?.length) {
     return res.status(400).json({ error: 'messages required' });
   }
+  if (messages.length > 20) {
+    return res.status(400).json({ error: 'Too many messages (max 20)' });
+  }
+  for (const m of messages) {
+    if (typeof m.content !== 'string' || m.content.length > 2000) {
+      return res.status(400).json({ error: 'Message content too long (max 2000 chars)' });
+    }
+  }
 
   const systemPrompt = [
     `You are an expert fantasy ${context.sport.toUpperCase()} advisor with deep knowledge of player values, start/sit decisions, trade strategy, and waiver wire pickups.`,

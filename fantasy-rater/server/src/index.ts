@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 import playersRouter from './routes/players.js';
 import tradeRouter from './routes/trade.js';
@@ -28,6 +29,7 @@ const app = express();
 const PORT = process.env.PORT ?? 3001;
 
 app.set('trust proxy', 1);
+app.use(helmet());
 
 app.use(cors({
   origin: (origin, cb) => {
@@ -48,7 +50,23 @@ app.use('/api/billing/webhook', express.raw({ type: 'application/json' }));
 
 app.use(express.json({ limit: '1mb' }));
 
-app.use(rateLimit({ windowMs: 60 * 1000, max: process.env.NODE_ENV === 'production' ? 200 : 2000, standardHeaders: true }));
+// Global rate limit
+app.use(rateLimit({
+  windowMs: 60 * 1000,
+  max: process.env.NODE_ENV === 'production' ? 60 : 2000,
+  standardHeaders: true,
+  legacyHeaders: false,
+}));
+
+// Tighter limit for /photo — each request makes up to 3 external HTTP calls
+const photoLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many photo requests, please slow down' },
+});
+app.use('/api/players/photo', photoLimiter);
 
 app.use('/api/players', playersRouter);
 app.use('/api/trade', tradeRouter);
@@ -71,7 +89,8 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok', time: new Date().
 
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err.stack);
-  res.status(500).json({ error: err.message ?? 'Internal server error' });
+  const msg = process.env.NODE_ENV === 'production' ? 'Internal server error' : (err.message ?? 'Internal server error');
+  res.status(500).json({ error: msg });
 });
 
 app.listen(PORT, () => {
