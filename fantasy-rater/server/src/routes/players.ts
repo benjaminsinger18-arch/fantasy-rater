@@ -5,6 +5,7 @@ import * as fpl from '../services/platforms/fpl.js';
 import * as espn from '../services/platforms/espn.js';
 import * as ipl from '../services/platforms/ipl.js';
 import { cache } from '../cache/memcache.js';
+import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = Router();
 
@@ -262,7 +263,7 @@ router.get('/rankings', async (req, res) => {
 });
 
 // GET /api/players/:id/history?sport=nfl
-router.get('/:id/history', async (req, res) => {
+router.get('/:id/history', requireAuth('free'), async (req, res) => {
   const { id } = req.params;
   const { sport = 'nfl' } = req.query as Record<string, string>;
   try {
