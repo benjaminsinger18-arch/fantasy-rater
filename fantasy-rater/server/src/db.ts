@@ -82,6 +82,14 @@ db.exec(`
     created_at INTEGER NOT NULL
   );
   CREATE INDEX IF NOT EXISTS idx_trade_history_user ON trade_history(clerk_user_id, created_at DESC);
+
+  CREATE TABLE IF NOT EXISTS usage_limits (
+    clerk_user_id TEXT NOT NULL,
+    action TEXT NOT NULL,
+    count INTEGER NOT NULL DEFAULT 0,
+    date TEXT NOT NULL,
+    PRIMARY KEY (clerk_user_id, action, date)
+  );
 `);
 
 export default db;
