@@ -71,7 +71,7 @@ router.post('/', requireAuth('free'), checkUsage('chat', 20), async (req, res) =
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // CORS is handled by the app-level cors() middleware — do not override with wildcard here
   res.flushHeaders();
 
   try {

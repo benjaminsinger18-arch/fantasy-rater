@@ -19,11 +19,10 @@ router.get('/stream', async (req, res) => {
     return res.status(404).json({ error: 'Analysis request not found or expired — re-submit the trade/team' });
   }
 
-  // Set up SSE
+  // Set up SSE — CORS handled by app-level cors() middleware
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('Access-Control-Allow-Origin', '*');
   res.flushHeaders();
 
   await streamAnalysis(
