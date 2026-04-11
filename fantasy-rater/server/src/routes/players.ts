@@ -527,7 +527,7 @@ router.get('/photo', async (req, res) => {
 });
 
 // DELETE /api/players/photo-cache?sport=fpl — bust all cached photo entries for a sport
-router.delete('/photo-cache', (req, res) => {
+router.delete('/photo-cache', requireAuth('free'), (req, res) => {
   const { sport = 'fpl' } = req.query as { sport?: string };
   const prefix = `photo:${sport}:`;
   cache.invalidatePrefix(prefix);
