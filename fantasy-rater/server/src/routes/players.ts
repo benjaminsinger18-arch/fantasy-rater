@@ -142,9 +142,12 @@ router.get('/rankings', async (req, res) => {
       ]);
 
       // Build name → Sleeper pts lookup (Sleeper MLB players have no espn_id, so match by name)
+      // Filter Sleeper players by position to avoid cross-player name collisions (e.g. two players
+      // named "Wilmer Flores" — an infielder and a pitcher — with the same normalized name).
       const normalize = (n: string) => n.toLowerCase().replace(/[^a-z]/g, '');
       const nameToSleeperPts = new Map<string, number>();
       for (const sp of Object.values(mlbPlayers)) {
+        if (pos && sp.position !== pos) continue; // skip wrong-position same-name players
         const stats = mlbStats[sp.player_id];
         if (stats) {
           const pts = (stats.pts_std_dfs ?? 0) + (stats.pts_std ?? 0) + (stats.pts_half_ppr ?? 0) + (stats.pts_ppr ?? 0);
