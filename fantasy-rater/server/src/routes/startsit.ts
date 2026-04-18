@@ -66,7 +66,7 @@ Fantasy Value Score: ${Math.round(r.score)}
 Recent PPR points: ${r.recent.length ? r.recent.join(', ') : 'N/A'}
 Season avg: ${r.avg} pts/wk`).join('\n')}
 
-In 2-3 tight sentences: who to start and why. Be direct and cite recent stats.`;
+In 1-2 sentences, say who to start this week and give the simple reason why (use their recent numbers).`;
 
     const hash = crypto.createHash('sha256').update(prompt).digest('hex').slice(0, 16);
     storePrompt(hash, prompt);

@@ -5,7 +5,7 @@ import type { RaterPlayer } from './rater.js';
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 function getSystemPrompt(): string {
-  return `You are a sharp fantasy sports analyst. Be extremely brief and stat-focused. Never use markdown headers or bullet lists. Write 2-3 tight sentences max. Lead with the numbers, end with a clear verdict. No filler, no hedging.
+  return `You are a fantasy sports buddy who talks like a real person — fun, confident, and to the point. Keep it to 2-3 sentences max. No bullet lists, no markdown headers, no fancy jargon. Use simple everyday words. Be direct and tell it like it is.
 
 Today's date: ${new Date().toISOString().split('T')[0]}. CRITICAL: Only reference player names, teams, stats, and facts explicitly provided in this prompt. Never fill gaps from your training knowledge — it goes stale and causes errors. If a player's info isn't in the prompt, don't invent it.`;
 }
@@ -49,7 +49,7 @@ Side A total value: ${params.sideAScore}
 Side B total value: ${params.sideBScore}
 Fairness ratio: ${params.ratio} (${params.verdict})
 
-Give a 2-sentence verdict: who wins the trade and why (cite specific stats), then a one-word accept/decline recommendation.`;
+In 1-2 sentences, say who wins this trade and the main reason why (use the numbers). Then say ACCEPT or DECLINE.`;
 }
 
 export function buildTeamPrompt(params: {
@@ -77,7 +77,7 @@ Overall: ${params.overallGrade} (${params.overallScore}/100)
 By position:
 ${posLines}
 
-In 2-3 sentences: name the strongest and weakest position group (cite stats), then one specific player to target on waivers or in a trade.`;
+In 1-2 sentences, say what's hot and what's a problem on this team (use the numbers). Then name one player to grab off waivers or trade for.`;
 }
 
 export function buildLeaguePredictorPrompt(params: {
@@ -122,7 +122,7 @@ League average roster score: ${params.leagueAvgRosterScore}/100
 === CLOSEST RIVALS ===
 ${rivalLines}
 
-In 2-3 sentences: explain the projected finish (cite the roster grade vs league average), name the biggest positional advantage or weakness vs rivals, then give one specific action to improve the final position.`;
+In 2 sentences, explain where this team will finish and why (compare their grade to the rest of the league). Give one simple thing they should do right now to move up.`;
 }
 
 export function buildPlayerPrompt(params: {
@@ -142,7 +142,7 @@ export function buildPlayerPrompt(params: {
 PLAYER: ${p.name} (${p.position}, ${p.team || 'N/A'})${injury}
 Fantasy Value: ${p.rank ?? 'N/A'}/100${rank}${pts}${age}${exp}
 
-In 2 tight sentences: explain this player's current fantasy value and situation (cite stats). End with a clear START/SIT/HOLD/DROP verdict.`;
+In 1-2 sentences, say how good this player is right now in plain English (use their numbers). End with START, SIT, HOLD, or DROP.`;
 }
 
 // Stored pending requests for streaming (keyed by hash)

@@ -73,7 +73,7 @@ router.post('/analyze', requireAuth('free'), checkUsage('matchup', 2), (req, res
     `SWING PLAYS (closest matchups):`,
     ...swingPlays.map(h => `  ${h.position}: My ${h.mine.player} (${Math.round(h.mine.score)}) vs Their ${h.opponent.player} (${Math.round(h.opponent.score)})`),
     '',
-    'Provide a 4–5 bullet game plan: overall win probability assessment, my 2 biggest advantages, their 2 biggest advantages, and 1 key swing play to watch. Be direct and specific.',
+    'Give me 3-4 short bullets: overall win odds, my 2 biggest edges, their 2 biggest edges, and 1 matchup to watch. Keep it simple and direct.',
   ].join('\n');
 
   const hash = crypto.createHash('sha256').update(promptText).digest('hex').slice(0, 16);

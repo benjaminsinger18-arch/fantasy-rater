@@ -238,7 +238,7 @@ ${weakLine}
 TOP AVAILABLE PICKUPS:
 ${recLines}
 
-In 2-3 sentences: give a specific waiver wire strategy (who to target and why), referencing the team's weakest position. Be direct and stat-focused.`;
+In 1-2 sentences, say who to grab off waivers this week and why they help your team (mention the weak spot they fix).`;
 
     const hash = crypto.createHash('sha256').update(prompt).digest('hex').slice(0, 16);
     storePrompt(hash, prompt);
