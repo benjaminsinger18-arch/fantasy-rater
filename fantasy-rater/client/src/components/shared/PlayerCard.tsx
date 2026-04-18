@@ -3,6 +3,7 @@ import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { Player } from '../../types/index.ts';
 import { TierInfoModal } from './TierInfoModal.tsx';
+import { getAuthToken } from '../../lib/api.ts';
 
 type Tier = 'f' | 'e' | 'd' | 'c' | 'b' | 'a' | 's';
 
@@ -295,7 +296,11 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
     if (player.teamCode) params.set('teamCode', String(player.teamCode));
     if (player.position) params.set('position', player.position);
     const apiBase = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
-    fetch(`${apiBase}/players/photo?${params}`)
+    getAuthToken().then(token => {
+      return fetch(`${apiBase}/players/photo?${params}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+    })
       .then(r => r.ok ? r.json() : { url: null })
       .then(d => setServerUrl(d.url || null))
       .catch(() => setServerUrl(null));
@@ -439,9 +444,15 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
                     transition: 'filter 0.4s ease-out, transform 0.4s ease-out',
                   }}
                 />
+              ) : serverUrl === undefined ? (
+                // Still loading — show shimmer
+                <div className={`w-full h-full bg-gradient-to-br ${s.avatarGradient} animate-shimmer`} />
               ) : (
+                // No photo found — show initials
                 <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${s.avatarGradient}`}>
-                  <span className={`text-xl font-display font-black tracking-widest ${s.scoreColor}`}>{player.position}</span>
+                  <span className={`text-lg font-display font-black ${s.scoreColor}`}>
+                    {player.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
+                  </span>
                 </div>
               )}
             </div>
