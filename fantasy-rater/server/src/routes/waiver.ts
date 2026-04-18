@@ -10,6 +10,8 @@ import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = Router();
 
+const VALID_SPORTS = new Set(['nfl', 'mlb', 'fpl', 'ipl', 'nba']);
+
 const POSITION_BASE: Record<string, number> = {
   QB: 45, RB: 38, WR: 36, TE: 30, K: 20, DEF: 20,
   ...MLB_POSITION_BASE,
@@ -25,6 +27,7 @@ router.get('/recommendations', requireAuth('pro'), async (req, res) => {
   const { sport = 'nfl', platform = 'sleeper', leagueId, rosterId, scoringFormat = 'PPR', week = '1', espnS2, swid } = req.query as Record<string, string>;
 
   if (!leagueId) return res.status(400).json({ error: 'leagueId required' });
+  if (!VALID_SPORTS.has(sport.toLowerCase())) return res.status(400).json({ error: 'Invalid sport' });
 
   try {
     let myRoster: RaterPlayer[] = [];

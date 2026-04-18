@@ -307,7 +307,7 @@ router.get('/:id/history', requireAuth('free'), async (req, res) => {
 });
 
 // GET /api/players/photo?name=Patrick+Mahomes&team=GB&sport=nfl — server-side photo lookup
-router.get('/photo', async (req, res) => {
+router.get('/photo', requireAuth('free'), async (req, res) => {
   const { name, team, sport = 'nfl', teamCode } = req.query as { name: string; team?: string; sport?: string; teamCode?: string };
   if (!name) return res.status(400).json({ url: null });
 

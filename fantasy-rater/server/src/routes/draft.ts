@@ -9,6 +9,11 @@ import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = Router();
 
+const VALID_SPORTS = new Set(['nfl', 'mlb', 'fpl', 'ipl', 'nba']);
+function sanitize(s: unknown, maxLen = 60): string {
+  return String(s ?? '').replace(/[\r\n\t\x00-\x1F\x7F]/g, ' ').slice(0, maxLen);
+}
+
 const POSITION_BASE: Record<string, number> = {
   QB: 45, RB: 38, WR: 36, TE: 30, K: 20, DEF: 20,
   ...MLB_POSITION_BASE,
@@ -74,6 +79,10 @@ router.post('/recommend', requireAuth('pro'), async (req, res) => {
     scoringFormat?: string;
     currentPick?: number;
   };
+
+  if (!VALID_SPORTS.has(sport.toLowerCase())) {
+    return res.status(400).json({ error: 'Invalid sport' });
+  }
 
   try {
     const pickedSet = new Set(pickedPlayerIds.map(String));
@@ -154,12 +163,12 @@ router.post('/recommend', requireAuth('pro'), async (req, res) => {
     const tier3 = topPicks.slice(10, 15);
 
     const myTeamLine = myPicks.length > 0
-      ? myPicks.map(p => `${p.name} (${p.position})`).join(', ')
+      ? myPicks.map(p => `${sanitize(p.name)} (${sanitize(p.position, 10)})`).join(', ')
       : 'No picks yet';
 
     const posCountLine = Object.entries(posCounts).map(([pos, c]) => `${pos}: ${c}`).join(', ') || 'None';
 
-    const prompt = `SPORT: ${sport.toUpperCase()} | FORMAT: ${scoringFormat}
+    const prompt = `SPORT: ${sanitize(sport, 20).toUpperCase()} | FORMAT: ${sanitize(scoringFormat, 20)}
 
 === DRAFT ASSISTANT ===
 Round ${round}, Pick ${currentPick} overall (Position ${pickPosition} of ${totalTeams})
@@ -169,13 +178,13 @@ Biggest need: ${positionalNeed}
 
 TOP AVAILABLE (by ADP/search rank):
 TIER 1 (Elite):
-${tier1.map(p => `  • ${p.name} (${p.position}, ${p.team}) — ADP rank #${p.searchRank}`).join('\n')}
+${tier1.map(p => `  • ${sanitize(p.name)} (${sanitize(p.position, 10)}, ${sanitize(p.team, 10)}) — ADP rank #${p.searchRank}`).join('\n')}
 
 TIER 2 (Solid):
-${tier2.map(p => `  • ${p.name} (${p.position}, ${p.team}) — ADP rank #${p.searchRank}`).join('\n')}
+${tier2.map(p => `  • ${sanitize(p.name)} (${sanitize(p.position, 10)}, ${sanitize(p.team, 10)}) — ADP rank #${p.searchRank}`).join('\n')}
 
 TIER 3 (Depth):
-${tier3.map(p => `  • ${p.name} (${p.position}, ${p.team}) — ADP rank #${p.searchRank}`).join('\n')}
+${tier3.map(p => `  • ${sanitize(p.name)} (${sanitize(p.position, 10)}, ${sanitize(p.team, 10)}) — ADP rank #${p.searchRank}`).join('\n')}
 
 In 2-3 sentences: recommend who to draft with this pick (name them directly), explain why based on ADP value and team need, and flag any positional scarcity. Be direct.`;
 

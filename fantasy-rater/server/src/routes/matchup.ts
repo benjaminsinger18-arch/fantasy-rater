@@ -8,6 +8,11 @@ import type { RaterPlayer } from '../services/rater.js';
 
 const router = Router();
 
+const VALID_SPORTS = new Set(['nfl', 'mlb', 'fpl', 'ipl', 'nba']);
+function sanitize(s: unknown, maxLen = 60): string {
+  return String(s ?? '').replace(/[\r\n\t\x00-\x1F\x7F]/g, ' ').slice(0, maxLen);
+}
+
 interface MatchupSide {
   label: string;  // "Me" or "Opponent"
   players: RaterPlayer[];
@@ -27,6 +32,9 @@ router.post('/analyze', requireAuth('free'), checkUsage('matchup', 2), (req, res
 
   if (!myRoster?.length || !opponentRoster?.length) {
     return res.status(400).json({ error: 'Both rosters required' });
+  }
+  if (!VALID_SPORTS.has(sport.toLowerCase())) {
+    return res.status(400).json({ error: 'Invalid sport' });
   }
 
   const myTeam = scoreTeam(myRoster);
@@ -60,18 +68,18 @@ router.post('/analyze', requireAuth('free'), checkUsage('matchup', 2), (req, res
     .slice(0, 3);
 
   const promptText = [
-    `You are a fantasy ${sport.toUpperCase()} expert analyzing a Week ${week} head-to-head matchup (${scoringFormat} scoring).`,
+    `You are a fantasy ${sanitize(sport, 20).toUpperCase()} expert analyzing a Week ${week} head-to-head matchup (${sanitize(scoringFormat, 20)} scoring).`,
     '',
     `MY TEAM (score ${myTeam.score}, grade ${myTeam.grade}):`,
-    ...myRoster.map(p => `  ${p.position} ${p.name} (${p.team ?? 'FA'}) — value ${Math.round(p.rank ?? 0)}`),
+    ...myRoster.map(p => `  ${sanitize(p.position, 10)} ${sanitize(p.name)} (${sanitize(p.team ?? 'FA', 10)}) — value ${Math.round(p.rank ?? 0)}`),
     '',
     `OPPONENT TEAM (score ${oppTeam.score}, grade ${oppTeam.grade}):`,
-    ...opponentRoster.map(p => `  ${p.position} ${p.name} (${p.team ?? 'FA'}) — value ${Math.round(p.rank ?? 0)}`),
+    ...opponentRoster.map(p => `  ${sanitize(p.position, 10)} ${sanitize(p.name)} (${sanitize(p.team ?? 'FA', 10)}) — value ${Math.round(p.rank ?? 0)}`),
     '',
     `HEAD-TO-HEAD WIN PROBABILITY: ${winProb}% in my favor`,
     '',
     `SWING PLAYS (closest matchups):`,
-    ...swingPlays.map(h => `  ${h.position}: My ${h.mine.player} (${Math.round(h.mine.score)}) vs Their ${h.opponent.player} (${Math.round(h.opponent.score)})`),
+    ...swingPlays.map(h => `  ${sanitize(h.position, 10)}: My ${sanitize(h.mine.player)} (${Math.round(h.mine.score)}) vs Their ${sanitize(h.opponent.player)} (${Math.round(h.opponent.score)})`),
     '',
     'Give me 3-4 short bullets: overall win odds, my 2 biggest edges, their 2 biggest edges, and 1 matchup to watch. Keep it simple and direct.',
   ].join('\n');

@@ -10,12 +10,27 @@ function getSystemPrompt(): string {
 Today's date: ${new Date().toISOString().split('T')[0]}. CRITICAL: Only reference player names, teams, stats, and facts explicitly provided in this prompt. Never fill gaps from your training knowledge — it goes stale and causes errors. If a player's info isn't in the prompt, don't invent it.`;
 }
 
+/** Strip newlines and control characters from user-supplied text to prevent prompt injection. */
+function sanitizeText(s: unknown, maxLen = 100): string {
+  return String(s ?? '').replace(/[\r\n\t\x00-\x1F\x7F]/g, ' ').slice(0, maxLen);
+}
+
+/** Validate and normalize the sport field. Falls back to 'unknown' for unsupported values. */
+const VALID_SPORTS = new Set(['nfl', 'mlb', 'fpl', 'ipl', 'nba']);
+function sanitizeSport(sport: string): string {
+  const s = sport.toLowerCase().trim();
+  return VALID_SPORTS.has(s) ? s : sanitizeText(s, 20);
+}
+
 function playerLine(p: RaterPlayer): string {
-  const injury = p.injuryStatus ? ` [${p.injuryStatus.toUpperCase()}]` : '';
+  const name = sanitizeText(p.name, 60);
+  const pos = sanitizeText(p.position, 10);
+  const team = sanitizeText(p.team, 10);
+  const injury = p.injuryStatus ? ` [${sanitizeText(p.injuryStatus, 20).toUpperCase()}]` : '';
   const pts = p.avgPoints ? ` — ${p.avgPoints.toFixed(1)} pts/wk avg` : '';
   const proj = p.projectedRemaining ? `, ${p.projectedRemaining} proj pts ROS` : '';
   const fpl = p.epNext !== undefined ? ` — ${p.epNext} EP next GW, form ${p.form}` : '';
-  return `  • ${p.name} (${p.position}, ${p.team})${injury}${pts || fpl}${proj}`;
+  return `  • ${name} (${pos}, ${team})${injury}${pts || fpl}${proj}`;
 }
 
 export function buildTradePrompt(params: {
@@ -31,7 +46,7 @@ export function buildTradePrompt(params: {
   ratio: number;
   verdict: string;
 }): string {
-  return `SPORT: ${params.sport.toUpperCase()}
+  return `SPORT: ${sanitizeSport(params.sport).toUpperCase()}
 SCORING FORMAT: ${params.scoringFormat}
 WEEK/GAMEWEEK: ${params.week}
 LEAGUE SIZE: ${params.leagueSize} teams
@@ -65,7 +80,7 @@ export function buildTeamPrompt(params: {
     .map(([pos, { score, grade }]) => `  ${pos}: ${grade} (${score})`)
     .join('\n');
 
-  return `SPORT: ${params.sport.toUpperCase()}
+  return `SPORT: ${sanitizeSport(params.sport).toUpperCase()}
 SCORING FORMAT: ${params.scoringFormat}
 WEEK/GAMEWEEK: ${params.week}
 
@@ -105,7 +120,7 @@ export function buildLeaguePredictorPrompt(params: {
     .map(r => `  ${r.teamName}: ${r.rosterGrade} — projected #${r.projectedRank}`)
     .join('\n');
 
-  return `SPORT: ${params.sport.toUpperCase()}
+  return `SPORT: ${sanitizeSport(params.sport).toUpperCase()}
 SCORING FORMAT: ${params.scoringFormat}
 LEAGUE SIZE: ${params.leagueSize} teams
 
@@ -137,9 +152,9 @@ export function buildPlayerPrompt(params: {
   const age = p.age ? ` | Age: ${p.age}` : '';
   const rank = p.searchRank ? ` | Overall Rank: #${p.searchRank}` : '';
 
-  return `SPORT: ${params.sport.toUpperCase()} | FORMAT: ${params.scoringFormat}
+  return `SPORT: ${sanitizeSport(params.sport).toUpperCase()} | FORMAT: ${params.scoringFormat}
 
-PLAYER: ${p.name} (${p.position}, ${p.team || 'N/A'})${injury}
+PLAYER: ${sanitizeText(p.name, 60)} (${sanitizeText(p.position, 10)}, ${sanitizeText(p.team || 'N/A', 10)})${injury}
 Fantasy Value: ${p.rank ?? 'N/A'}/100${rank}${pts}${age}${exp}
 
 In 1-2 sentences, say how good this player is right now in plain English (use their numbers). End with START, SIT, HOLD, or DROP.`;

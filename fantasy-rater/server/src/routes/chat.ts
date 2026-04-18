@@ -26,12 +26,17 @@ interface ChatContext {
   }>;
 }
 
+const VALID_SPORTS = new Set(['nfl', 'mlb', 'fpl', 'ipl', 'nba']);
+
 // POST /api/chat — PRO + 20 messages/day free limit, streams SSE
 router.post('/', requireAuth('free'), checkUsage('chat', 20), async (req, res) => {
   const { messages, context } = req.body as { messages: ChatMessage[]; context: ChatContext };
 
   if (!messages?.length) {
     return res.status(400).json({ error: 'messages required' });
+  }
+  if (!VALID_SPORTS.has((context?.sport ?? '').toLowerCase())) {
+    return res.status(400).json({ error: 'Invalid sport' });
   }
   if (messages.length > 20) {
     return res.status(400).json({ error: 'Too many messages (max 20)' });
@@ -58,10 +63,13 @@ router.post('/', requireAuth('free'), checkUsage('chat', 20), async (req, res) =
       '',
       'MY ROSTER (authoritative — treat these team assignments as current fact):',
       ...context.roster.map(p => {
-        const injury = p.injuryStatus ? ` [${p.injuryStatus.toUpperCase()}]` : '';
+        const name = String(p.name ?? '').replace(/[\r\n\t\x00-\x1F]/g, ' ').slice(0, 60);
+        const pos = String(p.position ?? '').replace(/[\r\n\t\x00-\x1F]/g, ' ').slice(0, 10);
+        const team = String(p.team ?? '').replace(/[\r\n\t\x00-\x1F]/g, ' ').slice(0, 10);
+        const injury = p.injuryStatus ? ` [${String(p.injuryStatus).replace(/[\r\n]/g, ' ').slice(0, 20).toUpperCase()}]` : '';
         const pts = p.avgPoints ? ` — ${p.avgPoints.toFixed(1)} pts/wk` : '';
         const rank = p.rank ? ` (value ${Math.round(p.rank)}/100)` : '';
-        return `  ${p.position} ${p.name} (${p.team})${injury}${pts}${rank}`;
+        return `  ${pos} ${name} (${team})${injury}${pts}${rank}`;
       }),
     ] : []),
     '',

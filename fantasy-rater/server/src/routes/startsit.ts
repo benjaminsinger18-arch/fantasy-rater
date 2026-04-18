@@ -9,6 +9,11 @@ import { checkUsage } from '../middleware/usageLimit.js';
 
 const router = Router();
 
+const VALID_SPORTS = new Set(['nfl', 'mlb', 'fpl', 'ipl', 'nba']);
+function sanitize(s: unknown, maxLen = 60): string {
+  return String(s ?? '').replace(/[\r\n\t\x00-\x1F\x7F]/g, ' ').slice(0, maxLen);
+}
+
 // POST /api/startsit/compare
 router.post('/compare', requireAuth('free'), checkUsage('startsit', 2), async (req, res) => {
   const { players, sport = 'nfl', scoringFormat = 'PPR', week = 1 } = req.body as {
@@ -20,6 +25,9 @@ router.post('/compare', requireAuth('free'), checkUsage('startsit', 2), async (r
 
   if (!players?.length || players.length < 2) {
     return res.status(400).json({ error: 'At least 2 players are required' });
+  }
+  if (!VALID_SPORTS.has(sport.toLowerCase())) {
+    return res.status(400).json({ error: 'Invalid sport' });
   }
 
   const limited = players.slice(0, 4);
@@ -57,11 +65,11 @@ router.post('/compare', requireAuth('free'), checkUsage('startsit', 2), async (r
     const confidence = diff < 5 ? 'Lean' : diff < 15 ? 'Start' : 'Clear Start';
 
     const labels = ['RECOMMENDED START', 'OPTION 2', 'OPTION 3', 'OPTION 4'];
-    const prompt = `SPORT: ${sport.toUpperCase()} | FORMAT: ${scoringFormat} | WEEK: ${week}
+    const prompt = `SPORT: ${sanitize(sport, 20).toUpperCase()} | FORMAT: ${sanitize(scoringFormat, 20)} | WEEK: ${week}
 
 === START/SIT COMPARISON ===
 ${ranked.map((r, i) => `
-${labels[i]}: ${r.player.name} (${r.player.position}, ${r.player.team ?? 'FA'})${r.player.injuryStatus ? ` [${r.player.injuryStatus.toUpperCase()}]` : ''}
+${labels[i]}: ${sanitize(r.player.name)} (${sanitize(r.player.position, 10)}, ${sanitize(r.player.team ?? 'FA', 10)})${r.player.injuryStatus ? ` [${sanitize(r.player.injuryStatus, 20).toUpperCase()}]` : ''}
 Fantasy Value Score: ${Math.round(r.score)}
 Recent PPR points: ${r.recent.length ? r.recent.join(', ') : 'N/A'}
 Season avg: ${r.avg} pts/wk`).join('\n')}
