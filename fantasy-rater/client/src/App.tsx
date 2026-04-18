@@ -70,27 +70,20 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
   const isPro = tier === 'pro';
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-3 px-3 py-2 text-xs transition-all duration-200 border-l-2 font-mono tracking-wider uppercase relative overflow-hidden ${
+    `flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all duration-150 border-l-2 font-ui font-medium relative ${
       isActive
-        ? 'text-[#F2EFE8] border-[#E8321A] bg-[#E8321A]/5 shadow-[inset_2px_0_12px_rgba(232,50,26,0.12)]'
-        : 'text-[#888888] hover:text-[#BBBBBB] border-transparent hover:bg-[#2A2A2E] hover:border-[#3A3A3A]'
+        ? 'text-[#F2EFE8] border-[#E8321A] bg-[#E8321A]/5'
+        : 'text-[#888888] hover:text-[#CCCCCC] border-transparent hover:bg-[#2A2A2E]'
     }`;
 
   return (
-    <aside className="hidden md:flex w-52 flex-shrink-0 border-r border-[#484850] bg-[#222226] flex-col relative overflow-hidden bg-dot-grid">
-      {/* Animated vertical scan line */}
-      <motion.div
-        className="absolute inset-x-0 h-32 pointer-events-none z-0"
-        style={{ background: 'linear-gradient(to bottom, transparent, rgba(232,50,26,0.04), transparent)' }}
-        animate={{ top: ['-10%', '110%'] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'linear', repeatDelay: 3 }}
-      />
-      <div className="px-4 py-4 border-b border-[#484850] relative z-10">
+    <aside className="hidden md:flex w-56 flex-shrink-0 border-r border-[#333338] bg-[#1E1E22] flex-col overflow-hidden">
+      <div className="px-4 py-4 border-b border-[#333338]">
         <div className="flex items-center gap-2.5">
           <div className="w-6 h-6 border-2 border-[#E8321A] flex items-center justify-center flex-shrink-0">
             <Trophy size={11} className="text-[#E8321A]" />
           </div>
-          <span className="font-display text-lg font-black tracking-widest text-[#F2EFE8] uppercase">
+          <span className="font-display text-lg font-black tracking-wide text-[#F2EFE8] uppercase">
             FantasyRater
           </span>
           <button
@@ -103,83 +96,59 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
         </div>
       </div>
 
-      <div className="px-3 pt-4 pb-2 relative z-10">
-        <p className="text-[9px] text-[#555555] uppercase tracking-widest px-1 mb-2 font-mono font-bold">Sport</p>
+      <div className="px-3 pt-4 pb-2">
+        <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-2 font-ui font-semibold">Sport</p>
         <div className="grid grid-cols-2 gap-1">
           {SPORTS.map(s => (
-            <motion.button
+            <button
               key={s.id}
               onClick={() => setSport(s.id)}
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.03 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-              className={`relative px-2 py-1.5 text-[11px] font-mono font-bold border transition-colors tracking-wider overflow-hidden ${
+              className={`relative px-2 py-1.5 text-[12px] font-ui font-semibold border transition-colors rounded-sm ${
                 config.sport === s.id
-                  ? 'border-[#E8321A] text-[#E8321A]'
-                  : 'text-[#555555] border-[#484850] hover:text-[#8A8A8A] hover:border-[#3A3A3A]'
+                  ? 'border-[#E8321A] text-[#F2EFE8] bg-[#E8321A]/10'
+                  : 'text-[#666666] border-[#333338] hover:text-[#AAAAAA] hover:border-[#555558]'
               }`}
             >
-              {config.sport === s.id && (
-                <motion.div
-                  layoutId="sport-active-bg"
-                  className="absolute inset-0 bg-[#E8321A]/10"
-                  transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-                />
-              )}
-              <span className="relative z-10">{s.label}</span>
-            </motion.button>
+              {s.label}
+            </button>
           ))}
         </div>
       </div>
 
-      <nav className="px-3 pt-2 flex flex-col gap-0.5 overflow-y-auto relative z-10">
-        <p className="text-[9px] text-[#555555] uppercase tracking-widest px-1 mb-1 mt-2 font-mono font-bold">Tools</p>
+      <nav className="px-3 pt-2 flex flex-col gap-0.5 overflow-y-auto">
+        <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-2 font-ui font-semibold">Tools</p>
         {[
-          { to: '/', end: true, icon: <ArrowLeftRight size={13} className="flex-shrink-0" />, label: 'Trade Rater' },
-          { to: '/team', icon: <ClipboardList size={13} className="flex-shrink-0" />, label: 'Team Rater' },
-          { to: '/startsit', icon: <RefreshCw size={13} className="flex-shrink-0" />, label: 'Start/Sit' },
-          { to: '/waiver', icon: <Inbox size={13} className="flex-shrink-0" />, label: 'Waiver Wire', pro: !isPro },
-          { to: '/draft', icon: <Target size={13} className="flex-shrink-0" />, label: 'Draft', pro: !isPro },
-          { to: '/rankings', icon: <Medal size={13} className="flex-shrink-0" />, label: 'Rankings' },
-          { to: '/live', icon: <Activity size={13} className="flex-shrink-0" />, label: 'Live Score' },
-          { to: '/lineup', icon: <Zap size={13} className="flex-shrink-0" />, label: 'Lineup Optimizer', pro: !isPro },
-          { to: '/chat', icon: <MessageCircle size={13} className="flex-shrink-0" />, label: 'AI Advisor', pro: !isPro },
-          { to: '/matchup', icon: <Swords size={13} className="flex-shrink-0" />, label: 'Matchup Analyzer' },
-          { to: '/predictor', icon: <Telescope size={13} className="flex-shrink-0" />, label: 'League Predictor', pro: !isPro },
-        ].map(({ to, end, icon, label, pro }, i) => (
-          <motion.div
-            key={to}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.05, type: 'spring', stiffness: 480, damping: 26 }}
-          >
-            <NavLink to={to} end={end} className={linkClass}>
-              {icon} {label}
-              {pro && <span className="ml-auto text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-mono font-bold">PRO</span>}
-            </NavLink>
-          </motion.div>
+          { to: '/', end: true, icon: <ArrowLeftRight size={14} className="flex-shrink-0" />, label: 'Trade Rater' },
+          { to: '/team', icon: <ClipboardList size={14} className="flex-shrink-0" />, label: 'Team Rater' },
+          { to: '/startsit', icon: <RefreshCw size={14} className="flex-shrink-0" />, label: 'Start / Sit' },
+          { to: '/waiver', icon: <Inbox size={14} className="flex-shrink-0" />, label: 'Waiver Wire', pro: !isPro },
+          { to: '/draft', icon: <Target size={14} className="flex-shrink-0" />, label: 'Draft', pro: !isPro },
+          { to: '/rankings', icon: <Medal size={14} className="flex-shrink-0" />, label: 'Rankings' },
+          { to: '/live', icon: <Activity size={14} className="flex-shrink-0" />, label: 'Live Score' },
+          { to: '/lineup', icon: <Zap size={14} className="flex-shrink-0" />, label: 'Lineup', pro: !isPro },
+          { to: '/chat', icon: <MessageCircle size={14} className="flex-shrink-0" />, label: 'AI Advisor', pro: !isPro },
+          { to: '/matchup', icon: <Swords size={14} className="flex-shrink-0" />, label: 'Matchup' },
+          { to: '/predictor', icon: <Telescope size={14} className="flex-shrink-0" />, label: 'League Predictor', pro: !isPro },
+        ].map(({ to, end, icon, label, pro }) => (
+          <NavLink key={to} to={to} end={end} className={linkClass}>
+            {icon} {label}
+            {pro && <span className="ml-auto text-[10px] bg-[#E8321A]/10 text-[#E8321A] px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
+          </NavLink>
         ))}
-        <p className="text-[9px] text-[#555555] uppercase tracking-widest px-1 mb-1 mt-3 font-mono font-bold">Account</p>
+        <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-4 font-ui font-semibold">Account</p>
         {[
-          { to: '/leagues', icon: <FolderOpen size={13} className="flex-shrink-0" />, label: 'My Leagues' },
-          { to: '/league', icon: <Settings size={13} className="flex-shrink-0" />, label: 'League Setup' },
-          { to: '/settings', icon: <Bell size={13} className="flex-shrink-0" />, label: 'Notifications' },
-        ].map(({ to, icon, label }, i) => (
-          <motion.div
-            key={to}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.35 + i * 0.05, type: 'spring', stiffness: 480, damping: 26 }}
-          >
-            <NavLink to={to} className={linkClass}>{icon} {label}</NavLink>
-          </motion.div>
+          { to: '/leagues', icon: <FolderOpen size={14} className="flex-shrink-0" />, label: 'My Leagues' },
+          { to: '/league', icon: <Settings size={14} className="flex-shrink-0" />, label: 'League Setup' },
+          { to: '/settings', icon: <Bell size={14} className="flex-shrink-0" />, label: 'Notifications' },
+        ].map(({ to, icon, label }) => (
+          <NavLink key={to} to={to} className={linkClass}>{icon} {label}</NavLink>
         ))}
       </nav>
 
-      <div className="mt-auto px-3 pt-3 pb-1 flex flex-col gap-2 relative z-10">
+      <div className="mt-auto px-3 pt-3 pb-1 flex flex-col gap-2">
         <SignedOut>
           <SignInButton mode="modal">
-            <button className="w-full py-2 text-xs text-[#8A8A8A] hover:text-[#F2EFE8] border border-[#484850] hover:border-[#3A3A3A] transition-colors font-mono uppercase tracking-wider">
+            <button className="w-full py-2 text-[13px] text-[#888888] hover:text-[#F2EFE8] border border-[#333338] hover:border-[#555558] transition-colors font-ui font-medium rounded">
               Sign In
             </button>
           </SignInButton>
@@ -188,36 +157,36 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
           {!isPro && (
             <button
               onClick={onUpgrade}
-              className="w-full py-2 text-xs font-mono font-bold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-1.5 tracking-wider uppercase"
+              className="w-full py-2 text-[13px] font-ui font-semibold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-1.5 rounded"
             >
-              <Zap size={12} /> Upgrade to Pro
+              <Zap size={13} /> Upgrade to Pro
             </button>
           )}
           <div className="flex items-center gap-2 px-1 py-1">
             <UserButton />
             <div className="flex flex-col min-w-0">
-              <span className="text-[#8A8A8A] text-xs font-mono truncate">{user?.firstName ?? 'My Account'}</span>
-              {isPro && <span className="text-[#E8321A] text-[10px] font-mono font-bold">PRO</span>}
+              <span className="text-[#AAAAAA] text-[13px] font-ui truncate">{user?.firstName ?? 'My Account'}</span>
+              {isPro && <span className="text-[#E8321A] text-[11px] font-ui font-semibold">Pro</span>}
             </div>
           </div>
         </SignedIn>
       </div>
 
-      <div className="px-3 py-4 border-t border-[#484850] relative z-10">
-        <div className="card-base p-3 border-l-4 border-l-[#E8321A]">
-          <p className="text-[9px] text-[#444444] uppercase tracking-widest mb-2 font-mono font-bold">League</p>
+      <div className="px-3 py-4 border-t border-[#333338]">
+        <div className="bg-[#252528] border border-[#333338] rounded p-3">
+          <p className="text-[10px] text-[#666666] uppercase tracking-wide mb-2.5 font-ui font-semibold">League</p>
           <div className="space-y-1.5">
             <div className="flex justify-between">
-              <span className="text-[#555555] text-xs font-mono">Format</span>
-              <span className="text-[#F2EFE8] text-xs font-mono font-medium">{config.scoringFormat}</span>
+              <span className="text-[#666666] text-[12px] font-ui">Format</span>
+              <span className="text-[#F2EFE8] text-[12px] font-mono font-medium">{config.scoringFormat}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#555555] text-xs font-mono">Teams</span>
-              <span className="text-[#F2EFE8] text-xs font-mono font-medium">{config.leagueSize}</span>
+              <span className="text-[#666666] text-[12px] font-ui">Teams</span>
+              <span className="text-[#F2EFE8] text-[12px] font-mono font-medium">{config.leagueSize}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#555555] text-xs font-mono">Week</span>
-              <span className="text-[#F2EFE8] text-xs font-mono font-medium">{config.currentWeek}</span>
+              <span className="text-[#666666] text-[12px] font-ui">Week</span>
+              <span className="text-[#F2EFE8] text-[12px] font-mono font-medium">{config.currentWeek}</span>
             </div>
           </div>
         </div>
@@ -234,22 +203,22 @@ function MobileHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
   const isPro = tier === 'pro';
 
   return (
-    <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-2.5 bg-[#222226] border-b border-[#484850]">
+    <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-2.5 bg-[#1E1E22] border-b border-[#333338]">
       <div className="flex items-center gap-2">
         <div className="w-5 h-5 border-2 border-[#E8321A] flex items-center justify-center flex-shrink-0">
           <Trophy size={10} className="text-[#E8321A]" />
         </div>
-        <span className="font-display text-base font-black tracking-widest text-[#F2EFE8] uppercase">
+        <span className="font-display text-base font-black tracking-wide text-[#F2EFE8] uppercase">
           FantasyRater
         </span>
-        {isPro && <span className="text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-mono font-bold">PRO</span>}
+        {isPro && <span className="text-[10px] bg-[#E8321A]/10 text-[#E8321A] px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
       </div>
       <div className="flex items-center gap-2">
         <select
           value={config.sport}
           onChange={e => setSport(e.target.value as Sport)}
           style={{ fontSize: '16px' }}
-          className="bg-[#2C2C31] text-[#F2EFE8] border border-[#484850] px-2 py-1.5 font-mono font-bold focus:outline-none focus:border-[#E8321A] tracking-wider"
+          className="bg-[#2C2C31] text-[#F2EFE8] border border-[#333338] px-2 py-1.5 font-ui font-semibold focus:outline-none focus:border-[#E8321A] rounded"
         >
           <option value="nfl">NFL</option>
           <option value="mlb">MLB</option>
@@ -284,51 +253,36 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#222226] border-t border-[#484850] flex items-stretch safe-bottom" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#1E1E22] border-t border-[#333338] flex items-stretch" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {tabs.map(({ to, icon: Icon, label }) => {
         const isActive = location.pathname === to || location.pathname.startsWith(to + '/');
         return (
           <NavLink
             key={to}
             to={to}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-mono tracking-wider uppercase transition-colors relative ${
-              isActive ? 'text-[#E8321A]' : 'text-[#777777] active:text-[#AAAAAA]'
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-ui font-medium uppercase transition-colors relative ${
+              isActive ? 'text-[#F2EFE8]' : 'text-[#666666] active:text-[#AAAAAA]'
             }`}
           >
             {isActive && (
               <motion.div
                 layoutId="bottom-nav-indicator"
-                className="absolute top-0 left-2 right-2 h-px bg-[#E8321A]"
-                style={{ boxShadow: '0 0 8px 2px rgba(232,50,26,0.5)' }}
+                className="absolute top-0 left-4 right-4 h-0.5 bg-[#E8321A] rounded-full"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
-            <motion.div
-              animate={isActive ? { scale: 1.18 } : { scale: 1 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-              className="relative"
-            >
-              {isActive && (
-                <motion.div
-                  className="absolute inset-0 rounded-full bg-[#E8321A]/15 blur-sm scale-150"
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                />
-              )}
-              <Icon size={20} className="relative z-10" />
-            </motion.div>
+            <Icon size={20} />
             {label}
           </NavLink>
         );
       })}
-      <motion.button
+      <button
         onClick={onMoreOpen}
-        className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-mono tracking-wider uppercase text-[#777777] active:text-[#AAAAAA] transition-colors"
-        whileTap={{ scale: 0.9 }}
+        className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-ui font-medium uppercase text-[#666666] active:text-[#AAAAAA] transition-colors"
       >
         <MoreHorizontal size={20} />
         More
-      </motion.button>
+      </button>
     </nav>
   );
 }
@@ -374,7 +328,7 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
             onClick={onClose}
           />
           <motion.div
-            className="fixed bottom-0 left-0 right-0 z-50 bg-[#222226] border-t border-[#484850]"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-[#1E1E22] border-t border-[#333338]"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
@@ -386,52 +340,34 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
             </div>
 
             <div className="px-4 py-3 space-y-0.5">
-              <motion.p
-                className="text-[9px] text-[#555555] uppercase tracking-widest font-mono font-bold px-2 pb-1"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.08 }}
-              >
+              <p className="text-[10px] text-[#666666] uppercase tracking-wide font-ui font-semibold px-2 pb-1">
                 More Tools
-              </motion.p>
-              {menuItems.map(({ icon: Icon, label, path, pro }, i) => (
-                <motion.button
+              </p>
+              {menuItems.map(({ icon: Icon, label, path, pro }) => (
+                <button
                   key={path}
                   onClick={() => go(path)}
-                  className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#2C2C31] transition-colors text-sm font-mono border-l-2 border-transparent hover:border-[#E8321A]"
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 400, damping: 28 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="w-full flex items-center gap-3 px-3 py-3 text-[#AAAAAA] hover:text-[#F2EFE8] hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
                 >
                   <Icon size={16} />
                   <span>{label}</span>
-                  {pro && !isPro && <span className="ml-auto text-[9px] border border-[#E8321A]/40 text-[#E8321A] px-1 py-px font-bold">PRO</span>}
-                </motion.button>
+                  {pro && !isPro && <span className="ml-auto text-[10px] bg-[#E8321A]/10 text-[#E8321A] px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
+                </button>
               ))}
 
               <div className="h-px bg-[#2A2A2A] my-2" />
 
-              <motion.p
-                className="text-[9px] text-[#555555] uppercase tracking-widest font-mono font-bold px-2 pb-1"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.28 }}
-              >
+              <p className="text-[10px] text-[#666666] uppercase tracking-wide font-ui font-semibold px-2 pb-1">
                 Account
-              </motion.p>
-              {accountItems.map(({ icon: Icon, label, path }, i) => (
-                <motion.button
+              </p>
+              {accountItems.map(({ icon: Icon, label, path }) => (
+                <button
                   key={path}
                   onClick={() => go(path)}
-                  className="w-full flex items-center gap-3 px-3 py-3 text-[#8A8A8A] hover:text-[#F2EFE8] hover:bg-[#2C2C31] transition-colors text-sm font-mono"
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + i * 0.06, type: 'spring', stiffness: 400, damping: 28 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="w-full flex items-center gap-3 px-3 py-3 text-[#AAAAAA] hover:text-[#F2EFE8] hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
                 >
                   <Icon size={16} /> {label}
-                </motion.button>
+                </button>
               ))}
 
               <div className="h-px bg-[#2A2A2A] my-2" />
@@ -443,7 +379,7 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
               >
                 <SignedOut>
                   <SignInButton mode="modal">
-                    <button onClick={onClose} className="w-full py-3 text-xs font-mono font-bold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors uppercase tracking-wider">
+                    <button onClick={onClose} className="w-full py-3 text-[14px] font-ui font-semibold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors rounded">
                       Sign In
                     </button>
                   </SignInButton>
@@ -452,18 +388,17 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
                   <div className="flex items-center gap-3 px-3 py-2">
                     <UserButton />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-mono text-[#F2EFE8] truncate">{user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress ?? 'My Account'}</p>
-                      <p className="text-xs font-mono text-[#555555]">{isPro ? 'Pro member' : 'Free plan'}</p>
+                      <p className="text-[14px] font-ui text-[#F2EFE8] truncate">{user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress ?? 'My Account'}</p>
+                      <p className="text-[12px] font-ui text-[#666666]">{isPro ? 'Pro member' : 'Free plan'}</p>
                     </div>
                   </div>
                   {!isPro && (
-                    <motion.button
+                    <button
                       onClick={() => { onUpgrade(); onClose(); }}
-                      className="w-full py-3 text-xs font-mono font-bold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-1.5 uppercase tracking-wider"
-                      whileTap={{ scale: 0.97 }}
+                      className="w-full py-3 text-[14px] font-ui font-semibold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-2 rounded"
                     >
-                      <Zap size={12} /> Upgrade to Pro
-                    </motion.button>
+                      <Zap size={14} /> Upgrade to Pro
+                    </button>
                   )}
                 </SignedIn>
               </motion.div>

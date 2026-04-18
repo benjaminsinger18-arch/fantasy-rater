@@ -6,16 +6,25 @@ export default {
     extend: {
       fontFamily: {
         display: ['"Barlow Condensed"', 'sans-serif'],
+        ui:      ['"Plus Jakarta Sans"', 'sans-serif'],
         mono:    ['"IBM Plex Mono"', 'monospace'],
         serif:   ['"Lora"', 'serif'],
       },
       colors: {
-        signal: '#E8321A',
-        ink:    '#F2EFE8',
-        muted:  '#8A8A8A',
-        dim:    '#555555',
+        signal:  '#E8321A',
+        ink:     '#F2EFE8',
+        muted:   '#8A8A8A',
+        dim:     '#555555',
         surface: '#111111',
         border:  '#2A2A2A',
+      },
+      borderRadius: {
+        DEFAULT: '4px',
+        sm: '2px',
+        md: '6px',
+        lg: '8px',
+        full: '9999px',
+        none: '0',
       },
       keyframes: {
         'mesh-drift': {
