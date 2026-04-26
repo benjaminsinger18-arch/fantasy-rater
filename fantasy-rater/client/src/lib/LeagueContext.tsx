@@ -97,6 +97,7 @@ export function LeagueProvider({ children }: { children: React.ReactNode }) {
       leagueId: '',
       myRosterId: undefined,
       fplManagerId: undefined,
+      currentWeek: sport === 'fpl' ? prev.currentWeek : 1,
     }));
     if (sport === 'fpl') {
       const apiBase = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');

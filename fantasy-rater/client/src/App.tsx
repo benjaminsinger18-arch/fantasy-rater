@@ -115,7 +115,9 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
         </div>
       </div>
 
-      <nav className="px-3 pt-2 flex flex-col gap-0.5 overflow-y-auto">
+      <div className="relative flex-1 min-h-0">
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-[#1E1E22] to-transparent z-10" />
+      <nav className="px-3 pt-2 pb-6 flex flex-col gap-0.5 overflow-y-auto h-full">
         <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-2 font-ui font-semibold">Tools</p>
         {[
           { to: '/', end: true, icon: <ArrowLeftRight size={14} className="flex-shrink-0" />, label: 'Trade Rater' },
@@ -144,8 +146,9 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
           <NavLink key={to} to={to} className={linkClass}>{icon} {label}</NavLink>
         ))}
       </nav>
+      </div>
 
-      <div className="mt-auto px-3 pt-3 pb-1 flex flex-col gap-2">
+      <div className="px-3 pt-3 pb-1 flex flex-col gap-2">
         <SignedOut>
           <SignInButton mode="modal">
             <button className="w-full py-2 text-[13px] text-[#888888] hover:text-[#F2EFE8] border border-[#333338] hover:border-[#555558] transition-colors font-ui font-medium rounded">
