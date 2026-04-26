@@ -249,20 +249,21 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
   const location = useLocation();
 
   const tabs = [
-    { to: '/chat',     icon: MessageCircle, label: 'Chat' },
-    { to: '/rankings', icon: Medal,         label: 'Rankings' },
-    { to: '/live',     icon: Activity,      label: 'Live' },
-    { to: '/team',     icon: ClipboardList, label: 'Team' },
+    { to: '/',         icon: ArrowLeftRight, label: 'Trade', end: true },
+    { to: '/rankings', icon: Medal,          label: 'Rankings' },
+    { to: '/live',     icon: Activity,       label: 'Live' },
+    { to: '/team',     icon: ClipboardList,  label: 'Team' },
   ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#1E1E22] border-t border-[#333338] flex items-stretch" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      {tabs.map(({ to, icon: Icon, label }) => {
-        const isActive = location.pathname === to || location.pathname.startsWith(to + '/');
+      {tabs.map(({ to, icon: Icon, label, end }) => {
+        const isActive = end ? location.pathname === to : location.pathname === to || location.pathname.startsWith(to + '/');
         return (
           <NavLink
             key={to}
             to={to}
+            end={end}
             className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-ui font-medium uppercase transition-colors relative ${
               isActive ? 'text-[#F2EFE8]' : 'text-[#666666] active:text-[#AAAAAA]'
             }`}
@@ -295,6 +296,7 @@ const menuItems = [
   { icon: ArrowLeftRight, label: 'Trade Rater',      path: '/',          pro: false },
   { icon: RefreshCw,      label: 'Start / Sit',      path: '/startsit',  pro: false },
   { icon: Swords,         label: 'Matchup Analyzer', path: '/matchup',   pro: false },
+  { icon: MessageCircle,  label: 'AI Advisor',       path: '/chat',      pro: true },
   { icon: Zap,            label: 'Lineup Optimizer', path: '/lineup',    pro: true },
   { icon: Inbox,          label: 'Waiver Wire',      path: '/waiver',    pro: true },
   { icon: Target,         label: 'Draft Assistant',  path: '/draft',     pro: true },
