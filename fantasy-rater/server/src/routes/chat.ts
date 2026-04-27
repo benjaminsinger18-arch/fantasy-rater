@@ -82,14 +82,16 @@ router.post('/', requireAuth('free'), checkUsage('chat', 20), async (req, res) =
   // CORS is handled by the app-level cors() middleware — do not override with wildcard here
   res.flushHeaders();
 
-  try {
-    const stream = anthropic.messages.stream({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 800,
-      system: systemPrompt,
-      messages: messages.slice(-12), // last 12 turns for context
-    });
+  const stream = anthropic.messages.stream({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 800,
+    system: systemPrompt,
+    messages: messages.slice(-12), // last 12 turns for context
+  });
 
+  req.on('close', () => { stream.abort(); res.end(); });
+
+  try {
     stream.on('text', (text) => {
       res.write(`data: ${JSON.stringify({ text })}\n\n`);
     });
@@ -98,12 +100,12 @@ router.post('/', requireAuth('free'), checkUsage('chat', 20), async (req, res) =
     res.write('data: [DONE]\n\n');
     res.end();
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Claude error';
-    res.write(`data: ${JSON.stringify({ error: msg })}\n\n`);
-    res.end();
+    if (!res.writableEnded) {
+      const msg = err instanceof Error ? err.message : 'Claude error';
+      res.write(`data: ${JSON.stringify({ error: msg })}\n\n`);
+      res.end();
+    }
   }
-
-  req.on('close', () => res.end());
 });
 
 export default router;

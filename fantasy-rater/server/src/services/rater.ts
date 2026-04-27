@@ -56,7 +56,8 @@ export function scorePlayer(p: RaterPlayer): number {
 export function scoreTrade(sideA: RaterPlayer[], sideB: RaterPlayer[]) {
   const aScore = sideA.reduce((sum, p) => sum + scorePlayer(p), 0);
   const bScore = sideB.reduce((sum, p) => sum + scorePlayer(p), 0);
-  const ratio = bScore > 0 ? aScore / bScore : 1;
+  // both zero → toss-up; bScore=0 only → giving something for nothing → horrible
+  const ratio = bScore === 0 ? (aScore === 0 ? 1 : 2) : aScore / bScore;
 
   let verdict: string;
   if (ratio < 0.75) verdict = 'Great Deal';

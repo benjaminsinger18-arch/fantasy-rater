@@ -66,6 +66,10 @@ export function PlayerRankings() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  useEffect(() => {
+    return () => { if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current); };
+  }, []);
+
   const positions = config.sport === 'fpl' ? FPL_POSITIONS : config.sport === 'mlb' ? MLB_POSITIONS : config.sport === 'ipl' ? IPL_POSITIONS : NFL_POSITIONS;
 
   useEffect(() => {
@@ -82,7 +86,7 @@ export function PlayerRankings() {
       .catch(() => { if (!cancelled) setError('Failed to load rankings.'); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [config.sport, position, retryKey]);
+  }, [config.sport, config.currentWeek, position, retryKey]);
 
   function handleHover(player: Player) {
     if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
