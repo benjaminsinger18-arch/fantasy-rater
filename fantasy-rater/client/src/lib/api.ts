@@ -170,6 +170,17 @@ export async function getDraftRecommendation(payload: object) {
   return res.data;
 }
 
+export async function getDraftState(draftId: string) {
+  const res = await api.get('/draft/state', { params: { draftId } });
+  return res.data as {
+    picks: Array<{ pickNo: number; round: number; playerId: string; rosterId: number }>;
+    currentPick: number;
+    totalTeams: number;
+    totalRounds: number;
+    status: string;
+  };
+}
+
 // Leagues (multi-league)
 export async function getSavedLeagues() {
   const res = await api.get('/leagues');
