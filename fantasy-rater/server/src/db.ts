@@ -92,4 +92,8 @@ db.exec(`
   );
 `);
 
+// Idempotent column additions — SQLite throws on duplicate column; catch is intentional
+try { db.exec(`ALTER TABLE trade_history ADD COLUMN analysis_hash TEXT`); } catch {}
+try { db.exec(`ALTER TABLE trade_history ADD COLUMN ai_analysis TEXT`); } catch {}
+
 export default db;

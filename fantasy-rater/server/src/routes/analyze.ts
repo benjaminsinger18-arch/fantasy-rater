@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { getStoredPrompt, streamAnalysis, buildPlayerPrompt, storePrompt } from '../services/claude.js';
 import type { RaterPlayer } from '../services/rater.js';
 import { requireAuth } from '../middleware/requireAuth.js';
+import db from '../db.js';
 
 const router = Router();
 
@@ -30,7 +31,10 @@ router.get('/stream', async (req, res) => {
     (text) => {
       res.write(`data: ${JSON.stringify({ text })}\n\n`);
     },
-    (_fullText) => {
+    (fullText) => {
+      try {
+        db.prepare('UPDATE trade_history SET ai_analysis = ? WHERE analysis_hash = ?').run(fullText, hash);
+      } catch { /* non-fatal: hash may not be a trade */ }
       res.write('data: [DONE]\n\n');
       res.end();
     },
