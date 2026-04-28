@@ -152,3 +152,18 @@ export async function getCurrentGameweek(): Promise<number> {
   const next = bootstrap.events.find(e => e.is_next);
   return (current || next)?.id ?? 1;
 }
+
+export async function getLiveEventPoints(gw: number): Promise<Record<number, number>> {
+  const key = `fpl:live:${gw}`;
+  const cached = cache.get<Record<number, number>>(key);
+  if (cached) return cached;
+  const res = await axios.get<{ elements: Array<{ id: number; stats: { total_points: number } }> }>(
+    `${BASE}/event/${gw}/live/`
+  );
+  const points: Record<number, number> = {};
+  for (const el of res.data.elements) {
+    points[el.id] = el.stats.total_points;
+  }
+  cache.set(key, points, 30); // 30s TTL for live data
+  return points;
+}

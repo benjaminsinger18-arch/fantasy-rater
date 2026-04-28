@@ -210,8 +210,8 @@ export async function saveRosterForAlerts(payload: object) {
   return res.data;
 }
 
-export async function getLiveMatchup(leagueId: string, week: number, rosterId: number) {
-  const res = await api.get('/live/matchup', { params: { leagueId, week, rosterId } });
+export async function getLiveMatchup(leagueId: string, week: number, rosterId: number | undefined, sport?: string) {
+  const res = await api.get('/live/matchup', { params: { leagueId, week, rosterId, sport } });
   return res.data;
 }
 
