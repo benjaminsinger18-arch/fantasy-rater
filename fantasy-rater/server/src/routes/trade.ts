@@ -38,8 +38,8 @@ router.post('/rate', requireAuth('free'), checkUsage('trade', 3), (req, res) => 
     if (req.userId) {
       try {
         db.prepare(`
-          INSERT INTO trade_history (clerk_user_id, sport, side_a, side_b, side_a_score, side_b_score, verdict, scoring_format, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO trade_history (clerk_user_id, sport, side_a, side_b, side_a_score, side_b_score, verdict, scoring_format, created_at, analysis_hash)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           req.userId,
           sport,
@@ -50,6 +50,7 @@ router.post('/rate', requireAuth('free'), checkUsage('trade', 3), (req, res) => 
           tradeScore.verdict,
           scoringFormat,
           Math.floor(Date.now() / 1000),
+          hash,
         );
       } catch { /* non-fatal — don't break the rating */ }
     }
@@ -64,7 +65,7 @@ router.post('/rate', requireAuth('free'), checkUsage('trade', 3), (req, res) => 
 // GET /api/trade/history — last 30 trades for the signed-in user
 router.get('/history', requireAuth('free'), (req, res) => {
   const rows = db.prepare(`
-    SELECT id, sport, side_a, side_b, side_a_score, side_b_score, verdict, scoring_format, created_at
+    SELECT id, sport, side_a, side_b, side_a_score, side_b_score, verdict, scoring_format, created_at, analysis_hash, ai_analysis
     FROM trade_history
     WHERE clerk_user_id = ?
     ORDER BY created_at DESC
@@ -79,6 +80,8 @@ router.get('/history', requireAuth('free'), (req, res) => {
     verdict: string;
     scoring_format: string;
     created_at: number;
+    analysis_hash: string | null;
+    ai_analysis: string | null;
   }>;
 
   return res.json(rows.map(r => ({
@@ -91,6 +94,8 @@ router.get('/history', requireAuth('free'), (req, res) => {
     verdict: r.verdict,
     scoringFormat: r.scoring_format,
     createdAt: r.created_at,
+    analysisHash: r.analysis_hash ?? null,
+    aiAnalysis: r.ai_analysis ?? null,
   })));
 });
 

@@ -292,3 +292,27 @@ export async function getMLBProjections(
   cache.set(key, res.data, TTL.SLEEPER_PROJECTIONS); // 30 min
   return res.data;
 }
+
+export interface SleeperDraftPick {
+  round: number;
+  pick_no: number;
+  player_id: string;
+  picked_by: string;
+  roster_id: number;
+}
+
+export interface SleeperDraftInfo {
+  status: 'pre_draft' | 'drafting' | 'complete' | 'paused';
+  settings?: { teams?: number; rounds?: number };
+  draft_order?: Record<string, number>;
+}
+
+export async function getDraftInfo(draftId: string): Promise<SleeperDraftInfo> {
+  const res = await axios.get<SleeperDraftInfo>(`https://api.sleeper.app/v1/draft/${draftId}`);
+  return res.data;
+}
+
+export async function getDraftPicks(draftId: string): Promise<SleeperDraftPick[]> {
+  const res = await axios.get<SleeperDraftPick[]>(`https://api.sleeper.app/v1/draft/${draftId}/picks`);
+  return res.data;
+}

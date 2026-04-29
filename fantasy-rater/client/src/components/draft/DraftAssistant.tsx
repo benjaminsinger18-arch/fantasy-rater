@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Target, Loader2 } from 'lucide-react';
+import { Target, Loader2, RefreshCw, Bell } from 'lucide-react';
 import { PlayerSearch } from '../shared/PlayerSearch.tsx';
 import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
-import { getDraftRecommendation } from '../../lib/api.ts';
+import { getDraftRecommendation, getDraftState } from '../../lib/api.ts';
 import { useLeague } from '../../lib/LeagueContext.tsx';
 import type { Player } from '../../types/index.ts';
 
@@ -72,6 +72,45 @@ export function DraftAssistant() {
   const [result, setResult] = useState<DraftResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [draftId, setDraftId] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [isMyTurn, setIsMyTurn] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!draftId) {
+      if (pollRef.current) clearInterval(pollRef.current);
+      setIsMyTurn(false);
+      return;
+    }
+
+    async function sync() {
+      setSyncing(true);
+      try {
+        const state = await getDraftState(draftId);
+        setCurrentPick(state.currentPick);
+        setTotalTeams(state.totalTeams);
+        // Add any newly-picked player IDs to allPicked
+        setAllPicked(prev => {
+          const existingIds = new Set(prev.map(p => p.id));
+          const newPicks = state.picks
+            .filter(p => !existingIds.has(p.playerId))
+            .map(p => ({ id: p.playerId, name: p.playerId, position: '?', team: '?' }));
+          return newPicks.length > 0 ? [...prev, ...newPicks] : prev;
+        });
+        setIsMyTurn(
+          isMyPick(state.currentPick, pickPosition, state.totalTeams) &&
+          state.status === 'drafting'
+        );
+      } catch { /* ignore poll errors */ } finally {
+        setSyncing(false);
+      }
+    }
+
+    sync();
+    pollRef.current = setInterval(sync, 20_000);
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+  }, [draftId, pickPosition]);
 
   function isMyPick(pick: number, pos: number, teams: number): boolean {
     const round = Math.ceil(pick / teams);
@@ -142,6 +181,33 @@ export function DraftAssistant() {
             {/* Settings */}
             <div className="card-base p-4">
               <p className="text-xs font-display font-bold text-slate-400 uppercase tracking-widest mb-3">Draft Settings</p>
+
+              {/* Sleeper live sync */}
+              <div className="mb-3">
+                <label className="block text-[9px] font-mono text-[#555555] uppercase tracking-widest mb-1">
+                  Sleeper Draft ID (optional — enables live sync)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={draftId}
+                    onChange={e => setDraftId(e.target.value.trim())}
+                    placeholder="e.g. 1234567890"
+                    className="flex-1 bg-[#1E1E22] border border-[#484850] text-xs font-mono text-[#F2EFE8] px-2 py-1.5 focus:outline-none focus:border-[#E8321A]/50 placeholder-[#444444]"
+                  />
+                  {syncing && <RefreshCw size={14} className="animate-spin text-[#E8321A] flex-shrink-0" />}
+                </div>
+              </div>
+
+              {isMyTurn && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-[#E8321A]/20 border border-[#E8321A]/40 mb-3">
+                  <Bell size={12} className="text-[#E8321A] flex-shrink-0" />
+                  <span className="text-[11px] font-display font-black text-[#E8321A] uppercase tracking-widest">
+                    Your Turn! Pick #{currentPick}
+                  </span>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[10px] text-slate-500 uppercase tracking-wider">My Pick #</label>

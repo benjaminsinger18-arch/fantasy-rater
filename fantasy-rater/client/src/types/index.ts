@@ -69,6 +69,7 @@ export interface LeagueTeam {
   rosterGrade: string;
   positionBreakdown: Record<string, { score: number; grade: string }>;
   projectedRank: number;
+  playoffProbability?: number;
 }
 
 export interface LeagueTeamWithRange extends LeagueTeam {

@@ -133,6 +133,7 @@ export function LeaguePredictor() {
                   <th className="text-center pb-2 font-bold">Record</th>
                   <th className="text-center pb-2 font-bold">Roster</th>
                   <th className="text-center pb-2 font-bold">Move</th>
+                  <th className="text-center pb-2 font-bold">Playoff%</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
@@ -158,6 +159,19 @@ export function LeaguePredictor() {
                       </td>
                       <td className="py-2.5 text-center">
                         <RankArrow current={team.currentRank} projected={team.projectedRank} />
+                      </td>
+                      <td className="py-2.5 text-center">
+                        {team.playoffProbability !== undefined ? (
+                          <span className={`text-xs font-display font-bold ${
+                            (team.playoffProbability ?? 0) >= 70 ? 'text-emerald-400' :
+                            (team.playoffProbability ?? 0) >= 40 ? 'text-amber-400' :
+                            'text-slate-500'
+                          }`}>
+                            {team.playoffProbability}%
+                          </span>
+                        ) : (
+                          <span className="text-slate-600 text-xs">—</span>
+                        )}
                       </td>
                     </tr>
                   );

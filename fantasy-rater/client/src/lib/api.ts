@@ -170,6 +170,17 @@ export async function getDraftRecommendation(payload: object) {
   return res.data;
 }
 
+export async function getDraftState(draftId: string) {
+  const res = await api.get('/draft/state', { params: { draftId } });
+  return res.data as {
+    picks: Array<{ pickNo: number; round: number; playerId: string; rosterId: number }>;
+    currentPick: number;
+    totalTeams: number;
+    totalRounds: number;
+    status: string;
+  };
+}
+
 // Leagues (multi-league)
 export async function getSavedLeagues() {
   const res = await api.get('/leagues');
@@ -210,14 +221,19 @@ export async function saveRosterForAlerts(payload: object) {
   return res.data;
 }
 
-export async function getLiveMatchup(leagueId: string, week: number, rosterId: number) {
-  const res = await api.get('/live/matchup', { params: { leagueId, week, rosterId } });
+export async function getLiveMatchup(leagueId: string, week: number, rosterId: number | undefined, sport?: string) {
+  const res = await api.get('/live/matchup', { params: { leagueId, week, rosterId, sport } });
   return res.data;
 }
 
 export async function optimizeLineup(payload: { players: object[]; sport: string; scoringFormat: string; week?: number }) {
   const res = await api.post('/lineup/optimize', payload);
   return res.data;
+}
+
+export async function getLineupUsage() {
+  const res = await api.get('/lineup/usage');
+  return res.data as { used: number; limit: number | null; remaining: number | null };
 }
 
 export async function streamChatMessage(

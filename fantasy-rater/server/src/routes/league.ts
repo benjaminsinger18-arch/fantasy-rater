@@ -7,6 +7,7 @@ import type { RaterPlayer } from '../services/rater.js';
 import * as sleeper from '../services/platforms/sleeper.js';
 import * as fplApi from '../services/platforms/fpl.js';
 import * as espn from '../services/platforms/espn.js';
+import { simulatePlayoffProbabilities, type SimTeam } from '../services/playoffSimulator.js';
 
 const router = Router();
 
@@ -47,21 +48,22 @@ router.get('/predict', requireAuth('pro'), async (req, res) => {
     myRosterId,
     espnS2,
     swid,
+    weeksRemaining = '10',
   } = req.query as Record<string, string>;
 
   if (!leagueId) return res.status(400).json({ error: 'leagueId required' });
 
   try {
     if (sport === 'fpl') {
-      return await handleFpl(res, leagueId, myRosterId, scoringFormat);
+      return await handleFpl(res, leagueId, myRosterId, scoringFormat, Number(weeksRemaining));
     } else if (sport === 'nfl' || sport === 'mlb') {
       const platform = sport === 'mlb' ? 'espn' : 'sleeper';
       if (platform === 'espn') {
-        return await handleEspn(res, leagueId, sport as 'nfl' | 'mlb', Number(currentWeek), myRosterId, scoringFormat, espnS2, swid);
+        return await handleEspn(res, leagueId, sport as 'nfl' | 'mlb', Number(currentWeek), myRosterId, scoringFormat, espnS2, swid, Number(weeksRemaining));
       }
-      return await handleSleeper(res, leagueId, myRosterId, scoringFormat);
+      return await handleSleeper(res, leagueId, myRosterId, scoringFormat, Number(weeksRemaining));
     } else {
-      return await handleSleeper(res, leagueId, myRosterId, scoringFormat);
+      return await handleSleeper(res, leagueId, myRosterId, scoringFormat, Number(weeksRemaining));
     }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -69,7 +71,7 @@ router.get('/predict', requireAuth('pro'), async (req, res) => {
   }
 });
 
-async function handleSleeper(res: Response, leagueId: string, myRosterId: string | undefined, scoringFormat: string) {
+async function handleSleeper(res: Response, leagueId: string, myRosterId: string | undefined, scoringFormat: string, weeksRemaining: number) {
   const [rosters, allPlayers, users] = await Promise.all([
     sleeper.getRosters(leagueId),
     sleeper.getAllPlayers(),
@@ -116,10 +118,10 @@ async function handleSleeper(res: Response, leagueId: string, myRosterId: string
     };
   });
 
-  return buildResponse(res, teams, myRosterId?.toString(), scoringFormat, 'nfl');
+  return buildResponse(res, teams, myRosterId?.toString(), scoringFormat, 'nfl', weeksRemaining);
 }
 
-async function handleFpl(res: Response, leagueId: string, myManagerId: string | undefined, scoringFormat: string) {
+async function handleFpl(res: Response, leagueId: string, myManagerId: string | undefined, scoringFormat: string, weeksRemaining: number) {
   const [standings, gw, bootstrap] = await Promise.all([
     fplApi.getLeagueStandings(leagueId),
     fplApi.getCurrentGameweek(),
@@ -175,10 +177,10 @@ async function handleFpl(res: Response, leagueId: string, myManagerId: string | 
   );
 
   const teams = teamsRaw.filter((t): t is NonNullable<typeof t> => t !== null);
-  return buildResponse(res, teams, myManagerId?.toString(), scoringFormat, 'fpl');
+  return buildResponse(res, teams, myManagerId?.toString(), scoringFormat, 'fpl', weeksRemaining);
 }
 
-async function handleEspn(res: Response, leagueId: string, sport: 'nfl' | 'mlb', currentWeek: number, myRosterId: string | undefined, scoringFormat: string, espnS2?: string, swid?: string) {
+async function handleEspn(res: Response, leagueId: string, sport: 'nfl' | 'mlb', currentWeek: number, myRosterId: string | undefined, scoringFormat: string, espnS2?: string, swid?: string, weeksRemaining: number = 10) {
   const data = await espn.getLeagueTeams(leagueId, sport, currentWeek, espnS2, swid);
   const espnTeams: any[] = data.teams ?? [];
 
@@ -225,12 +227,26 @@ async function handleEspn(res: Response, leagueId: string, sport: 'nfl' | 'mlb',
     };
   });
 
-  return buildResponse(res, teams, myRosterId?.toString(), scoringFormat, sport);
+  return buildResponse(res, teams, myRosterId?.toString(), scoringFormat, sport, weeksRemaining);
 }
 
-function buildResponse(res: Response, teams: any[], myRosterId: string | undefined, scoringFormat: string, sport: string) {
+function buildResponse(res: Response, teams: any[], myRosterId: string | undefined, scoringFormat: string, sport: string, weeksRemaining = 10) {
   // Sort by composite score descending
   teams.sort((a, b) => b.compositeScore - a.compositeScore);
+
+  // Monte Carlo playoff probability
+  const playoffSpots = Math.max(2, Math.ceil(teams.length / 3));
+  const simTeams: SimTeam[] = teams.map(t => ({
+    name: t.teamName,
+    wins: t.wins ?? 0,
+    losses: t.losses ?? 0,
+    ties: t.ties ?? 0,
+    currentPoints: t.currentPoints ?? 0,
+  }));
+  const playoffProbs = simulatePlayoffProbabilities(simTeams, playoffSpots, weeksRemaining);
+  for (const team of teams) {
+    team.playoffProbability = playoffProbs[team.teamName] ?? 0;
+  }
 
   // Assign projected ranks
   teams.forEach((t, i) => { t.projectedRank = i + 1; });

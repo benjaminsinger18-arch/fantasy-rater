@@ -207,4 +207,28 @@ In 2-3 sentences: recommend who to draft with this pick (name them directly), ex
   }
 });
 
+// GET /api/draft/state?draftId=xxx — free, polls for live draft state
+router.get('/state', requireAuth('free'), async (req, res) => {
+  const { draftId } = req.query as { draftId: string };
+  if (!draftId) return res.status(400).json({ error: 'draftId required' });
+
+  try {
+    const [picks, info] = await Promise.all([
+      sleeper.getDraftPicks(draftId),
+      sleeper.getDraftInfo(draftId),
+    ]);
+
+    return res.json({
+      picks: picks.map(p => ({ pickNo: p.pick_no, round: p.round, playerId: p.player_id, rosterId: p.roster_id })),
+      currentPick: picks.length + 1,
+      totalTeams: info.settings?.teams ?? 12,
+      totalRounds: info.settings?.rounds ?? 15,
+      status: info.status,
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Failed to fetch draft state';
+    return res.status(500).json({ error: msg });
+  }
+});
+
 export default router;

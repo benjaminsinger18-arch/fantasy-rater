@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, History } from 'lucide-react';
+import { Loader2, History, ChevronDown, ChevronUp } from 'lucide-react';
 import { getTradeHistory } from '../../lib/api.ts';
 
 interface TradeRecord {
@@ -13,6 +13,8 @@ interface TradeRecord {
   verdict: string;
   scoringFormat: string;
   createdAt: number;
+  analysisHash: string | null;
+  aiAnalysis: string | null;
 }
 
 const VERDICT_STYLE: Record<string, { color: string; bg: string }> = {
@@ -48,6 +50,7 @@ export function TradeHistory() {
   const [history, setHistory] = useState<TradeRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   useEffect(() => {
     getTradeHistory()
@@ -117,6 +120,23 @@ export function TradeHistory() {
             <span className="text-[#333333]">·</span>
             <span className="text-[9px] font-mono text-[#444444]">{trade.scoringFormat}</span>
           </div>
+
+          {trade.aiAnalysis && (
+            <div className="mt-2 border-t border-[#2A2A2A] pt-2">
+              <button
+                onClick={() => setExpandedId(expandedId === trade.id ? null : trade.id)}
+                className="flex items-center gap-1 text-[9px] font-mono text-[#555555] hover:text-[#E8321A] transition-colors uppercase tracking-widest"
+              >
+                {expandedId === trade.id ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+                AI Analysis
+              </button>
+              {expandedId === trade.id && (
+                <p className="text-[11px] font-mono text-[#AAAAAA] mt-2 leading-relaxed">
+                  {trade.aiAnalysis}
+                </p>
+              )}
+            </div>
+          )}
         </motion.div>
       ))}
     </div>

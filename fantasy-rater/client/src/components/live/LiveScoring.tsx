@@ -100,19 +100,27 @@ export function LiveScoring() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const hasSetup = Boolean(config.leagueId && config.myRosterId && config.sport === 'nfl');
+  const isFpl = config.sport === 'fpl';
+  const hasSetup = Boolean(
+    config.leagueId && (isFpl || (config.myRosterId && config.sport === 'nfl'))
+  );
 
   const fetchMatchup = useCallback(async () => {
-    if (!config.leagueId || !config.myRosterId) return;
+    if (!config.leagueId || (!isFpl && !config.myRosterId)) return;
     setError('');
     try {
-      const data = await getLiveMatchup(config.leagueId, config.currentWeek, Number(config.myRosterId));
+      const data = await getLiveMatchup(
+        config.leagueId,
+        config.currentWeek,
+        isFpl ? undefined : Number(config.myRosterId),
+        config.sport,
+      );
       setMatchup(data);
       setLastUpdated(new Date());
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to load matchup');
     }
-  }, [config.leagueId, config.myRosterId, config.currentWeek]);
+  }, [config.leagueId, config.myRosterId, config.currentWeek, config.sport, isFpl]);
 
   // Initial fetch
   useEffect(() => {
@@ -138,15 +146,17 @@ export function LiveScoring() {
         <div className="text-center">
           <h2 className="text-lg font-display font-black text-[#F2EFE8] tracking-wider mb-2">Live Score</h2>
           <p className="text-xs font-mono text-[#555555] mb-1">
-            {config.sport !== 'nfl'
-              ? 'Live scoring is currently available for NFL (Sleeper) leagues only.'
-              : 'Set up your Sleeper league to see your live matchup score.'}
+            {config.sport !== 'nfl' && config.sport !== 'fpl'
+              ? 'Live scoring is available for NFL (Sleeper) and FPL leagues.'
+              : config.sport === 'fpl'
+                ? 'Set your FPL Manager ID as the League ID in League Setup.'
+                : 'Set up your Sleeper league to see your live matchup score.'}
           </p>
           {config.sport === 'nfl' && (
             <p className="text-[10px] font-mono text-[#444444]">Requires League ID + Roster ID from League Setup.</p>
           )}
         </div>
-        {config.sport === 'nfl' && (
+        {(config.sport === 'nfl' || config.sport === 'fpl') && (
           <button
             onClick={() => navigate('/league')}
             className="flex items-center gap-2 px-4 py-2 border border-[#484850] text-xs font-mono text-[#8A8A8A] hover:text-[#F2EFE8] hover:border-[#E8321A]/50 transition-colors"
