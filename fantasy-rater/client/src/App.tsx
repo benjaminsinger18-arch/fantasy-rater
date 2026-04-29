@@ -294,20 +294,12 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
 
 // ─── Mobile Slide-up Menu ────────────────────────────────────────────────────
 const menuItems = [
-  { icon: ArrowLeftRight, label: 'Trade Rater',      path: '/',          pro: false },
-  { icon: RefreshCw,      label: 'Start / Sit',      path: '/startsit',  pro: false },
-  { icon: Swords,         label: 'Matchup Analyzer', path: '/matchup',   pro: false },
-  { icon: MessageCircle,  label: 'AI Advisor',       path: '/chat',      pro: true },
-  { icon: Zap,            label: 'Lineup Optimizer', path: '/lineup',    pro: true },
-  { icon: Inbox,          label: 'Waiver Wire',      path: '/waiver',    pro: true },
-  { icon: Target,         label: 'Draft Assistant',  path: '/draft',     pro: true },
-  { icon: Telescope,      label: 'League Predictor', path: '/predictor', pro: true },
-];
-
-const accountItems = [
-  { icon: FolderOpen, label: 'My Leagues', path: '/leagues' },
-  { icon: Settings, label: 'League Setup', path: '/league' },
-  { icon: Bell, label: 'Notifications', path: '/settings' },
+  { icon: Swords,        label: 'Matchup Analyzer', path: '/matchup',   pro: false },
+  { icon: MessageCircle, label: 'AI Advisor',        path: '/chat',      pro: true },
+  { icon: Zap,           label: 'Lineup Optimizer',  path: '/lineup',    pro: true },
+  { icon: Inbox,         label: 'Waiver Wire',       path: '/waiver',    pro: true },
+  { icon: Target,        label: 'Draft Assistant',   path: '/draft',     pro: true },
+  { icon: Telescope,     label: 'League Predictor',  path: '/predictor', pro: true },
 ];
 
 function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () => void; onUpgrade: () => void }) {
@@ -361,53 +353,17 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
                 </button>
               ))}
 
-              <div className="h-px bg-[#2A2A2A] my-2" />
-
-              <p className="text-[10px] text-[#666666] uppercase tracking-wide font-ui font-semibold px-2 pb-1">
-                Account
-              </p>
-              {accountItems.map(({ icon: Icon, label, path }) => (
-                <button
-                  key={path}
-                  onClick={() => go(path)}
-                  className="w-full flex items-center gap-3 px-3 py-3 text-[#AAAAAA] hover:text-[#F2EFE8] hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
-                >
-                  <Icon size={16} /> {label}
-                </button>
-              ))}
-
-              <div className="h-px bg-[#2A2A2A] my-2" />
-
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.48 }}
-              >
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <button onClick={onClose} className="w-full py-3 text-[14px] font-ui font-semibold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors rounded">
-                      Sign In
-                    </button>
-                  </SignInButton>
-                </SignedOut>
-                <SignedIn>
-                  <div className="flex items-center gap-3 px-3 py-2">
-                    <UserButton />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[14px] font-ui text-[#F2EFE8] truncate">{user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress ?? 'My Account'}</p>
-                      <p className="text-[12px] font-ui text-[#666666]">{isPro ? 'Pro member' : 'Free plan'}</p>
-                    </div>
-                  </div>
-                  {!isPro && (
-                    <button
-                      onClick={() => { onUpgrade(); onClose(); }}
-                      className="w-full py-3 text-[14px] font-ui font-semibold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-2 rounded"
-                    >
-                      <Zap size={14} /> Upgrade to Pro
-                    </button>
-                  )}
-                </SignedIn>
-              </motion.div>
+              {!isPro && (
+                <>
+                  <div className="h-px bg-[#2A2A2A] my-2" />
+                  <button
+                    onClick={() => { onUpgrade(); onClose(); }}
+                    className="w-full py-3 text-[14px] font-ui font-semibold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-2 rounded"
+                  >
+                    <Zap size={14} /> Upgrade to Pro
+                  </button>
+                </>
+              )}
             </div>
           </motion.div>
         </>
