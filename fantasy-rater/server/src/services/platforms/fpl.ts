@@ -164,6 +164,6 @@ export async function getLiveEventPoints(gw: number): Promise<Record<number, num
   for (const el of res.data.elements) {
     points[el.id] = el.stats.total_points;
   }
-  cache.set(key, points, 30); // 30s TTL for live data
+  cache.set(key, points, 30 * 1000); // 30s TTL for live data
   return points;
 }
