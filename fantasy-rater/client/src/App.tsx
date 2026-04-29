@@ -249,9 +249,10 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
   const location = useLocation();
 
   const tabs = [
-    { to: '/',         icon: ArrowLeftRight, label: 'Trade', end: true },
-    { to: '/rankings', icon: Medal,          label: 'Rankings' },
+    { to: '/',         icon: ArrowLeftRight, label: 'Trade',    end: true },
+    { to: '/startsit', icon: RefreshCw,      label: 'Sit' },
     { to: '/live',     icon: Activity,       label: 'Live' },
+    { to: '/rankings', icon: Medal,          label: 'Rankings' },
     { to: '/team',     icon: ClipboardList,  label: 'Team' },
   ];
 
