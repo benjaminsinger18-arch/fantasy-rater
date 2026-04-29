@@ -199,7 +199,7 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
 }
 
 // ─── Mobile Header ───────────────────────────────────────────────────────────
-function MobileHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
+function MobileHeader({ onAccountOpen }: { onAccountOpen: () => void }) {
   const { config, setSport } = useLeague();
   const { user } = useUser();
   const tier = (user?.publicMetadata?.tier as string) ?? 'free';
@@ -229,15 +229,16 @@ function MobileHeader({ onMenuOpen }: { onMenuOpen: () => void }) {
           <option value="ipl">IPL</option>
         </select>
         <button
-          onClick={onMenuOpen}
-          className="w-8 h-8 bg-[#2C2C31] border border-[#484850] flex items-center justify-center text-[#8A8A8A] hover:text-[#F2EFE8] transition-colors"
+          onClick={onAccountOpen}
+          className="w-8 h-8 border border-[#484850] overflow-hidden flex items-center justify-center hover:border-[#888888] transition-colors"
         >
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
-          <SignedOut>
-            <MoreHorizontal size={16} />
-          </SignedOut>
+          {user?.imageUrl ? (
+            <img src={user.imageUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-[12px] font-ui font-semibold text-[#AAAAAA]">
+              {(user?.firstName?.[0] ?? user?.emailAddresses?.[0]?.emailAddress?.[0] ?? '?').toUpperCase()}
+            </span>
+          )}
         </button>
       </div>
     </header>
@@ -500,6 +501,7 @@ export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'upgrade' | 'login'>('upgrade');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountSheetOpen, setAccountSheetOpen] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const { isSignedIn, isLoaded } = useAuth();
@@ -554,6 +556,11 @@ export default function App() {
           onClose={() => setMenuOpen(false)}
           onUpgrade={() => { setModalMode('upgrade'); setModalOpen(true); }}
         />
+        <AccountSheet
+          open={accountSheetOpen}
+          onClose={() => setAccountSheetOpen(false)}
+          onUpgrade={() => { setModalMode('upgrade'); setModalOpen(true); }}
+        />
 
         {/* Post-checkout success banner */}
         <AnimatePresence>
@@ -585,7 +592,7 @@ export default function App() {
           {/* Main area */}
           <div className="flex-1 flex flex-col min-h-0 min-w-0">
             {/* Mobile top header */}
-            <MobileHeader onMenuOpen={() => setMenuOpen(true)} />
+            <MobileHeader onAccountOpen={() => setAccountSheetOpen(true)} />
 
             {/* Page content */}
             <main className="flex-1 overflow-y-auto pb-safe md:pb-0">
