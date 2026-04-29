@@ -231,6 +231,11 @@ export async function optimizeLineup(payload: { players: object[]; sport: string
   return res.data;
 }
 
+export async function getLineupUsage() {
+  const res = await api.get('/lineup/usage');
+  return res.data as { used: number; limit: number | null; remaining: number | null };
+}
+
 export async function streamChatMessage(
   payload: { messages: Array<{ role: 'user' | 'assistant'; content: string }>; context: object },
   onText: (t: string) => void,

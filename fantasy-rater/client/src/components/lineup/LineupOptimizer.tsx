@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Loader2, ClipboardList, X } from 'lucide-react';
-import { optimizeLineup, importSleeperRoster, importFplRoster, importEspnRoster } from '../../lib/api.ts';
+import { optimizeLineup, importSleeperRoster, importFplRoster, importEspnRoster, getLineupUsage } from '../../lib/api.ts';
 import { PlayerSearch } from '../shared/PlayerSearch.tsx';
 import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
 import { useLeague } from '../../lib/LeagueContext.tsx';
@@ -73,6 +73,11 @@ export function LineupOptimizer() {
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState('');
+  const [usageInfo, setUsageInfo] = useState<{ used: number; limit: number | null; remaining: number | null } | null>(null);
+
+  useEffect(() => {
+    getLineupUsage().then(setUsageInfo).catch(() => {});
+  }, []);
 
   async function handleImport() {
     if (!config.leagueId) { setError('Set a League ID in League Setup first.'); return; }
@@ -103,7 +108,11 @@ export function LineupOptimizer() {
       });
       setResult(data);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      const status = (e as { response?: { status?: number } })?.response?.status;
+      if (status !== 402) {
+        setError(e instanceof Error ? e.message : 'Something went wrong');
+      }
+      getLineupUsage().then(setUsageInfo).catch(() => {});
     } finally {
       setLoading(false);
     }
@@ -116,6 +125,14 @@ export function LineupOptimizer() {
         <div className="hidden md:block flex-shrink-0 mb-4">
           <h1 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">Lineup Optimizer</h1>
           <p className="text-[10px] font-mono text-[#555555] mt-0.5 tracking-wider">AI-optimized starting lineup from your full roster</p>
+          {usageInfo && usageInfo.limit !== null && (
+            <p className="text-[9px] font-mono text-[#555555] mt-1">
+              {usageInfo.limit} optimizations/day ·{' '}
+              <span className={usageInfo.remaining === 0 ? 'text-[#E8321A]' : 'text-[#4DC878]'}>
+                {usageInfo.remaining} remaining
+              </span>
+            </p>
+          )}
         </div>
 
         {/* Import button */}

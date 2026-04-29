@@ -5,6 +5,7 @@ import { checkUsage } from '../middleware/usageLimit.js';
 import { optimizeLineup } from '../services/lineupOptimizer.js';
 import { storePrompt } from '../services/claude.js';
 import type { RaterPlayer } from '../services/rater.js';
+import db from '../db.js';
 
 const router = Router();
 
@@ -51,6 +52,22 @@ router.post('/optimize', requireAuth('free'), checkUsage('lineup', 3), (req, res
   storePrompt(hash, promptText);
 
   return res.json({ ...result, analysisHash: hash });
+});
+
+// GET /api/lineup/usage — returns remaining optimizations for today
+router.get('/usage', requireAuth('free'), (req, res) => {
+  const userId = req.userId!;
+  const d = new Date().toISOString().slice(0, 10);
+  const row = db.prepare(
+    'SELECT count FROM usage_limits WHERE clerk_user_id = ? AND action = ? AND date = ?'
+  ).get(userId, 'lineup', d) as { count: number } | undefined;
+  const used = row?.count ?? 0;
+  const isPro = req.userTier === 'pro';
+  return res.json({
+    used,
+    limit: isPro ? null : 3,
+    remaining: isPro ? null : Math.max(0, 3 - used),
+  });
 });
 
 export default router;
