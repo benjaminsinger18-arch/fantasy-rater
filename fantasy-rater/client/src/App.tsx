@@ -3,7 +3,7 @@ import { BrowserRouter, NavLink, Route, Routes, useNavigate, useLocation } from 
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeftRight, ClipboardList, RefreshCw, Inbox, Target, Medal,
-  Telescope, FolderOpen, Settings, Bell, Trophy, Zap, MoreHorizontal, Activity, MessageCircle, Swords,
+  Telescope, FolderOpen, Settings, Bell, Trophy, Zap, MoreHorizontal, Activity, MessageCircle, Swords, LogOut,
 } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useUser } from '@clerk/clerk-react';
 import { AuthGatePage } from './components/shared/AuthGatePage.tsx';
@@ -289,6 +289,94 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
         More
       </button>
     </nav>
+  );
+}
+
+// ─── Account Sheet ───────────────────────────────────────────────────────────
+function AccountSheet({ open, onClose, onUpgrade }: { open: boolean; onClose: () => void; onUpgrade: () => void }) {
+  const { user } = useUser();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const tier = (user?.publicMetadata?.tier as string) ?? 'free';
+  const isPro = tier === 'pro';
+
+  function go(path: string) {
+    navigate(path);
+    onClose();
+  }
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            className="fixed inset-0 z-50 bg-black/80"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+          />
+          <motion.div
+            className="fixed bottom-0 left-0 right-0 z-50 bg-[#1E1E22] border-t border-[#333338]"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+          >
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-8 h-0.5 bg-[#2A2A2A]" />
+            </div>
+
+            <div className="px-4 py-3 flex items-center gap-3 border-b border-[#2A2A2E]">
+              <UserButton />
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-ui text-[#F2EFE8] truncate">
+                  {user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress ?? 'My Account'}
+                </p>
+                <p className="text-[12px] font-ui text-[#666666]">{isPro ? 'Pro member' : 'Free plan'}</p>
+              </div>
+              {isPro && <span className="text-[10px] bg-[#E8321A]/10 text-[#E8321A] px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
+            </div>
+
+            <div className="px-4 py-3 space-y-0.5">
+              {[
+                { icon: FolderOpen, label: 'My Leagues',    path: '/leagues' },
+                { icon: Settings,   label: 'League Setup',  path: '/league' },
+                { icon: Bell,       label: 'Notifications', path: '/settings' },
+              ].map(({ icon: Icon, label, path }) => (
+                <button
+                  key={path}
+                  onClick={() => go(path)}
+                  className="w-full flex items-center gap-3 px-3 py-3 text-[#AAAAAA] hover:text-[#F2EFE8] hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
+                >
+                  <Icon size={16} /> {label}
+                </button>
+              ))}
+
+              <div className="h-px bg-[#2A2A2A] my-2" />
+
+              {!isPro && (
+                <button
+                  onClick={() => { onUpgrade(); onClose(); }}
+                  className="w-full py-3 mb-1 text-[14px] font-ui font-semibold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-2 rounded"
+                >
+                  <Zap size={14} /> Upgrade to Pro
+                </button>
+              )}
+
+              <button
+                onClick={() => signOut()}
+                className="w-full flex items-center gap-3 px-3 py-3 text-[#666666] hover:text-[#F2EFE8] hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
+              >
+                <LogOut size={16} /> Sign Out
+              </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
 
