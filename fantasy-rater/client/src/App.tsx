@@ -118,30 +118,37 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
       <div className="relative flex-1 min-h-0">
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-[#1E1E22] to-transparent z-10" />
       <nav className="px-3 pt-2 pb-6 flex flex-col gap-0.5 overflow-y-auto h-full">
-        <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-2 font-ui font-semibold">Tools</p>
+        <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-2 font-ui font-semibold">Core</p>
         {[
-          { to: '/', end: true, icon: <ArrowLeftRight size={14} className="flex-shrink-0" />, label: 'Trade Rater' },
-          { to: '/team', icon: <ClipboardList size={14} className="flex-shrink-0" />, label: 'Team Rater' },
-          { to: '/startsit', icon: <RefreshCw size={14} className="flex-shrink-0" />, label: 'Start / Sit' },
-          { to: '/waiver', icon: <Inbox size={14} className="flex-shrink-0" />, label: 'Waiver Wire', pro: !isPro },
-          { to: '/draft', icon: <Target size={14} className="flex-shrink-0" />, label: 'Draft', pro: !isPro },
-          { to: '/rankings', icon: <Medal size={14} className="flex-shrink-0" />, label: 'Rankings' },
-          { to: '/live', icon: <Activity size={14} className="flex-shrink-0" />, label: 'Live Score' },
-          { to: '/lineup', icon: <Zap size={14} className="flex-shrink-0" />, label: 'Lineup', pro: !isPro },
-          { to: '/chat', icon: <MessageCircle size={14} className="flex-shrink-0" />, label: 'AI Advisor', pro: !isPro },
-          { to: '/matchup', icon: <Swords size={14} className="flex-shrink-0" />, label: 'Matchup' },
-          { to: '/predictor', icon: <Telescope size={14} className="flex-shrink-0" />, label: 'League Predictor', pro: !isPro },
-        ].map(({ to, end, icon, label, pro }) => (
+          { to: '/',         end: true, icon: <ArrowLeftRight size={14} className="flex-shrink-0" />, label: 'Trade Rater' },
+          { to: '/startsit',            icon: <RefreshCw size={14} className="flex-shrink-0" />,      label: 'Start / Sit' },
+          { to: '/live',                icon: <Activity size={14} className="flex-shrink-0" />,        label: 'Live Score' },
+          { to: '/rankings',            icon: <Medal size={14} className="flex-shrink-0" />,           label: 'Rankings' },
+          { to: '/team',                icon: <ClipboardList size={14} className="flex-shrink-0" />,   label: 'Team Rater' },
+        ].map(({ to, end, icon, label }) => (
           <NavLink key={to} to={to} end={end} className={linkClass}>
+            {icon} {label}
+          </NavLink>
+        ))}
+        <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-4 font-ui font-semibold">More</p>
+        {[
+          { to: '/matchup',   icon: <Swords size={14} className="flex-shrink-0" />,       label: 'Matchup',          pro: false },
+          { to: '/chat',      icon: <MessageCircle size={14} className="flex-shrink-0" />, label: 'AI Advisor',       pro: !isPro },
+          { to: '/lineup',    icon: <Zap size={14} className="flex-shrink-0" />,           label: 'Lineup',           pro: !isPro },
+          { to: '/waiver',    icon: <Inbox size={14} className="flex-shrink-0" />,         label: 'Waiver Wire',      pro: !isPro },
+          { to: '/draft',     icon: <Target size={14} className="flex-shrink-0" />,        label: 'Draft',            pro: !isPro },
+          { to: '/predictor', icon: <Telescope size={14} className="flex-shrink-0" />,     label: 'League Predictor', pro: !isPro },
+        ].map(({ to, icon, label, pro }) => (
+          <NavLink key={to} to={to} className={linkClass}>
             {icon} {label}
             {pro && <span className="ml-auto text-[10px] bg-[#E8321A]/10 text-[#E8321A] px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
           </NavLink>
         ))}
         <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-4 font-ui font-semibold">Account</p>
         {[
-          { to: '/leagues', icon: <FolderOpen size={14} className="flex-shrink-0" />, label: 'My Leagues' },
-          { to: '/league', icon: <Settings size={14} className="flex-shrink-0" />, label: 'League Setup' },
-          { to: '/settings', icon: <Bell size={14} className="flex-shrink-0" />, label: 'Notifications' },
+          { to: '/leagues',  icon: <FolderOpen size={14} className="flex-shrink-0" />, label: 'My Leagues' },
+          { to: '/league',   icon: <Settings size={14} className="flex-shrink-0" />,   label: 'League Setup' },
+          { to: '/settings', icon: <Bell size={14} className="flex-shrink-0" />,       label: 'Notifications' },
         ].map(({ to, icon, label }) => (
           <NavLink key={to} to={to} className={linkClass}>{icon} {label}</NavLink>
         ))}
