@@ -389,19 +389,38 @@ router.get('/photo', requireAuth('free'), async (req, res) => {
             ? iplPlayers.find(pl => pl.strTeam?.toLowerCase().includes(iplTeamHint)) ?? iplPlayers[0]
             : iplPlayers[0];
           const candidate = p?.strThumb || p?.strCutout || null;
-          if (candidate) url = candidate;
+          if (candidate) {
+            const check = await axios.head(candidate, { timeout: 2000 }).catch(() => null);
+            if (check?.status === 200) url = candidate;
+          }
         } catch { /* fall through */ }
       }
     }
 
-    // 3. ESPN cricket search — covers international stars well
+    // 3. ESPNcricinfo — best IPL coverage; search returns objectId used by hscicdn.com
+    if (!url) {
+      try {
+        const cricinfoRes = await axios.get(
+          `https://hs-consumer-api.espncricinfo.com/v1/pages/player/search?query=${encodeURIComponent(name.trim())}&page=1`,
+          { timeout: 4000, headers: { 'User-Agent': 'FantasyRater/1.0' } }
+        );
+        const objectId = cricinfoRes.data?.results?.[0]?.objectId;
+        if (objectId) {
+          const candidate = `https://img1.hscicdn.com/image/upload/f_auto,t_gp3_w_640/lsci/${objectId}.jpg`;
+          const check = await axios.head(candidate, { timeout: 2000 }).catch(() => null);
+          if (check?.status === 200) url = candidate;
+        }
+      } catch { /* fall through */ }
+    }
+
+    // 4. ESPN cricket search — try both response path shapes (items[] and results[].items[])
     if (!url) {
       try {
         const espnCricket = await axios.get(
           `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(name.trim())}&limit=3&type=player&sport=cricket`,
           { timeout: 4000 }
         );
-        const espnId = espnCricket.data?.items?.[0]?.id;
+        const espnId = espnCricket.data?.items?.[0]?.id ?? espnCricket.data?.results?.[0]?.items?.[0]?.id;
         if (espnId) {
           const candidate = `https://a.espncdn.com/i/headshots/cricket/players/full/${espnId}.png`;
           const check = await axios.head(candidate, { timeout: 3000 }).catch(() => null);
@@ -410,7 +429,7 @@ router.get('/photo', requireAuth('free'), async (req, res) => {
       } catch { /* fall through */ }
     }
 
-    // 4. Wikipedia search fallback — covers players absent from ESPN/TheSportsDB
+    // 5. Wikipedia search fallback — covers players absent from all above
     //    Use generator=search with +cricket to get the right person in one call
     if (!url) {
       try {
