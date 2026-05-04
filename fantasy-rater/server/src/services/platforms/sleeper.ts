@@ -123,7 +123,7 @@ export async function getProjections(week: number, season = '2025'): Promise<Rec
 
 export async function getPlayerWeeklyStats(
   playerId: string,
-  season = '2024'
+  season = '2025'
 ): Promise<Record<string, Record<string, number>>> {
   const key = `sleeper:stats:player:${playerId}:${season}`;
   const cached = cache.get<Record<string, Record<string, number>>>(key);

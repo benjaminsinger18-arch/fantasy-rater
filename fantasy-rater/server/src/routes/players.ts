@@ -202,11 +202,13 @@ router.get('/rankings', async (req, res) => {
 
     const [all, nflState] = await Promise.all([
       sleeper.getAllPlayers(),
-      sleeper.getSeasonState('nfl').catch(() => ({ season_type: 'off', week: 1, season: '2024' })),
+      sleeper.getSeasonState('nfl').catch(() => ({ season_type: 'off', week: 1, season: '2026', previous_season: '2025' })),
     ]);
 
     const isRegularSeason = nflState.season_type === 'regular';
-    const statsSeason = isRegularSeason ? nflState.season : '2024';
+    const statsSeason = isRegularSeason
+      ? nflState.season
+      : String(nflState.previous_season ?? String(Number(nflState.season) - 1));
     const statsWeek = isRegularSeason ? Number(week || nflState.week) : null;
 
     const [projections, seasonStats] = await Promise.all([
