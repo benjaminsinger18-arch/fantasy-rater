@@ -55,13 +55,14 @@ router.post('/optimize', requireAuth('free'), checkUsage('lineup', 3), (req, res
 });
 
 // GET /api/lineup/usage — returns remaining optimizations for today
-router.get('/usage', requireAuth('free'), (req, res) => {
+router.get('/usage', requireAuth('free'), async (req, res) => {
   const userId = req.userId!;
   const d = new Date().toISOString().slice(0, 10);
-  const row = db.prepare(
-    'SELECT count FROM usage_limits WHERE clerk_user_id = ? AND action = ? AND date = ?'
-  ).get(userId, 'lineup', d) as { count: number } | undefined;
-  const used = row?.count ?? 0;
+  const result = await db.execute({
+    sql: 'SELECT count FROM usage_limits WHERE clerk_user_id = ? AND action = ? AND date = ?',
+    args: [userId, 'lineup', d],
+  });
+  const used = result.rows[0] ? Number(result.rows[0].count) : 0;
   const isPro = req.userTier === 'pro';
   return res.json({
     used,

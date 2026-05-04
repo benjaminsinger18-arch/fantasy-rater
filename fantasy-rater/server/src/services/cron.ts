@@ -20,8 +20,8 @@ function rankToValue(rank: number | null | undefined, position: string): number 
 async function checkInjuryAlerts() {
   try {
     const allPlayers = await sleeper.getAllPlayers();
-    // Check rosters for all sports — MLB injury data comes from ESPN player search cache
-    const rosters = db.prepare('SELECT * FROM saved_rosters').all() as Array<{
+    const rostersResult = await db.execute({ sql: 'SELECT * FROM saved_rosters', args: [] });
+    const rosters = rostersResult.rows as Array<{
       clerk_user_id: string;
       platform: string;
       league_id: string;
@@ -31,7 +31,11 @@ async function checkInjuryAlerts() {
 
     for (const roster of rosters) {
       const playerIds: string[] = JSON.parse(roster.player_ids);
-      const prefs = db.prepare('SELECT * FROM user_prefs WHERE clerk_user_id = ?').get(roster.clerk_user_id) as Record<string, unknown> | undefined;
+      const prefsResult = await db.execute({
+        sql: 'SELECT * FROM user_prefs WHERE clerk_user_id = ?',
+        args: [roster.clerk_user_id],
+      });
+      const prefs = prefsResult.rows[0];
 
       for (const playerId of playerIds) {
         const player = allPlayers[playerId];
@@ -40,48 +44,42 @@ async function checkInjuryAlerts() {
         const injuryStatus = player.injury_status?.toLowerCase();
         if (!injuryStatus || !INJURY_ALERT_STATUSES.has(injuryStatus)) continue;
 
-        // Check if we already sent this alert
-        const alreadySent = db.prepare(`
-          SELECT 1 FROM injury_alerts_sent
-          WHERE clerk_user_id = ? AND player_id = ? AND injury_status = ?
-        `).get(roster.clerk_user_id, playerId, injuryStatus);
+        const sentResult = await db.execute({
+          sql: 'SELECT 1 FROM injury_alerts_sent WHERE clerk_user_id = ? AND player_id = ? AND injury_status = ?',
+          args: [roster.clerk_user_id, playerId, injuryStatus],
+        });
+        if (sentResult.rows[0]) continue;
 
-        if (alreadySent) continue;
-
-        // Mark as sent
         try {
-          db.prepare(`
-            INSERT OR IGNORE INTO injury_alerts_sent (clerk_user_id, player_id, injury_status)
-            VALUES (?, ?, ?)
-          `).run(roster.clerk_user_id, playerId, injuryStatus);
+          await db.execute({
+            sql: 'INSERT OR IGNORE INTO injury_alerts_sent (clerk_user_id, player_id, injury_status) VALUES (?, ?, ?)',
+            args: [roster.clerk_user_id, playerId, injuryStatus],
+          });
         } catch {
           continue;
         }
 
-        // Send push notification
         if (prefs?.push_injury_alerts) {
-          const subs = db.prepare('SELECT * FROM push_subscriptions WHERE clerk_user_id = ?').all(roster.clerk_user_id) as Array<{
-            endpoint: string;
-            p256dh: string;
-            auth: string;
-          }>;
+          const subsResult = await db.execute({
+            sql: 'SELECT * FROM push_subscriptions WHERE clerk_user_id = ?',
+            args: [roster.clerk_user_id],
+          });
+          const subs = subsResult.rows as Array<{ endpoint: string; p256dh: string; auth: string }>;
 
           for (const sub of subs) {
             await sendPushNotification(
-              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh as string, auth: sub.auth as string } },
               `🏥 Injury Alert: ${player.full_name}`,
               `${player.full_name} is ${player.injury_status} — check waiver wire`,
               '/waiver'
-            ).catch(err => {
-              // If push subscription is expired/invalid, remove it
+            ).catch(async (err) => {
               if (err?.statusCode === 410) {
-                db.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').run(sub.endpoint);
+                await db.execute({ sql: 'DELETE FROM push_subscriptions WHERE endpoint = ?', args: [sub.endpoint] });
               }
             });
           }
         }
 
-        // Send email notification
         if (prefs?.email_injury_alerts && prefs?.email) {
           await sendInjuryAlert({
             to: prefs.email as string,
@@ -100,12 +98,14 @@ async function checkInjuryAlerts() {
 
 async function sendWeeklyDigests() {
   try {
-    const users = db.prepare(`
-      SELECT up.*, sl.sport, sl.league_id, sl.roster_id, sl.platform, sl.scoring_format
-      FROM user_prefs up
-      JOIN saved_leagues sl ON sl.clerk_user_id = up.clerk_user_id AND sl.is_primary = 1
-      WHERE up.email_weekly_digest = 1 AND up.email IS NOT NULL
-    `).all() as Array<{
+    const usersResult = await db.execute({
+      sql: `SELECT up.*, sl.sport, sl.league_id, sl.roster_id, sl.platform, sl.scoring_format
+            FROM user_prefs up
+            JOIN saved_leagues sl ON sl.clerk_user_id = up.clerk_user_id AND sl.is_primary = 1
+            WHERE up.email_weekly_digest = 1 AND up.email IS NOT NULL`,
+      args: [],
+    });
+    const users = usersResult.rows as Array<{
       clerk_user_id: string;
       email: string;
       sport: string;
@@ -117,10 +117,10 @@ async function sendWeeklyDigests() {
 
     for (const user of users) {
       try {
-        if (!['nfl', 'mlb'].includes(user.sport)) continue; // NFL and MLB supported
+        if (!['nfl', 'mlb'].includes(user.sport as string)) continue;
 
         const [rosters, allPlayers] = await Promise.all([
-          sleeper.getRosters(user.league_id),
+          sleeper.getRosters(user.league_id as string),
           sleeper.getAllPlayers(),
         ]);
 
@@ -149,7 +149,6 @@ async function sendWeeklyDigests() {
         const teamScore = scoreTeam(rosterPlayers);
         const record = `${targetRoster.settings.wins}-${targetRoster.settings.losses}`;
 
-        // Build top actions list
         const weakPositions = Object.entries(teamScore.positionBreakdown)
           .filter(([, v]) => v.score < 70)
           .sort((a, b) => a[1].score - b[1].score)
@@ -164,10 +163,10 @@ async function sendWeeklyDigests() {
         if (!topActions.length) topActions.push('Your roster looks solid — monitor injury reports heading into the week');
 
         await sendWeeklyDigest({
-          to: user.email,
+          to: user.email as string,
           teamGrade: teamScore.grade,
           teamScore: teamScore.score,
-          sport: user.sport,
+          sport: user.sport as string,
           topActions,
           record,
         });
@@ -181,12 +180,10 @@ async function sendWeeklyDigests() {
 }
 
 export function startCronJobs() {
-  // Every 15 minutes — check for injury status changes
   cron.schedule('*/15 * * * *', () => {
     checkInjuryAlerts().catch(console.error);
   });
 
-  // Every Monday at 9am — send weekly digest emails
   cron.schedule('0 9 * * 1', () => {
     sendWeeklyDigests().catch(console.error);
   });
@@ -194,5 +191,4 @@ export function startCronJobs() {
   console.log('[cron] Jobs started: injury alerts (15min), weekly digest (Mon 9am)');
 }
 
-// Export for manual testing
 export { checkInjuryAlerts, sendWeeklyDigests };

@@ -32,9 +32,11 @@ router.get('/stream', async (req, res) => {
       res.write(`data: ${JSON.stringify({ text })}\n\n`);
     },
     (fullText) => {
-      try {
-        db.prepare('UPDATE trade_history SET ai_analysis = ? WHERE analysis_hash = ?').run(fullText, hash);
-      } catch { /* non-fatal: hash may not be a trade */ }
+      // fire-and-forget — non-fatal if this trade hash doesn't exist
+      db.execute({
+        sql: 'UPDATE trade_history SET ai_analysis = ? WHERE analysis_hash = ?',
+        args: [fullText, hash],
+      }).catch(() => {});
       res.write('data: [DONE]\n\n');
       res.end();
     },

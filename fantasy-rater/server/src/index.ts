@@ -23,7 +23,7 @@ import matchupRouter from './routes/matchup.js';
 
 import { startPlayerRefresh } from './services/platforms/sleeper.js';
 import { startCronJobs } from './services/cron.js';
-import './db.js'; // Initialize database on startup
+import { initDb } from './db.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -68,6 +68,11 @@ const photoLimiter = rateLimit({
 });
 app.use('/api/players/photo', photoLimiter);
 
+// Initialize DB before handling any requests (idempotent — safe to call multiple times)
+app.use((_req, _res, next) => {
+  initDb().then(next).catch(next);
+});
+
 app.use('/api/players', playersRouter);
 app.use('/api/trade', tradeRouter);
 app.use('/api/team', teamRouter);
@@ -93,8 +98,12 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ error: msg });
 });
 
-app.listen(PORT, () => {
-  console.log(`Fantasy Rater API running on http://localhost:${PORT}`);
-  startPlayerRefresh();
-  startCronJobs();
-});
+export default app;
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Fantasy Rater API running on http://localhost:${PORT}`);
+    startPlayerRefresh();
+    startCronJobs();
+  });
+}

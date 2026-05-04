@@ -10,7 +10,7 @@ import db from '../db.js';
 const router = Router();
 
 // POST /api/trade/rate
-router.post('/rate', requireAuth('free'), checkUsage('trade', 3), (req, res) => {
+router.post('/rate', requireAuth('free'), checkUsage('trade', 3), async (req, res) => {
   const { sideA, sideB, sport = 'nfl', scoringFormat = 'PPR', week = 1, leagueSize = 12, weeksRemaining = 10 } = req.body as {
     sideA: RaterPlayer[];
     sideB: RaterPlayer[];
@@ -37,21 +37,22 @@ router.post('/rate', requireAuth('free'), checkUsage('trade', 3), (req, res) => 
     // Persist to trade history for signed-in users
     if (req.userId) {
       try {
-        db.prepare(`
-          INSERT INTO trade_history (clerk_user_id, sport, side_a, side_b, side_a_score, side_b_score, verdict, scoring_format, created_at, analysis_hash)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(
-          req.userId,
-          sport,
-          JSON.stringify(sideA.map(p => p.name)),
-          JSON.stringify(sideB.map(p => p.name)),
-          tradeScore.sideAScore,
-          tradeScore.sideBScore,
-          tradeScore.verdict,
-          scoringFormat,
-          Math.floor(Date.now() / 1000),
-          hash,
-        );
+        await db.execute({
+          sql: `INSERT INTO trade_history (clerk_user_id, sport, side_a, side_b, side_a_score, side_b_score, verdict, scoring_format, created_at, analysis_hash)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          args: [
+            req.userId,
+            sport,
+            JSON.stringify(sideA.map(p => p.name)),
+            JSON.stringify(sideB.map(p => p.name)),
+            tradeScore.sideAScore,
+            tradeScore.sideBScore,
+            tradeScore.verdict,
+            scoringFormat,
+            Math.floor(Date.now() / 1000),
+            hash,
+          ],
+        });
       } catch { /* non-fatal — don't break the rating */ }
     }
 
@@ -63,32 +64,21 @@ router.post('/rate', requireAuth('free'), checkUsage('trade', 3), (req, res) => 
 });
 
 // GET /api/trade/history — last 30 trades for the signed-in user
-router.get('/history', requireAuth('free'), (req, res) => {
-  const rows = db.prepare(`
-    SELECT id, sport, side_a, side_b, side_a_score, side_b_score, verdict, scoring_format, created_at, analysis_hash, ai_analysis
-    FROM trade_history
-    WHERE clerk_user_id = ?
-    ORDER BY created_at DESC
-    LIMIT 30
-  `).all(req.userId) as Array<{
-    id: number;
-    sport: string;
-    side_a: string;
-    side_b: string;
-    side_a_score: number;
-    side_b_score: number;
-    verdict: string;
-    scoring_format: string;
-    created_at: number;
-    analysis_hash: string | null;
-    ai_analysis: string | null;
-  }>;
+router.get('/history', requireAuth('free'), async (req, res) => {
+  const result = await db.execute({
+    sql: `SELECT id, sport, side_a, side_b, side_a_score, side_b_score, verdict, scoring_format, created_at, analysis_hash, ai_analysis
+          FROM trade_history
+          WHERE clerk_user_id = ?
+          ORDER BY created_at DESC
+          LIMIT 30`,
+    args: [req.userId!],
+  });
 
-  return res.json(rows.map(r => ({
+  return res.json(result.rows.map(r => ({
     id: r.id,
     sport: r.sport,
-    sideA: JSON.parse(r.side_a) as string[],
-    sideB: JSON.parse(r.side_b) as string[],
+    sideA: JSON.parse(r.side_a as string) as string[],
+    sideB: JSON.parse(r.side_b as string) as string[],
     sideAScore: r.side_a_score,
     sideBScore: r.side_b_score,
     verdict: r.verdict,
