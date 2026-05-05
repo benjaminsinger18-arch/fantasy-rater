@@ -1,4 +1,4 @@
-import { createClient, type Client } from '@libsql/client';
+import { createClient, type Client } from '@libsql/client/web';
 
 const url = process.env.TURSO_DATABASE_URL
   ?? (process.env.VERCEL ? 'file:/tmp/fantasy-rater.db' : 'file:./data/fantasy-rater.db');
