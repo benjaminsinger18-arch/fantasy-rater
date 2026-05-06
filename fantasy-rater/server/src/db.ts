@@ -1,11 +1,27 @@
 import { createClient, type Client } from '@libsql/client/web';
 
-const url = process.env.TURSO_DATABASE_URL
-  ?? (process.env.VERCEL ? 'file:/tmp/fantasy-rater.db' : 'file:./data/fantasy-rater.db');
+// Lazily create the client so module load never throws (web client rejects file: URLs)
+let _client: Client | undefined;
 
-const db: Client = createClient({
-  url,
-  ...(process.env.TURSO_AUTH_TOKEN ? { authToken: process.env.TURSO_AUTH_TOKEN } : {}),
+function getClient(): Client {
+  if (!_client) {
+    const url = process.env.TURSO_DATABASE_URL;
+    if (!url) throw new Error('TURSO_DATABASE_URL is not set');
+    _client = createClient({
+      url,
+      ...(process.env.TURSO_AUTH_TOKEN ? { authToken: process.env.TURSO_AUTH_TOKEN } : {}),
+    });
+  }
+  return _client;
+}
+
+// Proxy so all existing `db.execute(...)` calls still work without changes
+const db = new Proxy({} as Client, {
+  get(_target, prop: string | symbol) {
+    const client = getClient();
+    const val = (client as any)[prop as string];
+    return typeof val === 'function' ? (val as Function).bind(client) : val;
+  },
 });
 
 let initPromise: Promise<void> | null = null;
