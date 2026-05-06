@@ -2,7 +2,11 @@ import Anthropic from '@anthropic-ai/sdk';
 import { cache, TTL } from '../cache/memcache.js';
 import type { RaterPlayer } from './rater.js';
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+let _anthropic: Anthropic | undefined;
+function getAnthropic(): Anthropic {
+  if (!_anthropic) _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  return _anthropic;
+}
 
 function getSystemPrompt(): string {
   return `You are a fantasy sports buddy who talks like a real person — fun, confident, and to the point. Keep it to 2-3 sentences max. No bullet lists, no markdown headers, no fancy jargon. Use simple everyday words. Be direct and tell it like it is.
@@ -188,7 +192,7 @@ export async function streamAnalysis(
   }
 
   try {
-    const stream = await anthropic.messages.stream({
+    const stream = await getAnthropic().messages.stream({
       model: 'claude-sonnet-4-6',
       max_tokens: 200,
       system: getSystemPrompt(),

@@ -4,7 +4,11 @@ import { requireAuth } from '../middleware/requireAuth.js';
 import { checkUsage } from '../middleware/usageLimit.js';
 
 const router = Router();
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+let _anthropic: Anthropic | undefined;
+function getAnthropic(): Anthropic {
+  if (!_anthropic) _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  return _anthropic;
+}
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -82,7 +86,7 @@ router.post('/', requireAuth('free'), checkUsage('chat', 20), async (req, res) =
   // CORS is handled by the app-level cors() middleware — do not override with wildcard here
   res.flushHeaders();
 
-  const stream = anthropic.messages.stream({
+  const stream = getAnthropic().messages.stream({
     model: 'claude-sonnet-4-6',
     max_tokens: 800,
     system: systemPrompt,

@@ -1,7 +1,19 @@
 import { createClerkClient, verifyToken } from '@clerk/backend';
 import type { Request, Response, NextFunction } from 'express';
 
-const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
+type ClerkClient = ReturnType<typeof createClerkClient>;
+let _clerk: ClerkClient | undefined;
+function getClerk(): ClerkClient {
+  if (!_clerk) _clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
+  return _clerk;
+}
+const clerk = new Proxy({} as ClerkClient, {
+  get(_, prop) {
+    const client = getClerk();
+    const val = (client as any)[prop as string];
+    return typeof val === 'function' ? (val as Function).bind(client) : val;
+  },
+});
 
 // Cache user tier for 5 minutes to avoid hitting Clerk API on every request
 const metaCache = new Map<string, { tier: string; exp: number }>();
