@@ -21,7 +21,7 @@ async function checkInjuryAlerts() {
   try {
     const allPlayers = await sleeper.getAllPlayers();
     const rostersResult = await db.execute({ sql: 'SELECT * FROM saved_rosters', args: [] });
-    const rosters = rostersResult.rows as Array<{
+    const rosters = rostersResult.rows as unknown as Array<{
       clerk_user_id: string;
       platform: string;
       league_id: string;
@@ -64,7 +64,7 @@ async function checkInjuryAlerts() {
             sql: 'SELECT * FROM push_subscriptions WHERE clerk_user_id = ?',
             args: [roster.clerk_user_id],
           });
-          const subs = subsResult.rows as Array<{ endpoint: string; p256dh: string; auth: string }>;
+          const subs = subsResult.rows as unknown as Array<{ endpoint: string; p256dh: string; auth: string }>;
 
           for (const sub of subs) {
             await sendPushNotification(
@@ -105,7 +105,7 @@ async function sendWeeklyDigests() {
             WHERE up.email_weekly_digest = 1 AND up.email IS NOT NULL`,
       args: [],
     });
-    const users = usersResult.rows as Array<{
+    const users = usersResult.rows as unknown as Array<{
       clerk_user_id: string;
       email: string;
       sport: string;
