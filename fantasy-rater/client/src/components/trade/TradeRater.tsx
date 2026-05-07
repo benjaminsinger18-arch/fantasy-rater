@@ -4,6 +4,7 @@ import { ArrowLeftRight, X, Share2, Copy, Check, Loader2, Flame, CheckCircle, Sc
 import html2canvas from 'html2canvas';
 import { PlayerSearch } from '../shared/PlayerSearch.tsx';
 import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
+import { IridescentBorder } from '../shared/IridescentBorder.tsx';
 import { TradeShareCard } from './TradeShareCard.tsx';
 import { rateTrade } from '../../lib/api.ts';
 import { TradeHistory } from './TradeHistory.tsx';
@@ -48,9 +49,10 @@ function CompactPlayerRow({ player, onRemove }: { player: Player; onRemove: () =
       animate={{ opacity: 1, x: 0, height: 'auto' }}
       exit={{ opacity: 0, x: 12, height: 0 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      className="flex items-center gap-2 bg-[#1A1A1A] border border-[#2A2A2A] hover:border-[#3A3A3A] px-2.5 py-2 mb-1 transition-colors overflow-hidden"
+      className="flex items-center gap-2 border border-white/[0.08] hover:border-white/[0.14] px-2.5 py-2 mb-1 transition-colors overflow-hidden"
+      style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)' }}
     >
-      <div className="w-6 h-6 bg-[#222222] flex items-center justify-center flex-shrink-0 text-[10px] font-mono font-bold text-[#8A8A8A]">
+      <div className="w-6 h-6 flex items-center justify-center flex-shrink-0 text-[10px] font-mono font-bold text-[#8A8A8A] border border-white/[0.08]" style={{ background: 'rgba(255,255,255,0.06)' }}>
         {player.position}
       </div>
       <div className="flex-1 min-w-0">
@@ -322,7 +324,7 @@ export function TradeRater() {
             <button
               onClick={handleRate}
               disabled={loading}
-              className="w-full py-3.5 bg-[#E8321A] hover:bg-[#C82818] disabled:opacity-40 disabled:cursor-not-allowed text-white font-display font-black tracking-widest uppercase text-sm transition-colors flex-shrink-0 flex items-center justify-center gap-2"
+              className="w-full py-3.5 btn-signal font-display font-black tracking-widest uppercase text-sm flex-shrink-0 flex items-center justify-center gap-2 rounded"
             >
               {loading ? <><Loader2 size={14} className="animate-spin" /> Analyzing...</> : 'Rate This Trade'}
             </button>
@@ -350,54 +352,107 @@ export function TradeRater() {
 
         {score && vs && (
           <>
-            <div className="card-base p-5 space-y-4 flex-shrink-0 border-l-4" style={{ borderLeftColor: vs.hex }}>
-              <div className="flex justify-between items-end">
-                <div className="text-center">
-                  <CountUpScore target={score.sideAScore} className="text-4xl font-display font-black text-[#E8321A] tracking-tight" />
-                  <div className="text-xs font-mono text-[#555555] mt-1">You Give</div>
+            {score.verdict === 'Great Deal' ? (
+              <IridescentBorder block innerStyle={{ background: 'rgba(14, 8, 10, 0.92)', borderRadius: '3px' }} className="flex-shrink-0">
+                <div className="p-5 space-y-4">
+                  <div className="flex justify-between items-end">
+                    <div className="text-center">
+                      <CountUpScore target={score.sideAScore} className="text-4xl font-display font-black text-[#E8321A] tracking-tight" />
+                      <div className="text-xs font-mono text-[#555555] mt-1">You Give</div>
+                    </div>
+                    <div className="flex-1 px-6">
+                      <FairnessBar ratio={score.ratio} />
+                    </div>
+                    <div className="text-center">
+                      <CountUpScore target={score.sideBScore} className="text-4xl font-display font-black text-[#4DC878] tracking-tight" />
+                      <div className="text-xs font-mono text-[#555555] mt-1">You Receive</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.82 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 520, damping: 22, delay: 0.5 }}
+                      className={`relative flex-1 flex items-center justify-center gap-2 px-4 py-3 border overflow-hidden ${vs.bg} ${vs.border}`}
+                    >
+                      {/* shimmer sweep */}
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12"
+                        initial={{ x: '-120%' }}
+                        animate={{ x: '220%' }}
+                        transition={{ duration: 0.55, delay: 0.75, ease: 'easeOut' }}
+                      />
+                      <vs.Icon size={16} className={vs.text} />
+                      <span className={`text-sm font-display font-black tracking-widest uppercase ${vs.text}`}>{score.verdict}</span>
+                    </motion.div>
+                    <button
+                      onClick={handleShare}
+                      disabled={sharing}
+                      title="Download share card"
+                      className="px-3 py-2.5 border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#222222] text-[#8A8A8A] hover:text-[#F2EFE8] transition-all disabled:opacity-50"
+                    >
+                      {sharing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
+                    </button>
+                    <button
+                      onClick={handleCopyText}
+                      title="Copy share text"
+                      className="px-3 py-2.5 border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#222222] text-[#8A8A8A] hover:text-[#F2EFE8] transition-all"
+                    >
+                      {copied ? <Check size={14} className="text-[#4DC878]" /> : <Copy size={14} />}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex-1 px-6">
-                  <FairnessBar ratio={score.ratio} />
+              </IridescentBorder>
+            ) : (
+              <div className="card-base p-5 space-y-4 flex-shrink-0 border-l-4" style={{ borderLeftColor: vs.hex }}>
+                <div className="flex justify-between items-end">
+                  <div className="text-center">
+                    <CountUpScore target={score.sideAScore} className="text-4xl font-display font-black text-[#E8321A] tracking-tight" />
+                    <div className="text-xs font-mono text-[#555555] mt-1">You Give</div>
+                  </div>
+                  <div className="flex-1 px-6">
+                    <FairnessBar ratio={score.ratio} />
+                  </div>
+                  <div className="text-center">
+                    <CountUpScore target={score.sideBScore} className="text-4xl font-display font-black text-[#4DC878] tracking-tight" />
+                    <div className="text-xs font-mono text-[#555555] mt-1">You Receive</div>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <CountUpScore target={score.sideBScore} className="text-4xl font-display font-black text-[#4DC878] tracking-tight" />
-                  <div className="text-xs font-mono text-[#555555] mt-1">You Receive</div>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.82 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 520, damping: 22, delay: 0.5 }}
-                  className={`relative flex-1 flex items-center justify-center gap-2 px-4 py-3 border overflow-hidden ${vs.bg} ${vs.border}`}
-                >
-                  {/* shimmer sweep */}
+                <div className="flex gap-2">
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12"
-                    initial={{ x: '-120%' }}
-                    animate={{ x: '220%' }}
-                    transition={{ duration: 0.55, delay: 0.75, ease: 'easeOut' }}
-                  />
-                  <vs.Icon size={16} className={vs.text} />
-                  <span className={`text-sm font-display font-black tracking-widest uppercase ${vs.text}`}>{score.verdict}</span>
-                </motion.div>
-                <button
-                  onClick={handleShare}
-                  disabled={sharing}
-                  title="Download share card"
-                  className="px-3 py-2.5 border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#222222] text-[#8A8A8A] hover:text-[#F2EFE8] transition-all disabled:opacity-50"
-                >
-                  {sharing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
-                </button>
-                <button
-                  onClick={handleCopyText}
-                  title="Copy share text"
-                  className="px-3 py-2.5 border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#222222] text-[#8A8A8A] hover:text-[#F2EFE8] transition-all"
-                >
-                  {copied ? <Check size={14} className="text-[#4DC878]" /> : <Copy size={14} />}
-                </button>
+                    initial={{ opacity: 0, scale: 0.82 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 520, damping: 22, delay: 0.5 }}
+                    className={`relative flex-1 flex items-center justify-center gap-2 px-4 py-3 border overflow-hidden ${vs.bg} ${vs.border}`}
+                  >
+                    {/* shimmer sweep */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12"
+                      initial={{ x: '-120%' }}
+                      animate={{ x: '220%' }}
+                      transition={{ duration: 0.55, delay: 0.75, ease: 'easeOut' }}
+                    />
+                    <vs.Icon size={16} className={vs.text} />
+                    <span className={`text-sm font-display font-black tracking-widest uppercase ${vs.text}`}>{score.verdict}</span>
+                  </motion.div>
+                  <button
+                    onClick={handleShare}
+                    disabled={sharing}
+                    title="Download share card"
+                    className="px-3 py-2.5 border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#222222] text-[#8A8A8A] hover:text-[#F2EFE8] transition-all disabled:opacity-50"
+                  >
+                    {sharing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
+                  </button>
+                  <button
+                    onClick={handleCopyText}
+                    title="Copy share text"
+                    className="px-3 py-2.5 border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#222222] text-[#8A8A8A] hover:text-[#F2EFE8] transition-all"
+                  >
+                    {copied ? <Check size={14} className="text-[#4DC878]" /> : <Copy size={14} />}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="card-base p-5 border-l-4 border-l-[#E8321A] min-w-0 flex-shrink-0">
               <h3 className="text-[10px] font-mono font-bold text-[#E8321A] uppercase tracking-widest mb-3">AI Analysis</h3>
