@@ -15,7 +15,7 @@ export default {
         ink:     '#F2EFE8',
         muted:   '#8A8A8A',
         dim:     '#555555',
-        surface: '#111111',
+        surface: '#060608',
         border:  '#2A2A2A',
       },
       borderRadius: {

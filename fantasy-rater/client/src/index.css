@@ -13,7 +13,7 @@ html, body, #root {
 /* ── Base ─────────────────────────────────────────────────────── */
 
 body {
-  background-color: #222226;
+  background-color: #060608;
   color: #F2EFE8;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
@@ -24,7 +24,6 @@ h1, h2, h3, .font-display {
   text-transform: uppercase;
 }
 
-/* Large display headings keep strong tracking; smaller ones inherit normal */
 h1 { letter-spacing: 0.04em; }
 h2 { letter-spacing: 0.02em; }
 h3 { letter-spacing: 0.01em; }
@@ -37,37 +36,180 @@ h3 { letter-spacing: 0.01em; }
   font-family: 'Lora', serif;
 }
 
-/* ── Background ───────────────────────────────────────────────── */
+/* ── Living Background ────────────────────────────────────────── */
 
-/* Solid background with very subtle noise grain */
-.bg-mesh {
-  background-color: #222226;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+.living-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: #060608;
 }
 
-/* ── Card & Input ─────────────────────────────────────────────── */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.65;
+  will-change: transform;
+}
+
+.blob-1 {
+  width: 640px;
+  height: 640px;
+  background: #2D0808;
+  bottom: -160px;
+  left: -120px;
+  animation: blob-drift-1 28s ease-in-out infinite;
+}
+
+.blob-2 {
+  width: 520px;
+  height: 520px;
+  background: #081820;
+  top: -100px;
+  right: -100px;
+  animation: blob-drift-2 34s ease-in-out infinite;
+}
+
+.blob-3 {
+  width: 420px;
+  height: 420px;
+  background: #10081E;
+  top: 45%;
+  left: 35%;
+  animation: blob-drift-3 22s ease-in-out infinite;
+}
+
+.blob-4 {
+  width: 380px;
+  height: 380px;
+  background: #081418;
+  bottom: 25%;
+  right: 15%;
+  animation: blob-drift-1 26s ease-in-out infinite reverse;
+}
+
+@keyframes blob-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(60px, -50px) scale(1.08); }
+  66%       { transform: translate(-40px, 30px) scale(0.94); }
+}
+
+@keyframes blob-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%       { transform: translate(-55px, 40px) scale(0.96); }
+  70%       { transform: translate(35px, -55px) scale(1.06); }
+}
+
+@keyframes blob-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(45px, 60px) scale(1.10); }
+}
+
+/* ── Iridescent shimmer border ────────────────────────────────── */
+
+@keyframes iridescent-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.iridescent-wrapper {
+  padding: 1px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #E8321A, #FF6B9D, #C44FFF, #4FC3F7, #00E5A0, #E8321A);
+  background-size: 400% 400%;
+  animation: iridescent-shift 4s ease infinite;
+  display: inline-flex;
+}
+
+.iridescent-inner {
+  background: #0E0A12;
+  border-radius: 3px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iridescent-wrapper-block {
+  padding: 1px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #E8321A, #FF6B9D, #C44FFF, #4FC3F7, #00E5A0, #E8321A);
+  background-size: 400% 400%;
+  animation: iridescent-shift 4s ease infinite;
+  display: block;
+}
+
+.iridescent-inner-block {
+  background: rgba(14, 10, 18, 0.95);
+  border-radius: 3px;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── Card & Input — glass treatment ───────────────────────────── */
+
+.bg-mesh {
+  background: transparent;
+}
 
 .card-base {
-  background: #2C2C31;
+  background: rgba(255, 255, 255, 0.04);
   border-radius: 4px;
-  border: 1px solid #484850;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.card-elevated {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(232, 50, 26, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .input-base {
   @apply w-full px-3 py-2 text-sm transition-all;
-  background: #2C2C31;
-  border: 1px solid #484850;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 4px;
   color: #F2EFE8;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.9rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 .input-base::placeholder {
-  color: #444444;
+  color: rgba(255, 255, 255, 0.22);
 }
 .input-base:focus {
   outline: none;
-  border-color: #E8321A;
+  border-color: rgba(232, 50, 26, 0.55);
+  box-shadow: 0 0 0 2px rgba(232, 50, 26, 0.12);
+}
+
+/* ── Signal Red button glow ───────────────────────────────────── */
+
+.btn-signal {
+  background: #E8321A;
+  color: white;
+  box-shadow: 0 0 20px rgba(232, 50, 26, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+.btn-signal:hover:not(:disabled) {
+  background: #CC2C17;
+  box-shadow: 0 0 32px rgba(232, 50, 26, 0.6), 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+.btn-signal:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* ── Tier Accent Borders ──────────────────────────────────────── */
@@ -80,13 +222,6 @@ h3 { letter-spacing: 0.01em; }
 .tier-amethyst { border-left-color: #7B5EA7; }
 .tier-gold     { border-left-color: #C8882A; }
 .tier-divine   { border-left-color: #E8321A; }
-
-/* ── Glow stubs (removed) ─────────────────────────────────────── */
-
-.glow-iron, .glow-bronze, .glow-silver, .glow-emerald,
-.glow-sapphire, .glow-amethyst, .glow-gold, .glow-divine { }
-
-.text-glow-blue, .text-glow-amber, .text-glow-green, .text-glow-purple { }
 
 /* ── Animations ───────────────────────────────────────────────── */
 
@@ -119,7 +254,7 @@ h3 { letter-spacing: 0.01em; }
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 60%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 40%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 60%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
 }
@@ -135,16 +270,6 @@ h3 { letter-spacing: 0.01em; }
 /* ── Dot grid background ──────────────────────────────────────── */
 
 .bg-dot-grid {
-  background-image: radial-gradient(circle, rgba(72,72,80,0.22) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
   background-size: 20px 20px;
 }
-
-/* ── Rainbow / shine stubs (legacy — not used in new design) ──── */
-
-@keyframes rainbow-shimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50%       { background-position: 100% 50%; }
-}
-
-.rainbow-card { background: #111111; }
-.shine-overlay { display: none; }
