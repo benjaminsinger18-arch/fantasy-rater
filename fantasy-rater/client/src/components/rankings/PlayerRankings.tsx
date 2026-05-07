@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart3, Loader2, X } from 'lucide-react';
 import { fetchRankings, analyzePlayer } from '../../lib/api.ts';
 import { PlayerCard } from '../shared/PlayerCard.tsx';
+import { IridescentBorder } from '../shared/IridescentBorder.tsx';
 import { PlayerHistoryModal } from '../shared/PlayerHistoryModal.tsx';
 import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
 import { useLeague } from '../../lib/LeagueContext.tsx';
@@ -24,20 +25,19 @@ const itemVariants = {
 
 function SkeletonCard() {
   return (
-    <div className="border border-[#484850] bg-[#2C2C31] min-h-[180px] sm:min-h-[220px] overflow-hidden relative">
-      {/* Shimmer sweep overlay */}
+    <div className="min-h-[180px] sm:min-h-[220px] overflow-hidden relative border border-white/[0.07]"
+         style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(16px)' }}>
       <div className="animate-shimmer absolute inset-0 z-10 pointer-events-none" />
-      {/* Faint card structure */}
       <div className="relative p-3 flex flex-col gap-2 opacity-20">
         <div className="flex justify-between mb-1">
-          <div className="w-10 h-8 bg-[#484850]" />
-          <div className="w-5 h-5 bg-[#484850]" />
+          <div className="w-10 h-8 bg-white/20" />
+          <div className="w-5 h-5 bg-white/20" />
         </div>
-        <div className="w-14 h-14 bg-[#484850] mx-auto" />
-        <div className="w-16 h-2.5 bg-[#484850] mx-auto mt-2" />
+        <div className="w-14 h-14 bg-white/20 mx-auto" />
+        <div className="w-16 h-2.5 bg-white/20 mx-auto mt-2" />
         <div className="grid grid-cols-3 gap-px mt-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-7 bg-[#484850]" />
+            <div key={i} className="h-7 bg-white/20" />
           ))}
         </div>
       </div>
@@ -178,11 +178,21 @@ export function PlayerRankings() {
                     <div className="absolute -top-1.5 -left-1.5 z-10 w-6 h-6 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center text-[10px] font-display font-black text-slate-400">
                       {i + 1}
                     </div>
-                    <PlayerCard
-                      player={p}
-                      sport={config.sport}
-                      onClick={() => isMobile ? handleMobileTap(p) : setSelected(p)}
-                    />
+                    {i < 5 ? (
+                      <IridescentBorder block innerStyle={{ borderRadius: '3px', overflow: 'hidden' }}>
+                        <PlayerCard
+                          player={p}
+                          sport={config.sport}
+                          onClick={() => isMobile ? handleMobileTap(p) : setSelected(p)}
+                        />
+                      </IridescentBorder>
+                    ) : (
+                      <PlayerCard
+                        player={p}
+                        sport={config.sport}
+                        onClick={() => isMobile ? handleMobileTap(p) : setSelected(p)}
+                      />
+                    )}
                   </motion.div>
                 ))
             }
