@@ -5,6 +5,7 @@ import { PlayerSearch } from '../shared/PlayerSearch.tsx';
 import { PlayerCard } from '../shared/PlayerCard.tsx';
 import { GradeChip } from '../shared/GradeChip.tsx';
 import { StreamingAnalysis } from '../shared/StreamingAnalysis.tsx';
+import { IridescentBorder } from '../shared/IridescentBorder.tsx';
 import { rateTeam, importSleeperRoster, importFplRoster, importEspnRoster } from '../../lib/api.ts';
 import { useLeague } from '../../lib/LeagueContext.tsx';
 import type { Player, TeamScore } from '../../types/index.ts';
@@ -75,7 +76,7 @@ export function TeamRater() {
         </div>
 
         {/* Import */}
-        <div className="card-base p-3 border-l-4 border-l-[#484850] flex-shrink-0 mb-3">
+        <div className="card-base p-3 border-l-4 border-l-white/20 flex-shrink-0 mb-3">
           <p className="text-[10px] font-mono font-bold text-[#555555] uppercase tracking-widest mb-2">
             {config.sport === 'fpl' ? 'Import FPL Team' : config.sport === 'mlb' ? 'Import ESPN Roster' : 'Import Sleeper Roster'}
           </p>
@@ -134,7 +135,7 @@ export function TeamRater() {
         <button
           onClick={handleRate}
           disabled={loading || !roster.length}
-          className="w-full py-3.5 mt-3 bg-[#E8321A] hover:bg-[#C82818] disabled:opacity-40 disabled:cursor-not-allowed text-white font-display font-black tracking-widest uppercase text-sm transition-colors flex-shrink-0 flex items-center justify-center gap-2"
+          className="w-full py-3.5 mt-3 btn-signal font-display font-black tracking-widest uppercase text-sm flex-shrink-0 flex items-center justify-center gap-2 rounded"
         >
           {loading ? <><Loader2 size={14} className="animate-spin" /> Grading...</> : `Rate My Team (${roster.length} players)`}
         </button>
@@ -158,28 +159,30 @@ export function TeamRater() {
 
         {score && (
           <>
-            <div className="card-base p-4 border-l-4 border-l-[#4DC878] flex-shrink-0">
-              <div className="flex items-center gap-4 mb-4">
-                <GradeChip grade={score.grade} size="lg" />
-                <div>
-                  <div className="text-[#F2EFE8] font-display font-black text-2xl animate-count-up">
-                    {score.score} <span className="text-[#555555] text-base font-normal">/ 100</span>
+            <IridescentBorder block innerStyle={{ background: 'rgba(10,12,16,0.95)', borderRadius: '3px' }} className="flex-shrink-0">
+              <div className="card-elevated p-4">
+                <div className="flex items-center gap-4 mb-4">
+                  <GradeChip grade={score.grade} size="lg" />
+                  <div>
+                    <div className="text-[#F2EFE8] font-display font-black text-2xl animate-count-up">
+                      {score.score} <span className="text-[#555555] text-base font-normal">/ 100</span>
+                    </div>
+                    <div className="text-[#555555] text-xs font-mono">{roster.length} players evaluated</div>
                   </div>
-                  <div className="text-[#555555] text-xs font-mono">{roster.length} players evaluated</div>
+                </div>
+                <div className="grid grid-cols-3 gap-px">
+                  {Object.entries(score.positionBreakdown).map(([pos, { score: s, grade }]) => (
+                    <div key={pos} className="flex items-center justify-between card-base px-2 py-2">
+                      <span className="text-[#8A8A8A] text-xs font-mono">{pos}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[#555555] text-[10px] font-mono">{s}</span>
+                        <GradeChip grade={grade} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-px">
-                {Object.entries(score.positionBreakdown).map(([pos, { score: s, grade }]) => (
-                  <div key={pos} className="flex items-center justify-between card-base px-2 py-2">
-                    <span className="text-[#8A8A8A] text-xs font-mono">{pos}</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[#555555] text-[10px] font-mono">{s}</span>
-                      <GradeChip grade={grade} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            </IridescentBorder>
 
             <div className="card-base p-4 border-l-4 border-l-[#E8321A] min-w-0 flex-shrink-0">
               <h3 className="text-[10px] font-mono font-bold text-[#E8321A] uppercase tracking-widest mb-3">AI Analysis</h3>
