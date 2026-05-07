@@ -62,6 +62,18 @@ function AuthSync() {
   return null;
 }
 
+// ─── Living Background ──────────────────────────────────────────────────────
+function LivingBackground() {
+  return (
+    <div className="living-bg" aria-hidden>
+      <div className="blob blob-1" />
+      <div className="blob blob-2" />
+      <div className="blob blob-3" />
+      <div className="blob blob-4" />
+    </div>
+  );
+}
+
 // ─── Desktop Sidebar ────────────────────────────────────────────────────────
 function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial: () => void }) {
   const { config, setSport } = useLeague();
@@ -77,7 +89,7 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
     }`;
 
   return (
-    <aside className="hidden md:flex w-56 flex-shrink-0 border-r border-[#333338] bg-[#1E1E22] flex-col overflow-hidden">
+    <aside className="hidden md:flex w-56 flex-shrink-0 border-r border-white/[0.06] flex-col overflow-hidden" style={{ background: 'rgba(6,6,8,0.82)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
       <div className="px-4 py-4 border-b border-[#333338]">
         <div className="flex items-center gap-2.5">
           <div className="w-6 h-6 border-2 border-[#E8321A] flex items-center justify-center flex-shrink-0">
@@ -116,7 +128,7 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
       </div>
 
       <div className="relative flex-1 min-h-0">
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-[#1E1E22] to-transparent z-10" />
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-[#06060A]/90 to-transparent z-10" />
       <nav className="px-3 pt-2 pb-6 flex flex-col gap-0.5 overflow-y-auto h-full">
         <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-2 font-ui font-semibold">Core</p>
         {[
@@ -183,7 +195,7 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
       </div>
 
       <div className="px-3 py-4 border-t border-[#333338]">
-        <div className="bg-[#252528] border border-[#333338] rounded p-3">
+        <div className="border border-white/[0.07] rounded p-3" style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(12px)' }}>
           <p className="text-[10px] text-[#666666] uppercase tracking-wide mb-2.5 font-ui font-semibold">League</p>
           <div className="space-y-1.5">
             <div className="flex justify-between">
@@ -213,7 +225,7 @@ function MobileHeader({ onAccountOpen }: { onAccountOpen: () => void }) {
   const isPro = tier === 'pro';
 
   return (
-    <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-2.5 bg-[#1E1E22] border-b border-[#333338]">
+    <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-2.5 border-b border-white/[0.06]" style={{ background: 'rgba(6,6,8,0.85)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
       <div className="flex items-center gap-2">
         <div className="w-5 h-5 border-2 border-[#E8321A] flex items-center justify-center flex-shrink-0">
           <Trophy size={10} className="text-[#E8321A]" />
@@ -265,7 +277,7 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#1E1E22] border-t border-[#333338] flex items-stretch" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-white/[0.07] flex items-stretch" style={{ background: 'rgba(6,6,8,0.88)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {tabs.map(({ to, icon: Icon, label, end }) => {
         const isActive = end ? location.pathname === to : location.pathname === to || location.pathname.startsWith(to + '/');
         return (
@@ -326,8 +338,8 @@ function AccountSheet({ open, onClose, onUpgrade }: { open: boolean; onClose: ()
             onClick={onClose}
           />
           <motion.div
-            className="fixed bottom-0 left-0 right-0 z-50 bg-[#1E1E22] border-t border-[#333338]"
-            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+            className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.08]"
+            style={{ background: 'rgba(8,8,12,0.94)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', paddingBottom: 'env(safe-area-inset-bottom)' }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -422,8 +434,8 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
             onClick={onClose}
           />
           <motion.div
-            className="fixed bottom-0 left-0 right-0 z-50 bg-[#1E1E22] border-t border-[#333338]"
-            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+            className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.08]"
+            style={{ background: 'rgba(8,8,12,0.94)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', paddingBottom: 'env(safe-area-inset-bottom)' }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -544,6 +556,7 @@ export default function App() {
   if (!isSignedIn) return (
     <BrowserRouter>
       <AuthSync />
+      <LivingBackground />
       <AuthGatePage />
     </BrowserRouter>
   );
@@ -551,6 +564,7 @@ export default function App() {
   return (
     <LeagueProvider>
       <BrowserRouter>
+        <LivingBackground />
         <AuthSync />
         <OnboardingTutorial
           open={tutorialOpen}
@@ -589,7 +603,7 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        <div className="h-screen flex bg-mesh">
+        <div className="h-screen flex">
           {/* Desktop sidebar */}
           <Sidebar
             onUpgrade={() => { setModalMode('upgrade'); setModalOpen(true); }}
