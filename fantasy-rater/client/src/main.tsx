@@ -7,6 +7,13 @@ import './index.css';
 
 registerSW({ immediate: true });
 
+// Reload the page when a new service worker takes control so users always get fresh assets
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  });
+}
+
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
