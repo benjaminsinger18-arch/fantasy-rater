@@ -557,7 +557,6 @@ export default function App() {
     <BrowserRouter>
       <AuthSync />
       <LivingBackground />
-      <div style={{ position: 'fixed', top: 8, right: 8, zIndex: 9999, background: '#E8321A', color: '#fff', fontFamily: 'monospace', fontWeight: 700, fontSize: 11, padding: '3px 8px', borderRadius: 4, letterSpacing: 1, pointerEvents: 'none' }}>TEST v2 ✓</div>
       <AuthGatePage />
     </BrowserRouter>
   );
@@ -567,8 +566,6 @@ export default function App() {
       <BrowserRouter>
         <LivingBackground />
         <AuthSync />
-        {/* DEPLOY TEST — remove after confirming */}
-        <div style={{ position: 'fixed', top: 8, right: 8, zIndex: 9999, background: '#E8321A', color: '#fff', fontFamily: 'monospace', fontWeight: 700, fontSize: 11, padding: '3px 8px', borderRadius: 4, letterSpacing: 1, pointerEvents: 'none' }}>TEST v2 ✓</div>
         <OnboardingTutorial
           open={tutorialOpen}
           onClose={() => setTutorialOpen(false)}
