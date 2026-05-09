@@ -4,6 +4,9 @@ import crypto from 'crypto';
 
 const router = Router();
 
+// Stub for Clerk SDK auto-call — prevents 404 noise in Vercel logs
+router.get('/me', (_req, res) => res.json({ user: null }));
+
 // In-memory CSRF state store
 const stateStore = new Map<string, number>();
 
