@@ -12,9 +12,6 @@ const features = [
 export function AuthGatePage() {
   return (
     <div className="h-screen w-full flex overflow-hidden">
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, background: '#E8321A', color: 'white', textAlign: 'center', padding: '8px', fontSize: '13px', fontWeight: 'bold' }}>
-        ✅ DEPLOY TEST — IF YOU SEE THIS, PIPELINE IS WORKING
-      </div>
 
       {/* ── Left: Branding column ─────────────────────────────────── */}
       <div className="hidden md:flex w-1/2 flex-col justify-between p-12 relative border-r border-white/[0.06]">
