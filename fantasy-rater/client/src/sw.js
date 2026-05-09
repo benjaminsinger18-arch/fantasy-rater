@@ -2,6 +2,9 @@ import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { NetworkFirst } from 'workbox-strategies';
 
+self.skipWaiting();
+self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
+
 // vite-plugin-pwa replaces self.__WB_MANIFEST with the list of built assets at build time
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
