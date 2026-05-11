@@ -11,12 +11,16 @@ export default {
         serif:   ['"Lora"', 'serif'],
       },
       colors: {
-        signal:  '#E8321A',
-        ink:     '#F2EFE8',
-        muted:   '#8A8A8A',
-        dim:     '#555555',
-        surface: '#060608',
-        border:  '#2A2A2A',
+        signal: '#E8321A',
+        ink:    '#FAFAFA',
+        muted:  '#A1A1AA',
+        dim:    '#71717A',
+        surface: {
+          DEFAULT: '#09090B',
+          raised:  '#18181B',
+          border:  '#27272A',
+          hover:   '#3F3F46',
+        },
       },
       borderRadius: {
         DEFAULT: '4px',
