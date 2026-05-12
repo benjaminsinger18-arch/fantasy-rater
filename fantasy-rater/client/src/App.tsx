@@ -603,12 +603,7 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* DEPLOY TEST BANNER — remove when confirmed */}
-        <div className="fixed top-0 inset-x-0 z-[300] bg-yellow-400 text-black text-center py-2 text-xs font-mono font-bold tracking-widest uppercase">
-          ✅ Deploy pipeline is working — safe to remove this banner
-        </div>
-
-        <div className="h-screen flex" style={{ paddingTop: '32px' }}>
+        <div className="h-screen flex">
           {/* Desktop sidebar */}
           <Sidebar
             onUpgrade={() => { setModalMode('upgrade'); setModalOpen(true); }}
