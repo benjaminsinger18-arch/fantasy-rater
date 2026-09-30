@@ -23,27 +23,27 @@ interface Step {
 
 const STEPS: Step[] = [
   {
-    icon: <span className="text-4xl font-display font-black text-[#E8321A]">FR</span>,
+    icon: <span className="text-4xl font-display font-black text-signal">FR</span>,
     title: 'Welcome to FantasyRater',
     body: 'The AI toolkit serious fantasy managers use. Rate trades, optimize lineups, and get an edge over your league — all in one place.',
   },
   {
-    icon: <ArrowLeftRight size={36} className="text-[#E8321A]" />,
+    icon: <ArrowLeftRight size={36} className="text-signal" />,
     title: 'Trade Rater',
     body: 'Get an instant AI grade for both sides of any trade — player values, positional scarcity, and win-now vs. rebuild context included.',
   },
   {
-    icon: <RefreshCw size={36} className="text-[#E8321A]" />,
+    icon: <RefreshCw size={36} className="text-signal" />,
     title: 'Start/Sit & Rankings',
     body: 'Never guess who to start again. AI-powered start/sit advice and live rankings updated with real injury and matchup data.',
   },
   {
-    icon: <Activity size={36} className="text-[#E8321A]" />,
+    icon: <Activity size={36} className="text-signal" />,
     title: 'Live Scoring & Matchup Analyzer',
     body: 'Track scores in real time and analyze your matchup before kickoff. Know your win probability, key players, and where your team is vulnerable.',
   },
   {
-    icon: <Zap size={36} className="text-[#E8321A]" />,
+    icon: <Zap size={36} className="text-signal" />,
     title: 'Go Pro — Win More',
     body: '',
     isPro: true,
@@ -90,7 +90,7 @@ export function OnboardingTutorial({ open, onClose, onUpgrade }: Props) {
         onClick={finish}
       />
       <motion.div
-        className="relative bg-[#1E1E22] border border-[#484850] w-full max-w-sm p-7 flex flex-col items-center text-center z-10"
+        className="relative bg-[#1E1E22] border border-rim w-full max-w-sm p-7 flex flex-col items-center text-center z-10"
         initial={{ opacity: 0, scale: 0.92, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.92, y: 20 }}
@@ -99,7 +99,7 @@ export function OnboardingTutorial({ open, onClose, onUpgrade }: Props) {
         {/* Skip */}
         <button
           onClick={finish}
-          className="absolute top-3 right-3 text-[#444444] hover:text-[#888888] transition-colors cursor-pointer"
+          className="absolute top-3 right-3 text-ghost hover:text-soft transition-colors cursor-pointer"
           aria-label="Skip tutorial"
         >
           <X size={16} />
@@ -119,27 +119,27 @@ export function OnboardingTutorial({ open, onClose, onUpgrade }: Props) {
               {current.icon}
             </div>
 
-            <h2 className="text-[#F2EFE8] font-display font-black text-xl tracking-wide">
+            <h2 className="text-warm font-display font-black text-xl tracking-wide">
               {step === 0 && user?.firstName ? `Welcome, ${user.firstName}` : current.title}
             </h2>
 
             {current.isPro ? (
               <div className="w-full">
-                <p className="text-[#8A8A8A] text-sm font-mono mb-4">
+                <p className="text-soft text-sm font-mono mb-4">
                   Unlock the full arsenal. The tools your competition wishes they had.
                 </p>
                 <div className="text-left space-y-2 mb-4">
                   {PRO_FEATURES.map(f => (
                     <div key={f} className="flex items-center gap-2 text-sm font-mono">
-                      <div className="w-1.5 h-1.5 bg-[#E8321A] flex-shrink-0" />
+                      <div className="w-1.5 h-1.5 bg-signal flex-shrink-0" />
                       <span className="text-[#CCCCCC]">{f}</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-[#E8321A] font-mono font-bold text-sm">$7.99 / month · Cancel anytime</p>
+                <p className="text-signal font-mono font-bold text-sm">$7.99 / month · Cancel anytime</p>
               </div>
             ) : (
-              <p className="text-[#888888] text-sm font-mono leading-relaxed">{current.body}</p>
+              <p className="text-soft text-sm font-mono leading-relaxed">{current.body}</p>
             )}
           </motion.div>
         </AnimatePresence>
@@ -149,7 +149,7 @@ export function OnboardingTutorial({ open, onClose, onUpgrade }: Props) {
           {STEPS.map((_, i) => (
             <motion.div
               key={i}
-              className="h-1 rounded-full bg-[#E8321A] cursor-pointer"
+              className="h-1 rounded-full bg-signal cursor-pointer"
               animate={{ width: i === step ? 20 : 6, opacity: i === step ? 1 : 0.3 }}
               transition={{ duration: 0.2 }}
               onClick={() => setStep(i)}
@@ -162,7 +162,7 @@ export function OnboardingTutorial({ open, onClose, onUpgrade }: Props) {
           {step > 0 && (
             <button
               onClick={back}
-              className="flex items-center gap-1 px-4 py-2.5 border border-[#484850] text-[#8A8A8A] hover:text-[#F2EFE8] hover:border-[#888888] text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer"
+              className="flex items-center gap-1 px-4 py-2.5 border border-rim text-soft hover:text-warm hover:border-soft text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer"
             >
               <ChevronLeft size={14} /> Back
             </button>
@@ -171,13 +171,13 @@ export function OnboardingTutorial({ open, onClose, onUpgrade }: Props) {
             <div className="flex-1 flex gap-2">
               <button
                 onClick={finish}
-                className="flex-1 py-2.5 border border-[#484850] text-[#8A8A8A] hover:text-[#F2EFE8] font-mono text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                className="flex-1 py-2.5 border border-rim text-soft hover:text-warm font-mono text-xs uppercase tracking-wider transition-colors cursor-pointer"
               >
                 Maybe Later
               </button>
               <button
                 onClick={() => { finish(); onUpgrade(); }}
-                className="flex-1 py-2.5 bg-[#E8321A] hover:bg-[#C82818] text-white font-mono font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="flex-1 py-2.5 bg-signal hover:bg-signal-dark text-white font-mono font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Zap size={12} /> Go Pro
               </button>
@@ -185,7 +185,7 @@ export function OnboardingTutorial({ open, onClose, onUpgrade }: Props) {
           ) : (
             <button
               onClick={next}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-[#E8321A] hover:bg-[#C82818] text-white font-mono font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-signal hover:bg-signal-dark text-white font-mono font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
             >
               Next <ChevronRight size={14} />
             </button>

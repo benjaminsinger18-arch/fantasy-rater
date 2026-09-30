@@ -39,7 +39,7 @@ function PlayerRow({ player, dimmed }: { player: LivePlayer; dimmed?: boolean })
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: dimmed ? 0.4 : 1, x: 0 }}
       transition={{ duration: 0.2 }}
-      className="flex items-center gap-2 px-2 py-1.5 border-b border-[#2A2A2A] last:border-0"
+      className="flex items-center gap-2 px-2 py-1.5 border-b border-surface-divider last:border-0"
     >
       <div
         className="w-8 text-center text-[9px] font-mono font-bold flex-shrink-0 px-1 py-0.5"
@@ -48,10 +48,10 @@ function PlayerRow({ player, dimmed }: { player: LivePlayer; dimmed?: boolean })
         {player.position}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-xs font-display font-black text-[#F2EFE8] truncate">{player.name}</div>
-        <div className="text-[9px] font-mono text-[#555555]">{player.team}</div>
+        <div className="text-xs font-display font-black text-warm truncate">{player.name}</div>
+        <div className="text-[9px] font-mono text-fade">{player.team}</div>
       </div>
-      <div className={`text-sm font-display font-black flex-shrink-0 tabular-nums ${hasPoints ? 'text-[#F2EFE8]' : 'text-[#444444]'}`}>
+      <div className={`text-sm font-display font-black flex-shrink-0 tabular-nums ${hasPoints ? 'text-warm' : 'text-ghost'}`}>
         {player.points.toFixed(2)}
       </div>
     </motion.div>
@@ -62,7 +62,7 @@ function ScoreDisplay({ side, label, winning }: { side: MatchupSide; label: stri
   const color = winning ? '#4DC878' : '#E8321A';
   return (
     <div className="flex-1 text-center px-2">
-      <div className="text-[10px] font-mono text-[#555555] uppercase tracking-widest mb-1">{label}</div>
+      <div className="text-[10px] font-mono text-fade uppercase tracking-widest mb-1">{label}</div>
       <motion.div
         key={side.totalPoints}
         initial={{ scale: 0.85, opacity: 0 }}
@@ -73,7 +73,7 @@ function ScoreDisplay({ side, label, winning }: { side: MatchupSide; label: stri
       >
         {side.totalPoints.toFixed(2)}
       </motion.div>
-      <div className="text-[10px] font-mono text-[#555555] mt-1">
+      <div className="text-[10px] font-mono text-fade mt-1">
         {side.players.filter(p => p.isStarter).length} starters
       </div>
     </div>
@@ -140,12 +140,12 @@ export function LiveScoring() {
   if (!hasSetup) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4 p-8">
-        <div className="w-12 h-12 border-2 border-[#484850] flex items-center justify-center">
-          <Activity size={24} className="text-[#484850]" />
+        <div className="w-12 h-12 border-2 border-rim flex items-center justify-center">
+          <Activity size={24} className="text-rim" />
         </div>
         <div className="text-center">
-          <h2 className="text-lg font-display font-black text-[#F2EFE8] tracking-wider mb-2">Live Score</h2>
-          <p className="text-xs font-mono text-[#555555] mb-1">
+          <h2 className="text-lg font-display font-black text-warm tracking-wider mb-2">Live Score</h2>
+          <p className="text-xs font-mono text-fade mb-1">
             {config.sport !== 'nfl' && config.sport !== 'fpl'
               ? 'Live scoring is available for NFL (Sleeper) and FPL leagues.'
               : config.sport === 'fpl'
@@ -153,13 +153,13 @@ export function LiveScoring() {
                 : 'Set up your Sleeper league to see your live matchup score.'}
           </p>
           {config.sport === 'nfl' && (
-            <p className="text-[10px] font-mono text-[#444444]">Requires League ID + Roster ID from League Setup.</p>
+            <p className="text-[10px] font-mono text-ghost">Requires League ID + Roster ID from League Setup.</p>
           )}
         </div>
         {(config.sport === 'nfl' || config.sport === 'fpl') && (
           <button
             onClick={() => navigate('/league')}
-            className="flex items-center gap-2 px-4 py-2 border border-[#484850] text-xs font-mono text-[#8A8A8A] hover:text-[#F2EFE8] hover:border-[#E8321A]/50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 border border-rim text-xs font-mono text-soft hover:text-warm hover:border-signal/50 transition-colors"
           >
             <Settings size={12} /> Go to League Setup
           </button>
@@ -180,25 +180,25 @@ export function LiveScoring() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
-      <div className="flex-shrink-0 px-4 md:px-5 pt-4 md:pt-5 pb-3 border-b border-[#2A2A2A]">
+      <div className="flex-shrink-0 px-4 md:px-5 pt-4 md:pt-5 pb-3 border-b border-surface-divider">
         <div className="flex items-center justify-between mb-0.5">
-          <h1 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">Live Score</h1>
+          <h1 className="text-2xl font-display font-black text-warm tracking-wider">Live Score</h1>
           <div className="flex items-center gap-2">
             {lastUpdated && (
-              <span className="text-[10px] font-mono text-[#444444]">
+              <span className="text-[10px] font-mono text-ghost">
                 {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             )}
             <button
               onClick={() => { setLoading(true); fetchMatchup().finally(() => setLoading(false)); }}
               disabled={loading}
-              className="w-7 h-7 border border-[#484850] flex items-center justify-center text-[#555555] hover:text-[#F2EFE8] hover:border-[#E8321A]/40 transition-colors"
+              className="w-7 h-7 border border-rim flex items-center justify-center text-fade hover:text-warm hover:border-signal/40 transition-colors"
             >
               <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
             </button>
           </div>
         </div>
-        <p className="text-[10px] font-mono text-[#555555]">
+        <p className="text-[10px] font-mono text-fade">
           Week {config.currentWeek} · {isNflGameWindow() ? 'Auto-refreshing every 90s' : 'Auto-refreshing every 5m'}
         </p>
       </div>
@@ -227,7 +227,7 @@ export function LiveScoring() {
             exit={{ opacity: 0 }}
             className="flex items-center justify-center py-12"
           >
-            <RefreshCw size={20} className="animate-spin text-[#E8321A]" />
+            <RefreshCw size={20} className="animate-spin text-signal" />
           </motion.div>
         ) : matchup ? (
           <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -239,12 +239,12 @@ export function LiveScoring() {
                 )}
 
                 <div className="flex-shrink-0 text-center px-3">
-                  <div className={`text-[10px] font-mono font-bold uppercase tracking-widest mb-1 ${winning ? 'text-[#4DC878]' : 'text-[#E8321A]'}`}>
+                  <div className={`text-[10px] font-mono font-bold uppercase tracking-widest mb-1 ${winning ? 'text-emerald' : 'text-signal'}`}>
                     {winning ? 'WINNING' : 'LOSING'}
                   </div>
-                  <div className="text-[10px] font-mono text-[#555555]">by {diff}</div>
+                  <div className="text-[10px] font-mono text-fade">by {diff}</div>
                   {/* Win probability bar */}
-                  <div className="w-16 h-1 bg-[#1A1A1A] mt-2 overflow-hidden">
+                  <div className="w-16 h-1 bg-surface-deep mt-2 overflow-hidden">
                     <motion.div
                       className="h-full"
                       style={{ backgroundColor: winning ? '#4DC878' : '#E8321A' }}
@@ -261,7 +261,7 @@ export function LiveScoring() {
                   <ScoreDisplay side={matchup.opponent} label="Opponent" winning={!winning} />
                 ) : (
                   <div className="flex-1 text-center px-2">
-                    <div className="text-[10px] font-mono text-[#555555] uppercase tracking-widest mb-1">Opponent</div>
+                    <div className="text-[10px] font-mono text-fade uppercase tracking-widest mb-1">Opponent</div>
                     <div className="text-2xl font-display font-black text-[#333333]">BYE</div>
                   </div>
                 )}
@@ -272,9 +272,9 @@ export function LiveScoring() {
             <div className="flex flex-col md:flex-row gap-4 px-4 pb-6 mt-4">
               {/* My lineup */}
               <div className="flex-1 min-w-0">
-                <div className="card-base border-l-4 border-l-[#4DC878] overflow-hidden">
-                  <div className="px-3 py-2 border-b border-[#2A2A2A]">
-                    <p className="text-[10px] font-mono font-bold text-[#4DC878] uppercase tracking-widest">My Starters</p>
+                <div className="card-base border-l-4 border-l-emerald overflow-hidden">
+                  <div className="px-3 py-2 border-b border-surface-divider">
+                    <p className="text-[10px] font-mono font-bold text-emerald uppercase tracking-widest">My Starters</p>
                   </div>
                   <div>
                     {myStarters.map(p => <PlayerRow key={p.id} player={p} />)}
@@ -282,9 +282,9 @@ export function LiveScoring() {
                 </div>
 
                 {myBench.length > 0 && (
-                  <div className="card-base border-l-4 border-l-[#484850] overflow-hidden mt-2">
-                    <div className="px-3 py-2 border-b border-[#2A2A2A]">
-                      <p className="text-[10px] font-mono font-bold text-[#555555] uppercase tracking-widest">Bench</p>
+                  <div className="card-base border-l-4 border-l-rim overflow-hidden mt-2">
+                    <div className="px-3 py-2 border-b border-surface-divider">
+                      <p className="text-[10px] font-mono font-bold text-fade uppercase tracking-widest">Bench</p>
                     </div>
                     <div>
                       {myBench.map(p => <PlayerRow key={p.id} player={p} dimmed />)}
@@ -296,9 +296,9 @@ export function LiveScoring() {
               {/* Opponent lineup */}
               {matchup.opponent && oppStarters.length > 0 && (
                 <div className="flex-1 min-w-0">
-                  <div className="card-base border-l-4 border-l-[#E8321A] overflow-hidden">
-                    <div className="px-3 py-2 border-b border-[#2A2A2A]">
-                      <p className="text-[10px] font-mono font-bold text-[#E8321A] uppercase tracking-widest">Opp Starters</p>
+                  <div className="card-base border-l-4 border-l-signal overflow-hidden">
+                    <div className="px-3 py-2 border-b border-surface-divider">
+                      <p className="text-[10px] font-mono font-bold text-signal uppercase tracking-widest">Opp Starters</p>
                     </div>
                     <div>
                       {oppStarters.map(p => <PlayerRow key={p.id} player={p} />)}

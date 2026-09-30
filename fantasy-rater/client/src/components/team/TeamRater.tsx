@@ -69,15 +69,15 @@ export function TeamRater() {
   return (
     <div className="flex flex-col md:flex-row h-full">
       {/* Left: Roster Panel */}
-      <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-[#2A2A2A] min-w-0">
+      <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-surface-divider min-w-0">
         <div className="hidden md:block flex-shrink-0 mb-4">
-          <h1 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">Team Rater</h1>
-          <p className="text-[10px] font-mono text-[#555555] mt-0.5 tracking-wider">Get an AI grade for your entire roster</p>
+          <h1 className="text-2xl font-display font-black text-warm tracking-wider">Team Rater</h1>
+          <p className="text-[10px] font-mono text-fade mt-0.5 tracking-wider">Get an AI grade for your entire roster</p>
         </div>
 
         {/* Import */}
         <div className="card-base p-3 border-l-4 border-l-white/20 flex-shrink-0 mb-3">
-          <p className="text-[10px] font-mono font-bold text-[#555555] uppercase tracking-widest mb-2">
+          <p className="text-[10px] font-mono font-bold text-fade uppercase tracking-widest mb-2">
             {config.sport === 'fpl' ? 'Import FPL Team' : config.sport === 'mlb' ? 'Import ESPN Roster' : 'Import Sleeper Roster'}
           </p>
           <div className="flex gap-2">
@@ -91,7 +91,7 @@ export function TeamRater() {
             <button
               onClick={handleImport}
               disabled={importing}
-              className="px-3 py-1.5 bg-[#E8321A] hover:bg-[#C82818] disabled:opacity-50 text-white text-xs font-mono font-bold transition-colors flex items-center gap-1"
+              className="px-3 py-1.5 bg-signal hover:bg-signal-dark disabled:opacity-50 text-white text-xs font-mono font-bold transition-colors flex items-center gap-1"
             >
               {importing ? <Loader2 size={12} className="animate-spin" /> : 'Import'}
             </button>
@@ -107,8 +107,8 @@ export function TeamRater() {
         <div className="flex-1 min-h-0 overflow-y-auto">
           {roster.length === 0 ? (
             <div className="text-center py-8">
-              <ClipboardList size={32} className="mx-auto mb-3 text-[#2A2A2A]" />
-              <p className="text-xs font-mono text-[#444444]">Import a roster or add players manually</p>
+              <ClipboardList size={32} className="mx-auto mb-3 text-surface-divider" />
+              <p className="text-xs font-mono text-ghost">Import a roster or add players manually</p>
             </div>
           ) : (
             <motion.div
@@ -144,15 +144,15 @@ export function TeamRater() {
       {/* Right: Grade Panel */}
       <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 gap-4 min-w-0">
         <div className="hidden md:block flex-shrink-0">
-          <h2 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">Grade</h2>
-          <p className="text-[10px] font-mono text-[#555555] mt-0.5">Your team rating appears here</p>
+          <h2 className="text-2xl font-display font-black text-warm tracking-wider">Grade</h2>
+          <p className="text-[10px] font-mono text-fade mt-0.5">Your team rating appears here</p>
         </div>
 
         {!score && !loading && (
           <div className="flex-1 flex items-center justify-center min-h-[200px]">
             <div className="text-center">
-              <ClipboardList size={32} className="mx-auto mb-3 text-[#2A2A2A]" />
-              <p className="text-xs font-mono text-[#444444]">Build your roster above<br />and tap Rate My Team</p>
+              <ClipboardList size={32} className="mx-auto mb-3 text-surface-divider" />
+              <p className="text-xs font-mono text-ghost">Build your roster above<br />and tap Rate My Team</p>
             </div>
           </div>
         )}
@@ -164,18 +164,18 @@ export function TeamRater() {
                 <div className="flex items-center gap-4 mb-4">
                   <GradeChip grade={score.grade} size="lg" />
                   <div>
-                    <div className="text-[#F2EFE8] font-display font-black text-2xl animate-count-up">
-                      {score.score} <span className="text-[#555555] text-base font-normal">/ 100</span>
+                    <div className="text-warm font-display font-black text-2xl animate-count-up">
+                      {score.score} <span className="text-fade text-base font-normal">/ 100</span>
                     </div>
-                    <div className="text-[#555555] text-xs font-mono">{roster.length} players evaluated</div>
+                    <div className="text-fade text-xs font-mono">{roster.length} players evaluated</div>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-px">
                   {Object.entries(score.positionBreakdown).map(([pos, { score: s, grade }]) => (
                     <div key={pos} className="flex items-center justify-between card-base px-2 py-2">
-                      <span className="text-[#8A8A8A] text-xs font-mono">{pos}</span>
+                      <span className="text-soft text-xs font-mono">{pos}</span>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[#555555] text-[10px] font-mono">{s}</span>
+                        <span className="text-fade text-[10px] font-mono">{s}</span>
                         <GradeChip grade={grade} />
                       </div>
                     </div>
@@ -184,8 +184,8 @@ export function TeamRater() {
               </div>
             </IridescentBorder>
 
-            <div className="card-base p-4 border-l-4 border-l-[#E8321A] min-w-0 flex-shrink-0">
-              <h3 className="text-[10px] font-mono font-bold text-[#E8321A] uppercase tracking-widest mb-3">AI Analysis</h3>
+            <div className="card-base p-4 border-l-4 border-l-signal min-w-0 flex-shrink-0">
+              <h3 className="text-[10px] font-mono font-bold text-signal uppercase tracking-widest mb-3">AI Analysis</h3>
               <StreamingAnalysis hash={score.analysisHash} />
             </div>
           </>

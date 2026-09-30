@@ -25,8 +25,8 @@ const itemVariants = {
 
 function SkeletonCard() {
   return (
-    <div className="min-h-[180px] sm:min-h-[220px] overflow-hidden relative border border-white/[0.07]"
-         style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(16px)' }}>
+    <div className="min-h-[180px] sm:min-h-[220px] overflow-hidden relative border border-white/[0.07] backdrop-blur-lg"
+         style={{ background: 'rgba(255,255,255,0.03)' }}>
       <div className="animate-shimmer absolute inset-0 z-10 pointer-events-none" />
       <div className="relative p-3 flex flex-col gap-2 opacity-20">
         <div className="flex justify-between mb-1">
@@ -301,7 +301,7 @@ export function PlayerRankings() {
               onClick={() => setMobileAnalysisPlayer(null)}
             />
             <motion.div
-              className="fixed bottom-0 inset-x-0 z-50 bg-[#2C2C31] border-t border-[#484850] p-4 max-h-[65vh] overflow-y-auto"
+              className="fixed bottom-0 inset-x-0 z-50 bg-[#2C2C31] border-t border-rim p-4 max-h-[65vh] overflow-y-auto"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -309,39 +309,39 @@ export function PlayerRankings() {
             >
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h3 className="text-sm font-display font-black text-[#F2EFE8]">{mobileAnalysisPlayer.name}</h3>
-                  <p className="text-[10px] font-mono text-[#555555]">{mobileAnalysisPlayer.position} · {mobileAnalysisPlayer.team}</p>
+                  <h3 className="text-sm font-display font-black text-warm">{mobileAnalysisPlayer.name}</h3>
+                  <p className="text-[10px] font-mono text-fade">{mobileAnalysisPlayer.position} · {mobileAnalysisPlayer.team}</p>
                 </div>
-                <button onClick={() => setMobileAnalysisPlayer(null)} className="text-[#484850] hover:text-[#F2EFE8] transition-colors">
+                <button onClick={() => setMobileAnalysisPlayer(null)} className="text-rim hover:text-warm transition-colors">
                   <X size={18} />
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-2 mb-3">
                 {mobileAnalysisPlayer.avgPoints !== undefined && (
                   <div className="card-base p-2">
-                    <div className="text-[#F2EFE8] font-display font-bold text-sm">{mobileAnalysisPlayer.avgPoints.toFixed(1)}</div>
-                    <div className="text-[10px] font-mono text-[#555555]">pts/wk</div>
+                    <div className="text-warm font-display font-bold text-sm">{mobileAnalysisPlayer.avgPoints.toFixed(1)}</div>
+                    <div className="text-[10px] font-mono text-fade">pts/wk</div>
                   </div>
                 )}
                 {mobileAnalysisPlayer.searchRank && (
                   <div className="card-base p-2">
-                    <div className="text-[#F2EFE8] font-display font-bold text-sm">#{mobileAnalysisPlayer.searchRank}</div>
-                    <div className="text-[10px] font-mono text-[#555555]">overall rank</div>
+                    <div className="text-warm font-display font-bold text-sm">#{mobileAnalysisPlayer.searchRank}</div>
+                    <div className="text-[10px] font-mono text-fade">overall rank</div>
                   </div>
                 )}
                 {mobileAnalysisPlayer.injuryStatus && (
                   <div className="bg-rose-900/40 p-2 col-span-2 border border-rose-500/20">
                     <div className="text-rose-300 font-mono font-bold uppercase text-[11px]">{mobileAnalysisPlayer.injuryStatus}</div>
-                    <div className="text-[10px] font-mono text-[#555555]">injury status</div>
+                    <div className="text-[10px] font-mono text-fade">injury status</div>
                   </div>
                 )}
               </div>
-              <p className="text-[10px] font-mono text-[#E8321A] uppercase tracking-widest mb-2">AI Analysis</p>
+              <p className="text-[10px] font-mono text-signal uppercase tracking-widest mb-2">AI Analysis</p>
               {mobileAnalysisHash ? (
                 <StreamingAnalysis hash={mobileAnalysisHash} />
               ) : (
-                <div className="flex items-center gap-2 text-[#555555] text-xs font-mono">
-                  <Loader2 size={12} className="animate-spin text-[#E8321A]" /> Analyzing...
+                <div className="flex items-center gap-2 text-fade text-xs font-mono">
+                  <Loader2 size={12} className="animate-spin text-signal" /> Analyzing...
                 </div>
               )}
             </motion.div>

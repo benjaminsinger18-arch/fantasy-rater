@@ -184,7 +184,7 @@ export function DraftAssistant() {
 
               {/* Sleeper live sync */}
               <div className="mb-3">
-                <label className="block text-[9px] font-mono text-[#555555] uppercase tracking-widest mb-1">
+                <label className="block text-[9px] font-mono text-fade uppercase tracking-widest mb-1">
                   Sleeper Draft ID (optional — enables live sync)
                 </label>
                 <div className="flex items-center gap-2">
@@ -193,16 +193,16 @@ export function DraftAssistant() {
                     value={draftId}
                     onChange={e => setDraftId(e.target.value.trim())}
                     placeholder="e.g. 1234567890"
-                    className="flex-1 bg-[#1E1E22] border border-[#484850] text-xs font-mono text-[#F2EFE8] px-2 py-1.5 focus:outline-none focus:border-[#E8321A]/50 placeholder-[#444444]"
+                    className="flex-1 bg-[#1E1E22] border border-rim text-xs font-mono text-warm px-2 py-1.5 focus:outline-none focus:border-signal/50 placeholder-ghost"
                   />
-                  {syncing && <RefreshCw size={14} className="animate-spin text-[#E8321A] flex-shrink-0" />}
+                  {syncing && <RefreshCw size={14} className="animate-spin text-signal flex-shrink-0" />}
                 </div>
               </div>
 
               {isMyTurn && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-[#E8321A]/20 border border-[#E8321A]/40 mb-3">
-                  <Bell size={12} className="text-[#E8321A] flex-shrink-0" />
-                  <span className="text-[11px] font-display font-black text-[#E8321A] uppercase tracking-widest">
+                <div className="flex items-center gap-2 px-3 py-2 bg-signal/20 border border-signal/40 mb-3">
+                  <Bell size={12} className="text-signal flex-shrink-0" />
+                  <span className="text-[11px] font-display font-black text-signal uppercase tracking-widest">
                     Your Turn! Pick #{currentPick}
                   </span>
                 </div>

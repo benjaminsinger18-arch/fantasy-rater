@@ -2,9 +2,9 @@ import { motion } from 'framer-motion';
 import { IridescentBorder } from './IridescentBorder.tsx';
 
 function gradeColor(grade: string) {
-  if (grade.startsWith('B')) return 'text-[#F2EFE8] border-white/20';
-  if (grade.startsWith('C')) return 'text-[#8A8A8A] border-white/10';
-  if (grade.startsWith('D')) return 'text-[#555555] border-white/[0.06]';
+  if (grade.startsWith('B')) return 'text-warm border-white/20';
+  if (grade.startsWith('C')) return 'text-soft border-white/10';
+  if (grade.startsWith('D')) return 'text-fade border-white/[0.06]';
   return 'text-[#333333] border-white/[0.04]';
 }
 
@@ -18,7 +18,7 @@ export function GradeChip({ grade, size = 'sm' }: { grade: string; size?: 'sm' |
       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
       className={`inline-flex items-center justify-center font-display font-black bg-transparent ${
         isTopGrade
-          ? 'text-[#E8321A]'
+          ? 'text-signal'
           : `border ${gradeColor(grade)}`
       } ${
         size === 'lg'

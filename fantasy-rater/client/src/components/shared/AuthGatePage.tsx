@@ -1,12 +1,12 @@
 import { SignInButton, SignUpButton } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
-import { Trophy, ArrowRight, Zap } from 'lucide-react';
+import { Trophy, ArrowRight, Zap, Brain, Radio, Target } from 'lucide-react';
 
 const features = [
-  { label: 'Trade grades in seconds',      icon: '⚡' },
-  { label: 'AI-powered start/sit advice',  icon: '🧠' },
-  { label: 'Live waiver wire picks',        icon: '📡' },
-  { label: 'Matchup win probability',       icon: '🎯' },
+  { label: 'Trade grades in seconds',     Icon: Zap    },
+  { label: 'AI-powered start/sit advice', Icon: Brain  },
+  { label: 'Live waiver wire picks',      Icon: Radio  },
+  { label: 'Matchup win probability',     Icon: Target },
 ];
 
 export function AuthGatePage() {
@@ -40,11 +40,11 @@ export function AuthGatePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="w-8 h-8 border-2 border-[#E8321A] flex items-center justify-center"
+          <div className="w-8 h-8 border-2 border-signal flex items-center justify-center"
                style={{ boxShadow: '0 0 12px rgba(232,50,26,0.35)' }}>
-            <Trophy size={14} className="text-[#E8321A]" />
+            <Trophy size={14} className="text-signal" />
           </div>
-          <span className="font-display text-xl font-black tracking-wide text-[#F2EFE8] uppercase">
+          <span className="font-display text-xl font-black tracking-wide text-warm uppercase">
             FantasyRater
           </span>
         </motion.div>
@@ -57,7 +57,7 @@ export function AuthGatePage() {
           transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         >
           <h1
-            className="font-display font-black text-[#F2EFE8] leading-none mb-4"
+            className="font-display font-black text-warm leading-none mb-4"
             style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', letterSpacing: '0.02em' }}
           >
             WIN YOUR<br />
@@ -91,12 +91,12 @@ export function AuthGatePage() {
           {features.map((f, i) => (
             <motion.li
               key={f.label}
-              className="flex items-center gap-3 text-[13px] font-ui text-[#888888]"
+              className="flex items-center gap-3 text-[13px] font-ui text-soft"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.35 + i * 0.07, duration: 0.3 }}
             >
-              <span className="text-base leading-none">{f.icon}</span>
+              <f.Icon size={13} className="text-fade flex-shrink-0" />
               {f.label}
             </motion.li>
           ))}
@@ -113,11 +113,11 @@ export function AuthGatePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="w-8 h-8 border-2 border-[#E8321A] flex items-center justify-center"
+          <div className="w-8 h-8 border-2 border-signal flex items-center justify-center"
                style={{ boxShadow: '0 0 12px rgba(232,50,26,0.35)' }}>
-            <Trophy size={14} className="text-[#E8321A]" />
+            <Trophy size={14} className="text-signal" />
           </div>
-          <span className="font-display text-xl font-black tracking-wide text-[#F2EFE8] uppercase">
+          <span className="font-display text-xl font-black tracking-wide text-warm uppercase">
             FantasyRater
           </span>
         </motion.div>
@@ -130,20 +130,20 @@ export function AuthGatePage() {
         >
           {/* Mobile heading */}
           <div className="mb-8 md:hidden">
-            <h2 className="font-display font-black text-[#F2EFE8] text-3xl mb-2"
+            <h2 className="font-display font-black text-warm text-3xl mb-2"
                 style={{ letterSpacing: '0.02em' }}>
               GET STARTED
             </h2>
-            <p className="text-[#666666] font-ui text-sm">AI-powered fantasy decisions</p>
+            <p className="text-sub font-ui text-sm">AI-powered fantasy decisions</p>
           </div>
 
           {/* Desktop heading */}
           <div className="hidden md:block mb-8">
-            <h2 className="font-display font-black text-[#F2EFE8] text-2xl mb-2"
+            <h2 className="font-display font-black text-warm text-2xl mb-2"
                 style={{ letterSpacing: '0.02em' }}>
               GET STARTED
             </h2>
-            <p className="text-[#666666] font-ui text-sm">Create a free account to begin</p>
+            <p className="text-sub font-ui text-sm">Create a free account to begin</p>
           </div>
 
           <div className="space-y-3">
@@ -159,8 +159,8 @@ export function AuthGatePage() {
 
             <SignInButton mode="modal">
               <button
-                className="w-full py-3.5 text-[#888888] hover:text-[#F2EFE8] font-ui font-medium text-[15px] transition-all rounded cursor-pointer border border-white/[0.10] hover:border-white/[0.20]"
-                style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(8px)' }}
+                className="w-full py-3.5 text-soft hover:text-warm font-ui font-medium text-[15px] transition-all rounded cursor-pointer border border-white/[0.10] hover:border-white/[0.20] glass-subtle"
+                style={{ background: 'rgba(255,255,255,0.03)' }}
               >
                 Sign In
               </button>

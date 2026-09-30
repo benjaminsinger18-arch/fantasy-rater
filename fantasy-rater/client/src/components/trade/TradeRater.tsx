@@ -49,23 +49,23 @@ function CompactPlayerRow({ player, onRemove }: { player: Player; onRemove: () =
       animate={{ opacity: 1, x: 0, height: 'auto' }}
       exit={{ opacity: 0, x: 12, height: 0 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      className="flex items-center gap-2 border border-white/[0.08] hover:border-white/[0.14] px-2.5 py-2 mb-1 transition-colors overflow-hidden"
-      style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)' }}
+      className="flex items-center gap-2 border border-white/[0.08] hover:border-white/[0.14] px-2.5 py-2 mb-1 transition-colors overflow-hidden backdrop-blur"
+      style={{ background: 'rgba(255,255,255,0.04)' }}
     >
-      <div className="w-6 h-6 flex items-center justify-center flex-shrink-0 text-[10px] font-mono font-bold text-[#8A8A8A] border border-white/[0.08]" style={{ background: 'rgba(255,255,255,0.06)' }}>
+      <div className="w-6 h-6 flex items-center justify-center flex-shrink-0 text-[10px] font-mono font-bold text-soft border border-white/[0.08]" style={{ background: 'rgba(255,255,255,0.06)' }}>
         {player.position}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-display font-black text-[#F2EFE8] truncate leading-tight tracking-wide">
+        <p className="text-xs font-display font-black text-warm truncate leading-tight tracking-wide">
           {player.name.split(' ').slice(-1)[0].toUpperCase()}
         </p>
-        <p className="text-[10px] font-mono text-[#555555] leading-tight">
+        <p className="text-[10px] font-mono text-fade leading-tight">
           {player.position}{player.team ? ` · ${player.team}` : ''}
         </p>
       </div>
       <motion.button
         onClick={onRemove}
-        className="text-[#444444] hover:text-[#E8321A] flex-shrink-0 transition-colors"
+        className="text-ghost hover:text-signal flex-shrink-0 transition-colors"
         whileTap={{ scale: 0.8, rotate: 90 }}
         transition={{ duration: 0.15 }}
       >
@@ -105,7 +105,7 @@ function TradeSide({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-[#444444] font-mono text-[10px] text-center pt-3"
+              className="text-ghost font-mono text-[10px] text-center pt-3"
             >
               Add players above
             </motion.p>
@@ -127,18 +127,18 @@ function TradeSide({
 function FairnessBar({ ratio }: { ratio: number }) {
   const deviation = ratio - 1;
   const pct = Math.min(Math.max(50 - deviation * 50, 5), 95);
-  let color = 'bg-[#4DC878]';
-  if (Math.abs(deviation) > 0.25) color = 'bg-[#E8321A]';
-  else if (Math.abs(deviation) > 0.10) color = 'bg-[#C8882A]';
+  let color = 'bg-emerald';
+  if (Math.abs(deviation) > 0.25) color = 'bg-signal';
+  else if (Math.abs(deviation) > 0.10) color = 'bg-gold';
 
   return (
     <div>
-      <div className="flex justify-between text-[10px] font-mono text-[#444444] mb-1.5">
+      <div className="flex justify-between text-[10px] font-mono text-ghost mb-1.5">
         <span>Give more</span>
         <span>Fair</span>
         <span>Get more</span>
       </div>
-      <div className="relative h-2 bg-[#1A1A1A] border border-[#2A2A2A] overflow-hidden">
+      <div className="relative h-2 bg-surface-deep border border-surface-divider overflow-hidden">
         <div className="absolute left-1/2 w-px h-full bg-[#3A3A3A] z-10" />
         <motion.div
           className={`absolute top-0 h-full ${color}`}
@@ -172,11 +172,11 @@ function CountUpScore({ target, className }: { target: number; className: string
 }
 
 const VERDICT_STYLES: Record<string, { bg: string; border: string; text: string; hex: string; Icon: React.ElementType }> = {
-  'Great Deal':    { bg: 'bg-[#E8321A]/10', border: 'border-[#E8321A]/50', text: 'text-[#E8321A]',  hex: '#E8321A', Icon: Flame },
-  'Good Deal':     { bg: 'bg-[#4DC878]/10', border: 'border-[#4DC878]/40', text: 'text-[#4DC878]',  hex: '#4DC878', Icon: CheckCircle },
-  'Toss Up':       { bg: 'bg-[#C8882A]/10', border: 'border-[#C8882A]/40', text: 'text-[#C8882A]',  hex: '#C8882A', Icon: Scale },
-  'Bad Deal':      { bg: 'bg-[#8A8A8A]/10', border: 'border-[#8A8A8A]/30', text: 'text-[#8A8A8A]',  hex: '#8A8A8A', Icon: AlertTriangle },
-  'Horrible Deal': { bg: 'bg-[#555555]/10', border: 'border-[#555555]/30', text: 'text-[#555555]',  hex: '#555555', Icon: Siren },
+  'Great Deal':    { bg: 'bg-signal/10', border: 'border-signal/50', text: 'text-signal',  hex: '#E8321A', Icon: Flame },
+  'Good Deal':     { bg: 'bg-emerald/10', border: 'border-emerald/40', text: 'text-emerald',  hex: '#4DC878', Icon: CheckCircle },
+  'Toss Up':       { bg: 'bg-gold/10', border: 'border-gold/40', text: 'text-gold',  hex: '#C8882A', Icon: Scale },
+  'Bad Deal':      { bg: 'bg-soft/10', border: 'border-soft/30', text: 'text-soft',  hex: '#8A8A8A', Icon: AlertTriangle },
+  'Horrible Deal': { bg: 'bg-fade/10', border: 'border-fade/30', text: 'text-fade',  hex: '#555555', Icon: Siren },
 };
 
 export function TradeRater() {
@@ -259,24 +259,24 @@ export function TradeRater() {
   return (
     <div className="flex flex-col md:flex-row min-h-full">
       {/* Left: Trade Builder */}
-      <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-[#2A2A2A] gap-4 min-w-0">
+      <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-surface-divider gap-4 min-w-0">
         <div className="hidden md:block flex-shrink-0">
-          <h1 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">
+          <h1 className="text-2xl font-display font-black text-warm tracking-wider">
             Trade Rater
           </h1>
-          <p className="text-[#555555] text-xs font-mono mt-0.5">AI-powered analysis with live player data</p>
+          <p className="text-fade text-xs font-mono mt-0.5">AI-powered analysis with live player data</p>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-0 border-b border-[#2A2A2A] flex-shrink-0 -mt-2">
+        <div className="flex gap-0 border-b border-surface-divider flex-shrink-0 -mt-2">
           {([['rate', 'Rate Trade'], ['history', 'History']] as const).map(([t, label]) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={`flex items-center gap-1.5 px-3 py-2 text-[10px] font-mono font-bold uppercase tracking-widest border-b-2 transition-colors ${
                 tab === t
-                  ? 'border-[#E8321A] text-[#F2EFE8]'
-                  : 'border-transparent text-[#555555] hover:text-[#8A8A8A]'
+                  ? 'border-signal text-warm'
+                  : 'border-transparent text-fade hover:text-soft'
               }`}
             >
               {t === 'history' && <History size={10} />}
@@ -300,11 +300,11 @@ export function TradeRater() {
                 sport={config.sport}
                 onAdd={p => setSideA(prev => [...prev, p])}
                 onRemove={i => setSideA(prev => prev.filter((_, idx) => idx !== i))}
-                colorClass="border-l-[#E8321A]"
-                headerColor="text-[#E8321A]"
+                colorClass="border-l-signal"
+                headerColor="text-signal"
               />
               <div className="flex items-center justify-center flex-shrink-0">
-                <div className="w-7 h-7 bg-[#1A1A1A] border border-[#2A2A2A] flex items-center justify-center text-[#555555]">
+                <div className="w-7 h-7 bg-surface-deep border border-surface-divider flex items-center justify-center text-fade">
                   <ArrowLeftRight size={14} />
                 </div>
               </div>
@@ -314,8 +314,8 @@ export function TradeRater() {
                 sport={config.sport}
                 onAdd={p => setSideB(prev => [...prev, p])}
                 onRemove={i => setSideB(prev => prev.filter((_, idx) => idx !== i))}
-                colorClass="border-l-[#4DC878]"
-                headerColor="text-[#4DC878]"
+                colorClass="border-l-emerald"
+                headerColor="text-emerald"
               />
             </div>
 
@@ -335,17 +335,17 @@ export function TradeRater() {
       {/* Right: Analysis Panel */}
       <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 gap-4 min-w-0">
         <div className="hidden md:block flex-shrink-0">
-          <h2 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">
+          <h2 className="text-2xl font-display font-black text-warm tracking-wider">
             Analysis
           </h2>
-          <p className="text-[#555555] text-xs font-mono mt-0.5">Results appear here after rating</p>
+          <p className="text-fade text-xs font-mono mt-0.5">Results appear here after rating</p>
         </div>
 
         {!score && !loading && (
           <div className="flex-1 flex items-center justify-center min-h-[200px]">
             <div className="text-center">
-              <ArrowLeftRight size={32} className="mx-auto mb-3 text-[#2A2A2A]" />
-              <p className="text-xs font-mono text-[#444444]">Add players to both sides<br />and tap Rate This Trade</p>
+              <ArrowLeftRight size={32} className="mx-auto mb-3 text-surface-divider" />
+              <p className="text-xs font-mono text-ghost">Add players to both sides<br />and tap Rate This Trade</p>
             </div>
           </div>
         )}
@@ -357,15 +357,15 @@ export function TradeRater() {
                 <div className="p-5 space-y-4">
                   <div className="flex justify-between items-end">
                     <div className="text-center">
-                      <CountUpScore target={score.sideAScore} className="text-4xl font-display font-black text-[#E8321A] tracking-tight" />
-                      <div className="text-xs font-mono text-[#555555] mt-1">You Give</div>
+                      <CountUpScore target={score.sideAScore} className="text-4xl font-display font-black text-signal tracking-tight" />
+                      <div className="text-xs font-mono text-fade mt-1">You Give</div>
                     </div>
                     <div className="flex-1 px-6">
                       <FairnessBar ratio={score.ratio} />
                     </div>
                     <div className="text-center">
-                      <CountUpScore target={score.sideBScore} className="text-4xl font-display font-black text-[#4DC878] tracking-tight" />
-                      <div className="text-xs font-mono text-[#555555] mt-1">You Receive</div>
+                      <CountUpScore target={score.sideBScore} className="text-4xl font-display font-black text-emerald tracking-tight" />
+                      <div className="text-xs font-mono text-fade mt-1">You Receive</div>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -389,16 +389,16 @@ export function TradeRater() {
                       onClick={handleShare}
                       disabled={sharing}
                       title="Download share card"
-                      className="px-3 py-2.5 border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#222222] text-[#8A8A8A] hover:text-[#F2EFE8] transition-all disabled:opacity-50"
+                      className="px-3 py-2.5 border border-surface-divider bg-surface-deep hover:bg-[#222222] text-soft hover:text-warm transition-all disabled:opacity-50"
                     >
                       {sharing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
                     </button>
                     <button
                       onClick={handleCopyText}
                       title="Copy share text"
-                      className="px-3 py-2.5 border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#222222] text-[#8A8A8A] hover:text-[#F2EFE8] transition-all"
+                      className="px-3 py-2.5 border border-surface-divider bg-surface-deep hover:bg-[#222222] text-soft hover:text-warm transition-all"
                     >
-                      {copied ? <Check size={14} className="text-[#4DC878]" /> : <Copy size={14} />}
+                      {copied ? <Check size={14} className="text-emerald" /> : <Copy size={14} />}
                     </button>
                   </div>
                 </div>
@@ -407,15 +407,15 @@ export function TradeRater() {
               <div className="card-base p-5 space-y-4 flex-shrink-0 border-l-4" style={{ borderLeftColor: vs.hex }}>
                 <div className="flex justify-between items-end">
                   <div className="text-center">
-                    <CountUpScore target={score.sideAScore} className="text-4xl font-display font-black text-[#E8321A] tracking-tight" />
-                    <div className="text-xs font-mono text-[#555555] mt-1">You Give</div>
+                    <CountUpScore target={score.sideAScore} className="text-4xl font-display font-black text-signal tracking-tight" />
+                    <div className="text-xs font-mono text-fade mt-1">You Give</div>
                   </div>
                   <div className="flex-1 px-6">
                     <FairnessBar ratio={score.ratio} />
                   </div>
                   <div className="text-center">
-                    <CountUpScore target={score.sideBScore} className="text-4xl font-display font-black text-[#4DC878] tracking-tight" />
-                    <div className="text-xs font-mono text-[#555555] mt-1">You Receive</div>
+                    <CountUpScore target={score.sideBScore} className="text-4xl font-display font-black text-emerald tracking-tight" />
+                    <div className="text-xs font-mono text-fade mt-1">You Receive</div>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -439,23 +439,23 @@ export function TradeRater() {
                     onClick={handleShare}
                     disabled={sharing}
                     title="Download share card"
-                    className="px-3 py-2.5 border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#222222] text-[#8A8A8A] hover:text-[#F2EFE8] transition-all disabled:opacity-50"
+                    className="px-3 py-2.5 border border-surface-divider bg-surface-deep hover:bg-[#222222] text-soft hover:text-warm transition-all disabled:opacity-50"
                   >
                     {sharing ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
                   </button>
                   <button
                     onClick={handleCopyText}
                     title="Copy share text"
-                    className="px-3 py-2.5 border border-[#2A2A2A] bg-[#1A1A1A] hover:bg-[#222222] text-[#8A8A8A] hover:text-[#F2EFE8] transition-all"
+                    className="px-3 py-2.5 border border-surface-divider bg-surface-deep hover:bg-[#222222] text-soft hover:text-warm transition-all"
                   >
-                    {copied ? <Check size={14} className="text-[#4DC878]" /> : <Copy size={14} />}
+                    {copied ? <Check size={14} className="text-emerald" /> : <Copy size={14} />}
                   </button>
                 </div>
               </div>
             )}
 
-            <div className="card-base p-5 border-l-4 border-l-[#E8321A] min-w-0 flex-shrink-0">
-              <h3 className="text-[10px] font-mono font-bold text-[#E8321A] uppercase tracking-widest mb-3">AI Analysis</h3>
+            <div className="card-base p-5 border-l-4 border-l-signal min-w-0 flex-shrink-0">
+              <h3 className="text-[10px] font-mono font-bold text-signal uppercase tracking-widest mb-3">AI Analysis</h3>
               <StreamingAnalysis hash={score.analysisHash} />
             </div>
           </>

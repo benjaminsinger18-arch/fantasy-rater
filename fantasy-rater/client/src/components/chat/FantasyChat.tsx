@@ -158,15 +158,15 @@ export function FantasyChat() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex-shrink-0 px-4 md:px-5 pt-4 md:pt-5 pb-3 border-b border-[#2A2A2A] flex items-start justify-between">
+      <div className="flex-shrink-0 px-4 md:px-5 pt-4 md:pt-5 pb-3 border-b border-surface-divider flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">AI Advisor</h1>
-          <p className="text-[10px] font-mono text-[#555555] mt-0.5">Your personal fantasy {config.sport.toUpperCase()} expert</p>
+          <h1 className="text-2xl font-display font-black text-warm tracking-wider">AI Advisor</h1>
+          <p className="text-[10px] font-mono text-fade mt-0.5">Your personal fantasy {config.sport.toUpperCase()} expert</p>
         </div>
         {messages.length > 0 && (
           <button
             onClick={clearHistory}
-            className="flex items-center gap-1 text-[10px] font-mono text-[#444444] hover:text-[#E8321A] transition-colors mt-1"
+            className="flex items-center gap-1 text-[10px] font-mono text-ghost hover:text-signal transition-colors mt-1"
           >
             <Trash2 size={11} /> Clear
           </button>
@@ -181,12 +181,12 @@ export function FantasyChat() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center h-full gap-4 py-8"
           >
-            <div className="w-12 h-12 border border-[#484850] flex items-center justify-center">
-              <MessageCircle size={22} className="text-[#484850]" />
+            <div className="w-12 h-12 border border-rim flex items-center justify-center">
+              <MessageCircle size={22} className="text-rim" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-display font-black text-[#F2EFE8] tracking-wider mb-1">Ask anything</p>
-              <p className="text-xs font-mono text-[#444444]">Trade advice, start/sit, waiver pickups, roster analysis</p>
+              <p className="text-sm font-display font-black text-warm tracking-wider mb-1">Ask anything</p>
+              <p className="text-xs font-mono text-ghost">Trade advice, start/sit, waiver pickups, roster analysis</p>
             </div>
           </motion.div>
         )}
@@ -218,7 +218,7 @@ export function FantasyChat() {
               whileTap={{ scale: 0.96 }}
               onClick={() => send(p)}
               disabled={streaming}
-              className="px-2.5 py-1.5 text-[10px] font-mono border border-[#484850] text-[#8A8A8A] hover:text-[#F2EFE8] hover:border-[#E8321A]/40 transition-colors disabled:opacity-40"
+              className="px-2.5 py-1.5 text-[10px] font-mono border border-rim text-soft hover:text-warm hover:border-signal/40 transition-colors disabled:opacity-40"
             >
               {p}
             </motion.button>
@@ -227,7 +227,7 @@ export function FantasyChat() {
       )}
 
       {/* Input */}
-      <div className="flex-shrink-0 px-4 md:px-5 pb-4 md:pb-5 pt-2 border-t border-[#2A2A2A]">
+      <div className="flex-shrink-0 px-4 md:px-5 pb-4 md:pb-5 pt-2 border-t border-surface-divider">
         <div className="flex gap-2 items-end">
           <textarea
             ref={inputRef}
@@ -248,7 +248,7 @@ export function FantasyChat() {
           <button
             onClick={() => send(input)}
             disabled={streaming || !input.trim()}
-            className="w-10 h-10 flex-shrink-0 bg-[#E8321A] hover:bg-[#C82818] disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
+            className="w-10 h-10 flex-shrink-0 bg-signal hover:bg-signal-dark disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
           >
             {streaming
               ? <Loader2 size={14} className="animate-spin" />

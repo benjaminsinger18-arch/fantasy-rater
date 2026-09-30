@@ -36,7 +36,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     border: 'border-white/[0.08]',
     accentClass: 'tier-bronze',
     statBg: 'bg-white/[0.06]',
-    text: 'text-[#F2EFE8]',
+    text: 'text-warm',
     subtext: 'text-[#7A6048]',
     scoreColor: 'text-[#C4A882]',
     divider: 'border-white/[0.06]',
@@ -48,19 +48,19 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     border: 'border-white/[0.06]',
     accentClass: 'tier-iron',
     statBg: 'bg-white/[0.05]',
-    text: 'text-[#F2EFE8]',
-    subtext: 'text-[#555555]',
-    scoreColor: 'text-[#666666]',
+    text: 'text-warm',
+    subtext: 'text-fade',
+    scoreColor: 'text-sub',
     divider: 'border-white/[0.05]',
     glowClass: '',
-    avatarGradient: 'from-[#333333] to-[#1A1A1A]',
+    avatarGradient: 'from-[#333333] to-surface-deep',
   },
   d: {
     bgClass: 'bg-white/[0.04] backdrop-blur-xl',
     border: 'border-white/[0.08]',
     accentClass: 'tier-silver',
     statBg: 'bg-white/[0.06]',
-    text: 'text-[#F2EFE8]',
+    text: 'text-warm',
     subtext: 'text-[#7A8090]',
     scoreColor: 'text-[#9BA4B5]',
     divider: 'border-white/[0.06]',
@@ -72,9 +72,9 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     border: 'border-white/[0.08]',
     accentClass: 'tier-emerald',
     statBg: 'bg-white/[0.06]',
-    text: 'text-[#F2EFE8]',
+    text: 'text-warm',
     subtext: 'text-[#2A7040]',
-    scoreColor: 'text-[#4DC878]',
+    scoreColor: 'text-emerald',
     divider: 'border-white/[0.06]',
     glowClass: '',
     avatarGradient: 'from-[#1A5E30] to-[#0A1E10]',
@@ -84,7 +84,7 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
     border: 'border-white/[0.08]',
     accentClass: 'tier-sapphire',
     statBg: 'bg-white/[0.06]',
-    text: 'text-[#F2EFE8]',
+    text: 'text-warm',
     subtext: 'text-[#2A5080]',
     scoreColor: 'text-[#5090D8]',
     divider: 'border-white/[0.06]',
@@ -93,25 +93,25 @@ const TIER_STYLES: Record<Tier, TierStyle> = {
   },
   a: {
     bgClass: 'bg-white/[0.05] backdrop-blur-xl',
-    border: 'border-[#C8882A]/30',
+    border: 'border-gold/30',
     accentClass: 'tier-gold',
     statBg: 'bg-white/[0.07]',
-    text: 'text-[#F2EFE8]',
+    text: 'text-warm',
     subtext: 'text-[#8A6020]',
-    scoreColor: 'text-[#C8882A]',
+    scoreColor: 'text-gold',
     divider: 'border-white/[0.06]',
     glowClass: '',
     avatarGradient: 'from-[#6A4A10] to-[#1A1200]',
   },
   s: {
     bgClass: 'bg-white/[0.06] backdrop-blur-xl',
-    border: 'border-[#E8321A]/30',
+    border: 'border-signal/30',
     accentClass: 'tier-divine',
     statBg: 'bg-white/[0.08]',
-    text: 'text-[#F2EFE8]',
+    text: 'text-warm',
     subtext: 'text-[#AA3A1A]',
-    scoreColor: 'text-[#E8321A]',
-    divider: 'border-[#E8321A]/10',
+    scoreColor: 'text-signal',
+    divider: 'border-signal/10',
     glowClass: 'animate-score-glow',
     avatarGradient: 'from-[#6A1A0A] to-[#1A0800]',
   },
@@ -323,7 +323,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           ? { scale: { duration: 3, repeat: Infinity, ease: 'easeInOut' } }
           : { type: 'spring', stiffness: 220, damping: 18 }
       }
-      style={onClick ? { rotateX, rotateY, transformStyle: 'preserve-3d', perspective: '800px', WebkitBackdropFilter: 'blur(20px)' } : { WebkitBackdropFilter: 'blur(20px)' }}
+      style={onClick ? { rotateX, rotateY, transformStyle: 'preserve-3d', perspective: '800px' } : undefined}
       onMouseMove={handleTiltMove}
       onMouseLeave={handleTiltLeave}
       className={`relative border border-l-4 overflow-hidden w-full ${s.bgClass} ${s.border} ${s.accentClass} ${onClick ? 'cursor-pointer' : ''} ${tier === 's' ? 'animate-border-pulse' : ''}`}
@@ -340,7 +340,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
           transition={{ delay: 0.5, duration: 0.6 }}
         >
           <motion.div
-            className={`absolute w-24 h-24 rounded-full blur-3xl ${tier === 's' ? 'bg-[#E8321A]/18' : 'bg-[#C8882A]/14'}`}
+            className={`absolute w-24 h-24 rounded-full blur-3xl ${tier === 's' ? 'bg-signal/18' : 'bg-gold/14'}`}
             animate={{
               top: ['8%', '8%', '60%', '60%', '8%'],
               left: ['8%', '65%', '65%', '8%', '8%'],
@@ -378,7 +378,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
         {onRemove && (
           <button
             onClick={onRemove}
-            className="absolute top-1.5 right-1.5 z-20 w-5 h-5 bg-[#1A1A1A] hover:bg-[#E8321A]/20 text-[#555555] hover:text-[#E8321A] flex items-center justify-center transition-colors"
+            className="absolute top-1.5 right-1.5 z-20 w-5 h-5 bg-surface-deep hover:bg-signal/20 text-fade hover:text-signal flex items-center justify-center transition-colors"
           >
             <X size={10} />
           </button>
@@ -404,7 +404,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
                 <div className="relative flex items-center justify-center">
                   {(tier === 's' || tier === 'a') && (
                     <span
-                      className={`absolute inline-flex h-full w-full rounded-full opacity-40 animate-ping ${tier === 's' ? 'bg-[#E8321A]' : 'bg-[#C8882A]'}`}
+                      className={`absolute inline-flex h-full w-full rounded-full opacity-40 animate-ping ${tier === 's' ? 'bg-signal' : 'bg-gold'}`}
                       style={{ animationDuration: '2.5s' }}
                     />
                   )}
@@ -417,7 +417,7 @@ export function PlayerCard({ player, sport, onRemove, onClick }: Props) {
 
           {/* Headshot — photo parallax + blur-to-sharp entrance */}
           <motion.div style={{ x: photoX, y: photoY }} className="mb-2">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 overflow-hidden flex items-center justify-center flex-shrink-0 border border-[#2A2A2A]">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 overflow-hidden flex items-center justify-center flex-shrink-0 border border-surface-divider">
               {urlIndex < headshotUrls.length ? (
                 <img
                   src={headshotUrls[urlIndex]}

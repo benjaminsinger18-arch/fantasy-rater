@@ -95,16 +95,16 @@ export function TierInfoModal({ open, onClose }: Props) {
             exit={{ opacity: 0, scale: 0.94, y: 6 }}
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
           >
-            <div className="bg-[#2C2C31] border border-[#484850] overflow-hidden">
+            <div className="bg-[#2C2C31] border border-rim overflow-hidden">
               {/* Header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[#484850]">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-rim">
                 <div>
-                  <h2 className="font-display text-sm tracking-widest text-[#F2EFE8]">PLAYER TIERS</h2>
-                  <p className="text-[10px] font-mono text-[#555555] mt-0.5">Based on composite fantasy value score</p>
+                  <h2 className="font-display text-sm tracking-widest text-warm">PLAYER TIERS</h2>
+                  <p className="text-[10px] font-mono text-fade mt-0.5">Based on composite fantasy value score</p>
                 </div>
                 <motion.button
                   onClick={onClose}
-                  className="w-7 h-7 flex items-center justify-center text-[#555555] hover:text-[#F2EFE8] border border-[#484850] hover:border-[#3A3A3A] transition-colors"
+                  className="w-7 h-7 flex items-center justify-center text-fade hover:text-warm border border-rim hover:border-[#3A3A3A] transition-colors"
                   whileTap={{ scale: 0.88 }}
                 >
                   <X size={12} />
@@ -129,19 +129,19 @@ export function TierInfoModal({ open, onClose }: Props) {
                     {/* Labels */}
                     <div className="w-8 flex-shrink-0 pt-0.5">
                       <div className="text-[11px] font-mono font-bold" style={{ color }}>{short}</div>
-                      <div className="text-[9px] font-mono text-[#444444] mt-0.5">{range}</div>
+                      <div className="text-[9px] font-mono text-ghost mt-0.5">{range}</div>
                     </div>
                     {/* Name + desc */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs font-display tracking-wider text-[#F2EFE8]">{name}</div>
-                      <div className="text-[10px] font-mono text-[#666666] mt-0.5 leading-snug">{desc}</div>
+                      <div className="text-xs font-display tracking-wider text-warm">{name}</div>
+                      <div className="text-[10px] font-mono text-sub mt-0.5 leading-snug">{desc}</div>
                     </div>
                   </motion.div>
                 ))}
               </div>
 
               {/* Footer */}
-              <div className="px-4 py-2.5 border-t border-[#484850] bg-[#222226]">
+              <div className="px-4 py-2.5 border-t border-rim bg-[#222226]">
                 <p className="text-[9px] font-mono text-[#3A3A3A] text-center tracking-wider">
                   SCORES ARE RELATIVE TO POSITION AND LEAGUE FORMAT
                 </p>

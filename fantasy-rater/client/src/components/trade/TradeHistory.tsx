@@ -62,7 +62,7 @@ export function TradeHistory() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 size={18} className="animate-spin text-[#E8321A]" />
+        <Loader2 size={18} className="animate-spin text-signal" />
       </div>
     );
   }
@@ -74,8 +74,8 @@ export function TradeHistory() {
   if (!history.length) {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-3">
-        <History size={28} className="text-[#2A2A2A]" />
-        <p className="text-xs font-mono text-[#444444]">No trades rated yet — rate a trade to see it here</p>
+        <History size={28} className="text-surface-divider" />
+        <p className="text-xs font-mono text-ghost">No trades rated yet — rate a trade to see it here</p>
       </div>
     );
   }
@@ -93,45 +93,45 @@ export function TradeHistory() {
         >
           <div className="flex items-start justify-between gap-3 mb-2">
             <VerdictBadge verdict={trade.verdict} />
-            <span className="text-[9px] font-mono text-[#444444] flex-shrink-0">{relativeTime(trade.createdAt)}</span>
+            <span className="text-[9px] font-mono text-ghost flex-shrink-0">{relativeTime(trade.createdAt)}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             {/* Side A — what I give */}
             <div>
-              <p className="text-[9px] font-mono text-[#555555] uppercase tracking-widest mb-1">You give</p>
+              <p className="text-[9px] font-mono text-fade uppercase tracking-widest mb-1">You give</p>
               {trade.sideA.map(name => (
-                <p key={name} className="text-[11px] font-display font-black text-[#F2EFE8] truncate">{name}</p>
+                <p key={name} className="text-[11px] font-display font-black text-warm truncate">{name}</p>
               ))}
-              <p className="text-[10px] font-mono text-[#555555] mt-0.5">Score: {trade.sideAScore}</p>
+              <p className="text-[10px] font-mono text-fade mt-0.5">Score: {trade.sideAScore}</p>
             </div>
             {/* Side B — what I get */}
             <div>
-              <p className="text-[9px] font-mono text-[#555555] uppercase tracking-widest mb-1">You get</p>
+              <p className="text-[9px] font-mono text-fade uppercase tracking-widest mb-1">You get</p>
               {trade.sideB.map(name => (
-                <p key={name} className="text-[11px] font-display font-black text-[#F2EFE8] truncate">{name}</p>
+                <p key={name} className="text-[11px] font-display font-black text-warm truncate">{name}</p>
               ))}
-              <p className="text-[10px] font-mono text-[#555555] mt-0.5">Score: {trade.sideBScore}</p>
+              <p className="text-[10px] font-mono text-fade mt-0.5">Score: {trade.sideBScore}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 mt-2">
-            <span className="text-[9px] font-mono text-[#444444] uppercase">{trade.sport}</span>
+            <span className="text-[9px] font-mono text-ghost uppercase">{trade.sport}</span>
             <span className="text-[#333333]">·</span>
-            <span className="text-[9px] font-mono text-[#444444]">{trade.scoringFormat}</span>
+            <span className="text-[9px] font-mono text-ghost">{trade.scoringFormat}</span>
           </div>
 
           {trade.aiAnalysis && (
-            <div className="mt-2 border-t border-[#2A2A2A] pt-2">
+            <div className="mt-2 border-t border-surface-divider pt-2">
               <button
                 onClick={() => setExpandedId(expandedId === trade.id ? null : trade.id)}
-                className="flex items-center gap-1 text-[9px] font-mono text-[#555555] hover:text-[#E8321A] transition-colors uppercase tracking-widest"
+                className="flex items-center gap-1 text-[9px] font-mono text-fade hover:text-signal transition-colors uppercase tracking-widest"
               >
                 {expandedId === trade.id ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
                 AI Analysis
               </button>
               {expandedId === trade.id && (
-                <p className="text-[11px] font-mono text-[#AAAAAA] mt-2 leading-relaxed">
+                <p className="text-[11px] font-mono text-pale mt-2 leading-relaxed">
                   {trade.aiAnalysis}
                 </p>
               )}

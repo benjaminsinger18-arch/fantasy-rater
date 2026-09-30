@@ -46,21 +46,21 @@ function PlayerSlot({
   onSelect: (p: Player) => void;
   onClear: () => void;
 }) {
-  const accentColors = ['border-l-[#E8321A]', 'border-l-[#4DC878]', 'border-l-[#E8C432]', 'border-l-[#6B8CFF]'];
+  const accentColors = ['border-l-signal', 'border-l-emerald', 'border-l-[#E8C432]', 'border-l-[#6B8CFF]'];
   return (
-    <div className={`card-base border-l-4 flex flex-col min-w-0 ${accentColors[index] ?? 'border-l-[#484850]'}`}>
+    <div className={`card-base border-l-4 flex flex-col min-w-0 ${accentColors[index] ?? 'border-l-rim'}`}>
       <div className="px-3 pt-3 pb-2">
-        <h3 className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#555555] mb-2">
+        <h3 className="text-[10px] font-mono font-bold uppercase tracking-widest text-fade mb-2">
           Player {index + 1}
         </h3>
         <PlayerSearch onSelect={onSelect} placeholder="Search player..." />
       </div>
       {player && (
         <div className="px-3 pb-3">
-          <div className="flex items-center gap-3 p-2 bg-[#222226] border border-[#2A2A2A]">
+          <div className="flex items-center gap-3 p-2 bg-[#222226] border border-surface-divider">
             <div className="flex-1 min-w-0">
-              <p className="font-display font-black text-[#F2EFE8] text-sm truncate">{player.name}</p>
-              <p className="text-xs font-mono text-[#555555]">{player.position} · {player.team}</p>
+              <p className="font-display font-black text-warm text-sm truncate">{player.name}</p>
+              <p className="text-xs font-mono text-fade">{player.position} · {player.team}</p>
               {player.injuryStatus && (
                 <span className="inline-block mt-1 text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 bg-rose-500/20 text-rose-400">
                   {player.injuryStatus}
@@ -69,7 +69,7 @@ function PlayerSlot({
             </div>
             <button
               onClick={onClear}
-              className="text-[#484850] hover:text-[#F2EFE8] transition-colors flex-shrink-0"
+              className="text-rim hover:text-warm transition-colors flex-shrink-0"
             >
               <X size={14} />
             </button>
@@ -136,15 +136,15 @@ export function StartSit() {
   }
 
   const confidenceColor =
-    result?.confidence === 'Clear Start' ? 'text-[#4DC878]' :
+    result?.confidence === 'Clear Start' ? 'text-emerald' :
     result?.confidence === 'Start' ? 'text-[#6B8CFF]' : 'text-[#E8C432]';
 
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="hidden md:flex flex-col px-5 py-4 border-b border-[#2A2A2A] flex-shrink-0">
-        <h1 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">Start/Sit Optimizer</h1>
-        <p className="text-[10px] font-mono text-[#555555] mt-0.5 tracking-wider">Compare up to 4 players — get an AI-powered start recommendation</p>
+      <div className="hidden md:flex flex-col px-5 py-4 border-b border-surface-divider flex-shrink-0">
+        <h1 className="text-2xl font-display font-black text-warm tracking-wider">Start/Sit Optimizer</h1>
+        <p className="text-[10px] font-mono text-fade mt-0.5 tracking-wider">Compare up to 4 players — get an AI-powered start recommendation</p>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -173,7 +173,7 @@ export function StartSit() {
             {players.length < 4 && (
               <button
                 onClick={addSlot}
-                className="w-full py-2 border border-dashed border-[#484850] text-[#555555] hover:text-[#F2EFE8] hover:border-[#E8321A]/40 transition-colors text-xs font-mono flex items-center justify-center gap-1.5"
+                className="w-full py-2 border border-dashed border-rim text-fade hover:text-warm hover:border-signal/40 transition-colors text-xs font-mono flex items-center justify-center gap-1.5"
               >
                 <Plus size={12} />
                 Add Player ({players.length}/4)
@@ -183,7 +183,7 @@ export function StartSit() {
             <button
               onClick={handleCompare}
               disabled={!canCompare || loading}
-              className="w-full py-3.5 bg-[#E8321A] hover:bg-[#C82818] disabled:opacity-40 disabled:cursor-not-allowed text-white font-display font-black tracking-widest uppercase text-sm transition-colors flex items-center justify-center gap-2 mt-1"
+              className="w-full py-3.5 bg-signal hover:bg-signal-dark disabled:opacity-40 disabled:cursor-not-allowed text-white font-display font-black tracking-widest uppercase text-sm transition-colors flex items-center justify-center gap-2 mt-1"
             >
               {loading ? (
                 <><Loader2 size={14} className="animate-spin" /> Analyzing...</>
@@ -200,8 +200,8 @@ export function StartSit() {
             {!result && !loading && (
               <div className="h-full flex items-center justify-center min-h-[200px]">
                 <div className="text-center">
-                  <RefreshCw size={32} className="mx-auto mb-3 text-[#2A2A2A]" />
-                  <p className="text-xs font-mono text-[#444444]">Add 2–4 players and tap<br />Compare Players</p>
+                  <RefreshCw size={32} className="mx-auto mb-3 text-surface-divider" />
+                  <p className="text-xs font-mono text-ghost">Add 2–4 players and tap<br />Compare Players</p>
                 </div>
               </div>
             )}
@@ -212,18 +212,18 @@ export function StartSit() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="card-base p-4 border-l-4 border-l-[#4DC878]"
+                  className="card-base p-4 border-l-4 border-l-emerald"
                 >
-                  <p className="text-[10px] font-mono text-[#555555] uppercase tracking-widest mb-2">Recommendation</p>
+                  <p className="text-[10px] font-mono text-fade uppercase tracking-widest mb-2">Recommendation</p>
                   <div className="flex items-baseline gap-3">
-                    <span className="text-xl font-display font-black text-[#F2EFE8]">Start {result.recommended}</span>
+                    <span className="text-xl font-display font-black text-warm">Start {result.recommended}</span>
                     <span className={`text-xs font-mono font-bold ${confidenceColor}`}>{result.confidence}</span>
                   </div>
                 </motion.div>
 
                 {/* Ranked comparison */}
                 <div className="card-base p-4">
-                  <p className="text-[10px] font-mono text-[#555555] uppercase tracking-widest mb-3">Rankings</p>
+                  <p className="text-[10px] font-mono text-fade uppercase tracking-widest mb-3">Rankings</p>
                   <div className="flex flex-col gap-2">
                     {result.rankedPlayers.map((rp, i) => (
                       <motion.div
@@ -231,14 +231,14 @@ export function StartSit() {
                         initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.05 }}
-                        className={`flex items-center gap-3 p-2 ${i === 0 ? 'bg-[#4DC878]/5 border border-[#4DC878]/20' : 'bg-[#222226] border border-[#2A2A2A]'}`}
+                        className={`flex items-center gap-3 p-2 ${i === 0 ? 'bg-emerald/5 border border-emerald/20' : 'bg-[#222226] border border-surface-divider'}`}
                       >
-                        <div className={`w-5 h-5 flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0 ${i === 0 ? 'text-[#4DC878]' : 'text-[#555555]'}`}>
+                        <div className={`w-5 h-5 flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0 ${i === 0 ? 'text-emerald' : 'text-fade'}`}>
                           {i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className={`text-xs font-display font-black truncate ${i === 0 ? 'text-[#F2EFE8]' : 'text-[#8A8A8A]'}`}>{rp.name}</p>
-                          <p className="text-[10px] font-mono text-[#444444]">
+                          <p className={`text-xs font-display font-black truncate ${i === 0 ? 'text-warm' : 'text-soft'}`}>{rp.name}</p>
+                          <p className="text-[10px] font-mono text-ghost">
                             {rp.avg} avg · {rp.recent.length > 0 ? rp.recent.join(', ') : 'no data'}
                           </p>
                         </div>
@@ -251,8 +251,8 @@ export function StartSit() {
                 </div>
 
                 {/* AI Analysis */}
-                <div className="card-base p-4 border-l-4 border-l-[#E8321A]">
-                  <p className="text-[10px] font-mono text-[#E8321A] uppercase tracking-widest mb-3">AI Analysis</p>
+                <div className="card-base p-4 border-l-4 border-l-signal">
+                  <p className="text-[10px] font-mono text-signal uppercase tracking-widest mb-3">AI Analysis</p>
                   <StreamingAnalysis hash={result.analysisHash} />
                 </div>
               </div>

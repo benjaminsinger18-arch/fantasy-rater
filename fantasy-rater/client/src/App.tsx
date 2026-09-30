@@ -62,18 +62,6 @@ function AuthSync() {
   return null;
 }
 
-// ─── Living Background ──────────────────────────────────────────────────────
-function LivingBackground() {
-  return (
-    <div className="living-bg" aria-hidden>
-      <div className="blob blob-1" />
-      <div className="blob blob-2" />
-      <div className="blob blob-3" />
-      <div className="blob blob-4" />
-    </div>
-  );
-}
-
 // ─── Desktop Sidebar ────────────────────────────────────────────────────────
 function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial: () => void }) {
   const { config, setSport } = useLeague();
@@ -84,23 +72,23 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all duration-150 border-l-2 font-ui font-medium relative ${
       isActive
-        ? 'text-[#F2EFE8] border-[#E8321A] bg-[#E8321A]/5'
-        : 'text-[#888888] hover:text-[#CCCCCC] border-transparent hover:bg-[#2A2A2E]'
+        ? 'text-warm border-signal bg-signal/5'
+        : 'text-soft hover:text-[#CCCCCC] border-transparent hover:bg-[#2A2A2E]'
     }`;
 
   return (
-    <aside className="hidden md:flex w-56 flex-shrink-0 border-r border-white/[0.06] flex-col overflow-hidden" style={{ background: 'rgba(6,6,8,0.82)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
+    <aside className="hidden md:flex w-56 flex-shrink-0 border-r border-white/[0.06] flex-col overflow-hidden glass" style={{ background: 'rgba(6,6,8,0.82)' }}>
       <div className="px-4 py-4 border-b border-[#333338]">
         <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 border-2 border-[#E8321A] flex items-center justify-center flex-shrink-0">
-            <Trophy size={11} className="text-[#E8321A]" />
+          <div className="w-6 h-6 border-2 border-signal flex items-center justify-center flex-shrink-0">
+            <Trophy size={11} className="text-signal" />
           </div>
-          <span className="font-display text-lg font-black tracking-wide text-[#F2EFE8] uppercase">
+          <span className="font-display text-lg font-black tracking-wide text-warm uppercase">
             FantasyRater
           </span>
           <button
             onClick={onTutorial}
-            className="ml-auto w-5 h-5 border border-[#484850] hover:border-[#888888] text-[#444444] hover:text-[#888888] flex items-center justify-center text-[10px] font-mono transition-colors cursor-pointer flex-shrink-0"
+            className="ml-auto w-5 h-5 border border-rim hover:border-soft text-ghost hover:text-soft flex items-center justify-center text-[10px] font-mono transition-colors cursor-pointer flex-shrink-0"
             title="Show tutorial"
           >
             ?
@@ -109,7 +97,7 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
       </div>
 
       <div className="px-3 pt-4 pb-2">
-        <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-2 font-ui font-semibold">Sport</p>
+        <p className="text-[10px] text-sub uppercase tracking-wide px-1 mb-2 font-ui font-semibold">Sport</p>
         <div className="grid grid-cols-2 gap-1">
           {SPORTS.map(s => (
             <button
@@ -117,8 +105,8 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
               onClick={() => setSport(s.id)}
               className={`relative px-2 py-1.5 text-[12px] font-ui font-semibold border transition-colors rounded-sm ${
                 config.sport === s.id
-                  ? 'border-[#E8321A] text-[#F2EFE8] bg-[#E8321A]/10'
-                  : 'text-[#666666] border-[#333338] hover:text-[#AAAAAA] hover:border-[#555558]'
+                  ? 'border-signal text-warm bg-signal/10'
+                  : 'text-sub border-[#333338] hover:text-pale hover:border-[#555558]'
               }`}
             >
               {s.label}
@@ -130,7 +118,7 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
       <div className="relative flex-1 min-h-0">
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-[#06060A]/90 to-transparent z-10" />
       <nav className="px-3 pt-2 pb-6 flex flex-col gap-0.5 overflow-y-auto h-full">
-        <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-2 font-ui font-semibold">Core</p>
+        <p className="text-[10px] text-sub uppercase tracking-wide px-1 mb-1 mt-2 font-ui font-semibold">Core</p>
         {[
           { to: '/',         end: true, icon: <ArrowLeftRight size={14} className="flex-shrink-0" />, label: 'Trade Rater' },
           { to: '/startsit',            icon: <RefreshCw size={14} className="flex-shrink-0" />,      label: 'Start / Sit' },
@@ -142,7 +130,7 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
             {icon} {label}
           </NavLink>
         ))}
-        <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-4 font-ui font-semibold">More</p>
+        <p className="text-[10px] text-sub uppercase tracking-wide px-1 mb-1 mt-4 font-ui font-semibold">More</p>
         {[
           { to: '/matchup',   icon: <Swords size={14} className="flex-shrink-0" />,       label: 'Matchup',          pro: false },
           { to: '/chat',      icon: <MessageCircle size={14} className="flex-shrink-0" />, label: 'AI Advisor',       pro: !isPro },
@@ -153,10 +141,10 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
         ].map(({ to, icon, label, pro }) => (
           <NavLink key={to} to={to} className={linkClass}>
             {icon} {label}
-            {pro && <span className="ml-auto text-[10px] bg-[#E8321A]/10 text-[#E8321A] px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
+            {pro && <span className="ml-auto text-[10px] bg-signal/10 text-signal px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
           </NavLink>
         ))}
-        <p className="text-[10px] text-[#666666] uppercase tracking-wide px-1 mb-1 mt-4 font-ui font-semibold">Account</p>
+        <p className="text-[10px] text-sub uppercase tracking-wide px-1 mb-1 mt-4 font-ui font-semibold">Account</p>
         {[
           { to: '/leagues',  icon: <FolderOpen size={14} className="flex-shrink-0" />, label: 'My Leagues' },
           { to: '/league',   icon: <Settings size={14} className="flex-shrink-0" />,   label: 'League Setup' },
@@ -170,7 +158,7 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
       <div className="px-3 pt-3 pb-1 flex flex-col gap-2">
         <SignedOut>
           <SignInButton mode="modal">
-            <button className="w-full py-2 text-[13px] text-[#888888] hover:text-[#F2EFE8] border border-[#333338] hover:border-[#555558] transition-colors font-ui font-medium rounded">
+            <button className="w-full py-2 text-[13px] text-soft hover:text-warm border border-[#333338] hover:border-[#555558] transition-colors font-ui font-medium rounded">
               Sign In
             </button>
           </SignInButton>
@@ -179,7 +167,7 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
           {!isPro && (
             <button
               onClick={onUpgrade}
-              className="w-full py-2 text-[13px] font-ui font-semibold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-1.5 rounded"
+              className="w-full py-2 text-[13px] font-ui font-semibold text-white bg-signal hover:bg-signal-dark transition-colors flex items-center justify-center gap-1.5 rounded"
             >
               <Zap size={13} /> Upgrade to Pro
             </button>
@@ -187,28 +175,28 @@ function Sidebar({ onUpgrade, onTutorial }: { onUpgrade: () => void; onTutorial:
           <div className="flex items-center gap-2 px-1 py-1">
             <UserButton />
             <div className="flex flex-col min-w-0">
-              <span className="text-[#AAAAAA] text-[13px] font-ui truncate">{user?.firstName ?? 'My Account'}</span>
-              {isPro && <span className="text-[#E8321A] text-[11px] font-ui font-semibold">Pro</span>}
+              <span className="text-pale text-[13px] font-ui truncate">{user?.firstName ?? 'My Account'}</span>
+              {isPro && <span className="text-signal text-[11px] font-ui font-semibold">Pro</span>}
             </div>
           </div>
         </SignedIn>
       </div>
 
       <div className="px-3 py-4 border-t border-[#333338]">
-        <div className="border border-white/[0.07] rounded p-3" style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(12px)' }}>
-          <p className="text-[10px] text-[#666666] uppercase tracking-wide mb-2.5 font-ui font-semibold">League</p>
+        <div className="border border-white/[0.07] rounded p-3 glass-subtle" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <p className="text-[10px] text-sub uppercase tracking-wide mb-2.5 font-ui font-semibold">League</p>
           <div className="space-y-1.5">
             <div className="flex justify-between">
-              <span className="text-[#666666] text-[12px] font-ui">Format</span>
-              <span className="text-[#F2EFE8] text-[12px] font-mono font-medium">{config.scoringFormat}</span>
+              <span className="text-sub text-[12px] font-ui">Format</span>
+              <span className="text-warm text-[12px] font-mono font-medium">{config.scoringFormat}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#666666] text-[12px] font-ui">Teams</span>
-              <span className="text-[#F2EFE8] text-[12px] font-mono font-medium">{config.leagueSize}</span>
+              <span className="text-sub text-[12px] font-ui">Teams</span>
+              <span className="text-warm text-[12px] font-mono font-medium">{config.leagueSize}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#666666] text-[12px] font-ui">Week</span>
-              <span className="text-[#F2EFE8] text-[12px] font-mono font-medium">{config.currentWeek}</span>
+              <span className="text-sub text-[12px] font-ui">Week</span>
+              <span className="text-warm text-[12px] font-mono font-medium">{config.currentWeek}</span>
             </div>
           </div>
         </div>
@@ -225,22 +213,22 @@ function MobileHeader({ onAccountOpen }: { onAccountOpen: () => void }) {
   const isPro = tier === 'pro';
 
   return (
-    <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-2.5 border-b border-white/[0.06]" style={{ background: 'rgba(6,6,8,0.85)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
+    <header className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-2.5 border-b border-white/[0.06] glass" style={{ background: 'rgba(6,6,8,0.85)' }}>
       <div className="flex items-center gap-2">
-        <div className="w-5 h-5 border-2 border-[#E8321A] flex items-center justify-center flex-shrink-0">
-          <Trophy size={10} className="text-[#E8321A]" />
+        <div className="w-5 h-5 border-2 border-signal flex items-center justify-center flex-shrink-0">
+          <Trophy size={10} className="text-signal" />
         </div>
-        <span className="font-display text-base font-black tracking-wide text-[#F2EFE8] uppercase">
+        <span className="font-display text-base font-black tracking-wide text-warm uppercase">
           FantasyRater
         </span>
-        {isPro && <span className="text-[10px] bg-[#E8321A]/10 text-[#E8321A] px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
+        {isPro && <span className="text-[10px] bg-signal/10 text-signal px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
       </div>
       <div className="flex items-center gap-2">
         <select
           value={config.sport}
           onChange={e => setSport(e.target.value as Sport)}
           style={{ fontSize: '16px' }}
-          className="bg-[#2C2C31] text-[#F2EFE8] border border-[#333338] px-2 py-1.5 font-ui font-semibold focus:outline-none focus:border-[#E8321A] rounded"
+          className="bg-[#2C2C31] text-warm border border-[#333338] px-2 py-1.5 font-ui font-semibold focus:outline-none focus:border-signal rounded"
         >
           <option value="nfl">NFL</option>
           <option value="mlb">MLB</option>
@@ -249,12 +237,12 @@ function MobileHeader({ onAccountOpen }: { onAccountOpen: () => void }) {
         </select>
         <button
           onClick={onAccountOpen}
-          className="w-8 h-8 border border-[#484850] overflow-hidden flex items-center justify-center hover:border-[#888888] transition-colors"
+          className="w-8 h-8 border border-rim overflow-hidden flex items-center justify-center hover:border-soft transition-colors"
         >
           {user?.imageUrl ? (
             <img src={user.imageUrl} alt="" className="w-full h-full object-cover" />
           ) : (
-            <span className="text-[12px] font-ui font-semibold text-[#AAAAAA]">
+            <span className="text-[12px] font-ui font-semibold text-pale">
               {(user?.firstName?.[0] ?? user?.emailAddresses?.[0]?.emailAddress?.[0] ?? '?').toUpperCase()}
             </span>
           )}
@@ -277,7 +265,7 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-white/[0.07] flex items-stretch" style={{ background: 'rgba(6,6,8,0.88)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-white/[0.07] flex items-stretch glass" style={{ background: 'rgba(6,6,8,0.88)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {tabs.map(({ to, icon: Icon, label, end }) => {
         const isActive = end ? location.pathname === to : location.pathname === to || location.pathname.startsWith(to + '/');
         return (
@@ -286,13 +274,13 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
             to={to}
             end={end}
             className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-ui font-medium uppercase transition-colors relative ${
-              isActive ? 'text-[#F2EFE8]' : 'text-[#666666] active:text-[#AAAAAA]'
+              isActive ? 'text-warm' : 'text-sub active:text-pale'
             }`}
           >
             {isActive && (
               <motion.div
                 layoutId="bottom-nav-indicator"
-                className="absolute top-0 left-4 right-4 h-0.5 bg-[#E8321A] rounded-full"
+                className="absolute top-0 left-4 right-4 h-0.5 bg-signal rounded-full"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
@@ -303,7 +291,7 @@ function BottomNav({ onMoreOpen }: { onMoreOpen: () => void }) {
       })}
       <button
         onClick={onMoreOpen}
-        className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-ui font-medium uppercase text-[#666666] active:text-[#AAAAAA] transition-colors"
+        className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-ui font-medium uppercase text-sub active:text-pale transition-colors"
       >
         <MoreHorizontal size={20} />
         More
@@ -338,26 +326,26 @@ function AccountSheet({ open, onClose, onUpgrade }: { open: boolean; onClose: ()
             onClick={onClose}
           />
           <motion.div
-            className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.08]"
-            style={{ background: 'rgba(8,8,12,0.94)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+            className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.08] glass-heavy"
+            style={{ background: 'rgba(8,8,12,0.94)', paddingBottom: 'env(safe-area-inset-bottom)' }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 350 }}
           >
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-8 h-0.5 bg-[#2A2A2A]" />
+              <div className="w-8 h-0.5 bg-surface-divider" />
             </div>
 
             <div className="px-4 py-3 flex items-center gap-3 border-b border-[#2A2A2E]">
               <UserButton />
               <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-ui text-[#F2EFE8] truncate">
+                <p className="text-[14px] font-ui text-warm truncate">
                   {user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress ?? 'My Account'}
                 </p>
-                <p className="text-[12px] font-ui text-[#666666]">{isPro ? 'Pro member' : 'Free plan'}</p>
+                <p className="text-[12px] font-ui text-sub">{isPro ? 'Pro member' : 'Free plan'}</p>
               </div>
-              {isPro && <span className="text-[10px] bg-[#E8321A]/10 text-[#E8321A] px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
+              {isPro && <span className="text-[10px] bg-signal/10 text-signal px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
             </div>
 
             <div className="px-4 py-3 space-y-0.5">
@@ -369,18 +357,18 @@ function AccountSheet({ open, onClose, onUpgrade }: { open: boolean; onClose: ()
                 <button
                   key={path}
                   onClick={() => go(path)}
-                  className="w-full flex items-center gap-3 px-3 py-3 text-[#AAAAAA] hover:text-[#F2EFE8] hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
+                  className="w-full flex items-center gap-3 px-3 py-3 text-pale hover:text-warm hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
                 >
                   <Icon size={16} /> {label}
                 </button>
               ))}
 
-              <div className="h-px bg-[#2A2A2A] my-2" />
+              <div className="h-px bg-surface-divider my-2" />
 
               {!isPro && (
                 <button
                   onClick={() => { onUpgrade(); onClose(); }}
-                  className="w-full py-3 mb-1 text-[14px] font-ui font-semibold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-2 rounded"
+                  className="w-full py-3 mb-1 text-[14px] font-ui font-semibold text-white bg-signal hover:bg-signal-dark transition-colors flex items-center justify-center gap-2 rounded"
                 >
                   <Zap size={14} /> Upgrade to Pro
                 </button>
@@ -388,7 +376,7 @@ function AccountSheet({ open, onClose, onUpgrade }: { open: boolean; onClose: ()
 
               <button
                 onClick={() => signOut()}
-                className="w-full flex items-center gap-3 px-3 py-3 text-[#666666] hover:text-[#F2EFE8] hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
+                className="w-full flex items-center gap-3 px-3 py-3 text-sub hover:text-warm hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
               >
                 <LogOut size={16} /> Sign Out
               </button>
@@ -434,39 +422,39 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
             onClick={onClose}
           />
           <motion.div
-            className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.08]"
-            style={{ background: 'rgba(8,8,12,0.94)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+            className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.08] glass-heavy"
+            style={{ background: 'rgba(8,8,12,0.94)', paddingBottom: 'env(safe-area-inset-bottom)' }}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 350 }}
           >
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-8 h-0.5 bg-[#2A2A2A]" />
+              <div className="w-8 h-0.5 bg-surface-divider" />
             </div>
 
             <div className="px-4 py-3 space-y-0.5">
-              <p className="text-[10px] text-[#666666] uppercase tracking-wide font-ui font-semibold px-2 pb-1">
+              <p className="text-[10px] text-sub uppercase tracking-wide font-ui font-semibold px-2 pb-1">
                 More Tools
               </p>
               {menuItems.map(({ icon: Icon, label, path, pro }) => (
                 <button
                   key={path}
                   onClick={() => go(path)}
-                  className="w-full flex items-center gap-3 px-3 py-3 text-[#AAAAAA] hover:text-[#F2EFE8] hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
+                  className="w-full flex items-center gap-3 px-3 py-3 text-pale hover:text-warm hover:bg-[#2A2A2E] transition-colors text-[14px] font-ui rounded"
                 >
                   <Icon size={16} />
                   <span>{label}</span>
-                  {pro && !isPro && <span className="ml-auto text-[10px] bg-[#E8321A]/10 text-[#E8321A] px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
+                  {pro && !isPro && <span className="ml-auto text-[10px] bg-signal/10 text-signal px-1.5 py-px font-ui font-semibold rounded-sm">Pro</span>}
                 </button>
               ))}
 
               {!isPro && (
                 <>
-                  <div className="h-px bg-[#2A2A2A] my-2" />
+                  <div className="h-px bg-surface-divider my-2" />
                   <button
                     onClick={() => { onUpgrade(); onClose(); }}
-                    className="w-full py-3 text-[14px] font-ui font-semibold text-white bg-[#E8321A] hover:bg-[#C82818] transition-colors flex items-center justify-center gap-2 rounded"
+                    className="w-full py-3 text-[14px] font-ui font-semibold text-white bg-signal hover:bg-signal-dark transition-colors flex items-center justify-center gap-2 rounded"
                   >
                     <Zap size={14} /> Upgrade to Pro
                   </button>
@@ -484,7 +472,7 @@ function MobileMenu({ open, onClose, onUpgrade }: { open: boolean; onClose: () =
 function PageLoader() {
   return (
     <div className="h-full flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-[#E8321A] border-t-transparent animate-spin" />
+      <div className="w-6 h-6 border-2 border-signal border-t-transparent animate-spin" />
     </div>
   );
 }
@@ -556,7 +544,6 @@ export default function App() {
   if (!isSignedIn) return (
     <BrowserRouter>
       <AuthSync />
-      <LivingBackground />
       <AuthGatePage />
     </BrowserRouter>
   );
@@ -564,7 +551,6 @@ export default function App() {
   return (
     <LeagueProvider>
       <BrowserRouter>
-        <LivingBackground />
         <AuthSync />
         <OnboardingTutorial
           open={tutorialOpen}
@@ -591,7 +577,7 @@ export default function App() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -48, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-              className="fixed top-0 inset-x-0 z-[200] bg-[#E8321A] text-white flex items-center justify-center gap-3 py-2.5 px-4"
+              className="fixed top-0 inset-x-0 z-[200] bg-signal text-white flex items-center justify-center gap-3 py-2.5 px-4"
             >
               <Zap size={14} className="flex-shrink-0" />
               <span className="text-xs font-mono font-bold tracking-widest uppercase">Pro activated — welcome to the elite tier</span>

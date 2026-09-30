@@ -40,17 +40,17 @@ function StarterRow({ slot, index }: { slot: LineupSlot; index: number }) {
   return (
     <motion.div
       variants={itemVariants}
-      className="flex items-center gap-2 px-2 py-2 border-b border-[#2A2A2A] last:border-0"
+      className="flex items-center gap-2 px-2 py-2 border-b border-surface-divider last:border-0"
     >
-      <div className="w-5 text-[9px] font-mono text-[#444444] flex-shrink-0 text-right">{index + 1}</div>
-      <div className="w-14 text-center text-[9px] font-mono font-bold text-[#E8321A] bg-[#E8321A]/10 px-1 py-0.5 flex-shrink-0">
+      <div className="w-5 text-[9px] font-mono text-ghost flex-shrink-0 text-right">{index + 1}</div>
+      <div className="w-14 text-center text-[9px] font-mono font-bold text-signal bg-signal/10 px-1 py-0.5 flex-shrink-0">
         {slot.position}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-xs font-display font-black text-[#F2EFE8] truncate">{slot.player.name}</div>
-        <div className="text-[9px] font-mono text-[#555555]">{slot.player.team}</div>
+        <div className="text-xs font-display font-black text-warm truncate">{slot.player.name}</div>
+        <div className="text-[9px] font-mono text-fade">{slot.player.team}</div>
       </div>
-      <div className="text-[10px] font-mono text-[#555555] flex-shrink-0">{Math.round(slot.score)}</div>
+      <div className="text-[10px] font-mono text-fade flex-shrink-0">{Math.round(slot.score)}</div>
       <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dot }} title={slot.confidence} />
     </motion.div>
   );
@@ -58,10 +58,10 @@ function StarterRow({ slot, index }: { slot: LineupSlot; index: number }) {
 
 function BenchRow({ player }: { player: Player }) {
   return (
-    <div className="flex items-center gap-2 px-2 py-1.5 border-b border-[#2A2A2A] last:border-0 opacity-40">
-      <div className="w-14 text-center text-[9px] font-mono text-[#555555] flex-shrink-0">{player.position}</div>
-      <div className="flex-1 min-w-0 text-xs font-mono text-[#666666] truncate">{player.name}</div>
-      <div className="text-[9px] font-mono text-[#444444] flex-shrink-0">{player.team}</div>
+    <div className="flex items-center gap-2 px-2 py-1.5 border-b border-surface-divider last:border-0 opacity-40">
+      <div className="w-14 text-center text-[9px] font-mono text-fade flex-shrink-0">{player.position}</div>
+      <div className="flex-1 min-w-0 text-xs font-mono text-sub truncate">{player.name}</div>
+      <div className="text-[9px] font-mono text-ghost flex-shrink-0">{player.team}</div>
     </div>
   );
 }
@@ -121,14 +121,14 @@ export function LineupOptimizer() {
   return (
     <div className="flex flex-col md:flex-row h-full">
       {/* Left: Roster builder */}
-      <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-[#2A2A2A] min-w-0">
+      <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 border-b md:border-b-0 md:border-r border-surface-divider min-w-0">
         <div className="hidden md:block flex-shrink-0 mb-4">
-          <h1 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">Lineup Optimizer</h1>
-          <p className="text-[10px] font-mono text-[#555555] mt-0.5 tracking-wider">AI-optimized starting lineup from your full roster</p>
+          <h1 className="text-2xl font-display font-black text-warm tracking-wider">Lineup Optimizer</h1>
+          <p className="text-[10px] font-mono text-fade mt-0.5 tracking-wider">AI-optimized starting lineup from your full roster</p>
           {usageInfo && usageInfo.limit !== null && (
-            <p className="text-[9px] font-mono text-[#555555] mt-1">
+            <p className="text-[9px] font-mono text-fade mt-1">
               {usageInfo.limit} optimizations/day ·{' '}
-              <span className={usageInfo.remaining === 0 ? 'text-[#E8321A]' : 'text-[#4DC878]'}>
+              <span className={usageInfo.remaining === 0 ? 'text-signal' : 'text-emerald'}>
                 {usageInfo.remaining} remaining
               </span>
             </p>
@@ -139,7 +139,7 @@ export function LineupOptimizer() {
         <button
           onClick={handleImport}
           disabled={importing || !config.leagueId}
-          className="w-full py-2.5 border border-[#484850] bg-[#2C2C31] text-xs font-mono font-bold text-[#8A8A8A] hover:text-[#F2EFE8] hover:border-[#E8321A]/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 mb-3 flex-shrink-0"
+          className="w-full py-2.5 border border-rim bg-[#2C2C31] text-xs font-mono font-bold text-soft hover:text-warm hover:border-signal/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 mb-3 flex-shrink-0"
         >
           {importing ? <Loader2 size={12} className="animate-spin" /> : null}
           {config.sport === 'fpl' ? 'Import FPL Team' : config.sport === 'mlb' ? 'Import ESPN Roster' : 'Import Sleeper Roster'}
@@ -157,8 +157,8 @@ export function LineupOptimizer() {
         <div className="flex-1 min-h-0 overflow-y-auto mb-3">
           {players.length === 0 ? (
             <div className="text-center py-8">
-              <ClipboardList size={28} className="mx-auto mb-2 text-[#2A2A2A]" />
-              <p className="text-xs font-mono text-[#444444]">Import your roster or add players manually</p>
+              <ClipboardList size={28} className="mx-auto mb-2 text-surface-divider" />
+              <p className="text-xs font-mono text-ghost">Import your roster or add players manually</p>
             </div>
           ) : (
             <div className="space-y-0">
@@ -168,14 +168,14 @@ export function LineupOptimizer() {
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.15 }}
-                  className="flex items-center gap-2 px-2 py-1.5 border-b border-[#2A2A2A] hover:bg-[#2C2C31] group"
+                  className="flex items-center gap-2 px-2 py-1.5 border-b border-surface-divider hover:bg-[#2C2C31] group"
                 >
-                  <div className="w-10 text-[9px] font-mono text-[#555555]">{p.position}</div>
-                  <div className="flex-1 min-w-0 text-xs font-mono text-[#F2EFE8] truncate">{p.name}</div>
-                  <div className="text-[9px] font-mono text-[#444444] mr-1">{p.team}</div>
+                  <div className="w-10 text-[9px] font-mono text-fade">{p.position}</div>
+                  <div className="flex-1 min-w-0 text-xs font-mono text-warm truncate">{p.name}</div>
+                  <div className="text-[9px] font-mono text-ghost mr-1">{p.team}</div>
                   <button
                     onClick={() => setPlayers(prev => prev.filter((_, idx) => idx !== i))}
-                    className="text-[#444444] hover:text-[#E8321A] opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="text-ghost hover:text-signal opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <X size={10} />
                   </button>
@@ -185,7 +185,7 @@ export function LineupOptimizer() {
           )}
         </div>
 
-        <div className="text-[10px] font-mono text-[#444444] flex-shrink-0 mb-2">
+        <div className="text-[10px] font-mono text-ghost flex-shrink-0 mb-2">
           {players.length} players loaded
         </div>
 
@@ -194,7 +194,7 @@ export function LineupOptimizer() {
         <button
           onClick={handleOptimize}
           disabled={loading || players.length < 5}
-          className="w-full py-3.5 bg-[#E8321A] hover:bg-[#C82818] disabled:opacity-40 disabled:cursor-not-allowed text-white font-display font-black tracking-widest uppercase text-sm transition-colors flex-shrink-0 flex items-center justify-center gap-2"
+          className="w-full py-3.5 bg-signal hover:bg-signal-dark disabled:opacity-40 disabled:cursor-not-allowed text-white font-display font-black tracking-widest uppercase text-sm transition-colors flex-shrink-0 flex items-center justify-center gap-2"
         >
           {loading
             ? <><Loader2 size={14} className="animate-spin" /> Optimizing...</>
@@ -206,8 +206,8 @@ export function LineupOptimizer() {
       {/* Right: Results */}
       <div className="w-full md:w-1/2 flex flex-col p-4 md:p-5 min-w-0 overflow-y-auto">
         <div className="hidden md:block flex-shrink-0 mb-4">
-          <h2 className="text-2xl font-display font-black text-[#F2EFE8] tracking-wider">Optimal Lineup</h2>
-          <p className="text-[10px] font-mono text-[#555555] mt-0.5">Results appear here after optimizing</p>
+          <h2 className="text-2xl font-display font-black text-warm tracking-wider">Optimal Lineup</h2>
+          <p className="text-[10px] font-mono text-fade mt-0.5">Results appear here after optimizing</p>
         </div>
 
         <AnimatePresence mode="wait">
@@ -220,8 +220,8 @@ export function LineupOptimizer() {
               className="flex-1 flex items-center justify-center min-h-[200px]"
             >
               <div className="text-center">
-                <Zap size={28} className="mx-auto mb-3 text-[#E8321A] animate-pulse" />
-                <p className="text-xs font-mono text-[#555555]">Building optimal lineup...</p>
+                <Zap size={28} className="mx-auto mb-3 text-signal animate-pulse" />
+                <p className="text-xs font-mono text-fade">Building optimal lineup...</p>
               </div>
             </motion.div>
           )}
@@ -235,8 +235,8 @@ export function LineupOptimizer() {
               className="flex-1 flex items-center justify-center min-h-[200px]"
             >
               <div className="text-center">
-                <Zap size={28} className="mx-auto mb-3 text-[#2A2A2A]" />
-                <p className="text-xs font-mono text-[#444444]">Import your roster and tap<br />Optimize Lineup</p>
+                <Zap size={28} className="mx-auto mb-3 text-surface-divider" />
+                <p className="text-xs font-mono text-ghost">Import your roster and tap<br />Optimize Lineup</p>
               </div>
             </motion.div>
           )}
@@ -250,7 +250,7 @@ export function LineupOptimizer() {
               className="flex flex-col gap-3"
             >
               {/* Confidence legend */}
-              <div className="flex items-center gap-3 text-[9px] font-mono text-[#555555]">
+              <div className="flex items-center gap-3 text-[9px] font-mono text-fade">
                 {(['high', 'medium', 'low'] as const).map(c => (
                   <span key={c} className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: CONFIDENCE_COLOR[c] }} />
@@ -260,9 +260,9 @@ export function LineupOptimizer() {
               </div>
 
               {/* Starters */}
-              <div className="card-base border-l-4 border-l-[#4DC878] overflow-hidden">
-                <div className="px-3 py-2 border-b border-[#2A2A2A]">
-                  <p className="text-[10px] font-mono font-bold text-[#4DC878] uppercase tracking-widest">
+              <div className="card-base border-l-4 border-l-emerald overflow-hidden">
+                <div className="px-3 py-2 border-b border-surface-divider">
+                  <p className="text-[10px] font-mono font-bold text-emerald uppercase tracking-widest">
                     Starters · {result.starters.length} slots
                   </p>
                 </div>
@@ -275,9 +275,9 @@ export function LineupOptimizer() {
 
               {/* Bench */}
               {result.bench.length > 0 && (
-                <div className="card-base border-l-4 border-l-[#484850] overflow-hidden">
-                  <div className="px-3 py-2 border-b border-[#2A2A2A]">
-                    <p className="text-[10px] font-mono font-bold text-[#555555] uppercase tracking-widest">
+                <div className="card-base border-l-4 border-l-rim overflow-hidden">
+                  <div className="px-3 py-2 border-b border-surface-divider">
+                    <p className="text-[10px] font-mono font-bold text-fade uppercase tracking-widest">
                       Bench · {result.bench.length} players
                     </p>
                   </div>
@@ -288,8 +288,8 @@ export function LineupOptimizer() {
               )}
 
               {/* AI Analysis */}
-              <div className="card-base p-4 border-l-4 border-l-[#E8321A]">
-                <h3 className="text-[10px] font-mono font-bold text-[#E8321A] uppercase tracking-widest mb-3">AI Analysis</h3>
+              <div className="card-base p-4 border-l-4 border-l-signal">
+                <h3 className="text-[10px] font-mono font-bold text-signal uppercase tracking-widest mb-3">AI Analysis</h3>
                 <StreamingAnalysis hash={result.analysisHash} />
               </div>
             </motion.div>
