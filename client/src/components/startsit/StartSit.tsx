@@ -121,7 +121,7 @@ export function StartSit() {
     setResult(null);
     try {
       const data = await compareStartSit({
-        players: filledPlayers,
+        players: filledPlayers.map((p) => ({ ...p, injuryStatus: p.injuryStatus ?? undefined })),
         sport: config.sport,
         scoringFormat: config.scoringFormat,
         week: config.currentWeek,

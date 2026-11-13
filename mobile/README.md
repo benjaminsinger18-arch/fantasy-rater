@@ -9,7 +9,7 @@ cd mobile
 npm install
 ```
 
-Copy `.env.local` and fill in your values:
+Create `.env.local` with your values:
 ```
 EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...  # same key as web app
 EXPO_PUBLIC_API_URL=https://your-railway-url.railway.app/api
